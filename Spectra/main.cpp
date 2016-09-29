@@ -1,4 +1,5 @@
-#include <vulkan/vulkan.h>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -7,6 +8,7 @@
 class HelloTriangleApplication {
 public:
 	void run() {
+		initWindow();
 		initVulkan();
 		mainLoop();
 	}
@@ -19,6 +21,16 @@ private:
 	void mainLoop() {
 		 
 	}
+
+	void initWindow() {
+		glfwInit();
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+		window = glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
+	}
+
+	GLFWwindow *window;
 };
 
 int main() {
