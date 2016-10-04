@@ -123,9 +123,27 @@ private:
 		createSemafores();
 	}
 
+	void recreateSwapChain() {
+		vkDeviceWaitIdle(device);
+
+		createSwapChain();
+		createImageViews();
+		createRenderPass();
+		createGraphicsPipeline();
+		createFramebuffers();
+		createCommandBuffers();
+	}
+
 	void drawFrame() {
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+			recreateSwapChain();
+			return;
+		} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+			throw std::runtime_error("failed to acquire swap chain image!");
+		}
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -157,7 +175,14 @@ private:
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
 		presentInfo.pResults = nullptr; // Optional
-		vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+			recreateSwapChain();
+		} else if (result != VK_SUCCESS) {
+			throw std::runtime_error("failed to present swap chain image!");
+		}
 	}
 
 	void createSemafores() {
@@ -172,6 +197,10 @@ private:
 	}
 
 	void createCommandBuffers() {
+		if (commandBuffers.size() > 0) {
+			vkFreeCommandBuffers(device, commandPool, commandBuffers.size(), commandBuffers.data());
+		}
+
 		commandBuffers.resize(swapChainFramebuffers.size());
 
 		VkCommandBufferAllocateInfo allocInfo = {};
@@ -455,8 +484,6 @@ private:
 
 		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, graphicsPipeline.replace()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create graphics pipeline!");
-		} else {
-			std::cout << "Pipeline created\n";
 		}
 	}
 
@@ -559,9 +586,15 @@ private:
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, swapChain.replace()) != VK_SUCCESS) {
+		VkSwapchainKHR oldSwapChain = swapChain;
+		createInfo.oldSwapchain = oldSwapChain;
+
+		VkSwapchainKHR newSwapChain;
+		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &newSwapChain) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
 		}
+
+		swapChain = newSwapChain;
 
 		vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
 		swapChainImages.resize(imageCount);
@@ -652,8 +685,6 @@ private:
 
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, device.replace()) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to create logical device!");
-		} else {
-			std::cout << "Created logical device." << std::endl;
 		}
 
 		vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
@@ -803,9 +834,8 @@ private:
 
 		if (CreateDebugReportCallbackEXT(instance, &createInfo, nullptr, callback.replace()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to set up debug callback!");
-		} else {
-			std::cout << "Created debug callback\n";
 		}
+
 	}
 
 	void createInstance() {
@@ -826,10 +856,7 @@ private:
 		createInfo.enabledExtensionCount = extensions.size();
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-		std::cout << "required extensions:" << std::endl;
-		for (auto a : extensions) {
-			std::cout << "\t" << a << std::endl;
-		}
+
 
 
 		createInfo.enabledLayerCount = 0;
@@ -916,12 +943,22 @@ private:
 		return true;
 	}
 
+	static void onWindowResized(GLFWwindow* window, int width, int height) {
+		if (width == 0 || height == 0) return;
+
+		HelloTriangleApplication* app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+		app->recreateSwapChain();
+	}
+
 	void initWindow() {
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+
+		glfwSetWindowUserPointer(window, this);
+		glfwSetWindowSizeCallback(window, HelloTriangleApplication::onWindowResized);
 	}
 
 	GLFWwindow *window;
