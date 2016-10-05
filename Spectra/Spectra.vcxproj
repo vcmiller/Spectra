@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../Libraries/vulkan/Bin32/;../Libraries/glfw/lib-win32/;$(VC_IncludePath);$(WindowsSDK_IncludePath);../Libraries/glm/;../Libraries/glfw/include/;../Libraries/vulkan/Include/;</IncludePath>
+    <IncludePath>../Libraries/vulkan/Bin32/;../Libraries/glfw/lib-win32/;$(VC_IncludePath);$(WindowsSDK_IncludePath);../Libraries/glm/;../Libraries/glfw/include/;../Libraries/vulkan/Include/;../Libraries/stb/</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -92,7 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Libraries/glm/;../Libraries/glfw/include/;../Libraries/vulkan/Include/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Libraries/stb/;../Libraries/glm/;../Libraries/glfw/include/;../Libraries/vulkan/Include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
