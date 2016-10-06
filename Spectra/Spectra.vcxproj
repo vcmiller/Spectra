@@ -159,16 +159,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Property.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="VReference.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\icon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Spectra.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
