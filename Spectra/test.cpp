@@ -5,6 +5,7 @@
 #include <iostream>
 
 using namespace util;
+using namespace spectra::internal;
 using namespace spectra;
 using namespace std;
 
@@ -39,4 +40,8 @@ void main() {
 	cout << mat << std::endl;
 
 	cout << mat * vec << std::endl;
+
+	Vector<3, Vector3> v = vec;
+
+	vec = v;
 }
