@@ -160,12 +160,14 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Property.h" />
+    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="VReference.h" />
   </ItemGroup>

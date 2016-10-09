@@ -33,15 +33,11 @@ private:
 void main() {
 	Vector3 vec(2, 3, 0);
 
-	cout << vec << std::endl << std::endl;
+	Vector3 vec2(3, 1, 2);
 
-	Matrix3 mat;
+	Vector3 r = vec + vec2;
 
-	cout << mat << std::endl;
-
-	cout << mat * vec << std::endl;
-
-	Vector<3, Vector3> v = vec;
-
-	vec = v;
+	std::cout << Vector3::lerp(vec, vec2, 0.5f) << std::endl;
+	glm::vec3 v1(2, 3, 0);
+	glm::vec3 v2(3, 1, 2);
 }

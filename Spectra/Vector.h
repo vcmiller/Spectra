@@ -2,54 +2,84 @@
 #include <math.h>
 #include <ostream>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
 namespace spectra {
 	namespace internal {
-		// A generic Vector structure, with components stored in a fixed array.
+		// A generic Vector structure, with components stored in a GLM vector.
 		// First type parameter is number of components.
 		// Second is the subclass returned by vector operations.
-		template <char S, class T> class Vector {
+		// Third is base GLM type
+		template <char S, class T, class G> class Vector {
 		public:
 			// Default constructor, no initialization
 			Vector() {}
 
 			// Get a reference to the component at the given index.
 			float &operator [] (int index) {
-				return data[index];
+				return vec[index];
 			}
 
 			// Get the value of the component at the given index.
 			float get(int index) const {
-				return data[index];
+				return vec[index];
 			}
 
 			// Compute the dot product of two vectors.
 			static float dot(const T &v1, const T &v2) {
-				float f = 0;
-
-				for (int i = 0; i < S; i++) {
-					f += v1[i] * v2[i];
-				}
-
-				return f;
+				return glm::dot(v1.vec, v2.vec);
 			}
 
 			// Compute the angle between two vectors, in radians.
 			static float angle(const T &v1, const T &v2) {
-				float d = dot(v1.normalized(), v2.normalized());
+				return glm::angle(glm::normalize(v1.vec), glm::normalize(v2.vec));
+			}
 
-				return acos(d);
+			// Linear interoplation between two vectors.
+			static T lerp(const T &v1, const T &v2, float f) {
+				T result;
+				result.vec = v1.vec * (1.0f - f) + v2.vec * f;
+				return result;
+			}
+
+			// Move vector towards another vector by absolute distance.
+			static T moveTowards(const T &v1, const T &v2, float maxDelta) {
+				T result;
+				float f = distance(v1, v2);
+
+				if (f <= maxDelta) {
+					return v2;
+				} else {
+					float dir = (v2 - v1) / f;
+
+					result.vec = v1.vec + dir * maxDelta;
+					return result;
+				}
 			}
 
 			// Compute the magnitude of the vector.
 			// As this is a fairly expensive operation, it is recommended to use sqrMagnitude() if possible.
 			float magnitude() const {
-				return sqrt(sqrMagnitude());
+				return glm::length(vec);
 			}
 
 			// Compute the square magnitude of the vector.
 			// This is far less expensive than magnitude(), as it doesn't require a square root computation.
 			float sqrMagnitude() const {
-				return dot(*this, *this);
+				return glm::dot(vec, vec);
+			}
+
+			// Compute distance between vectors.
+			static float distance(const T &v1, const T &v2) {
+				return (v1 - v2).magnitude();
+			}
+
+			// Compute square distance between vectors.
+			static float sqrDistance(const T &v1, const T &v2) {
+				return (v1 - v2).sqrMagnitude();
 			}
 
 			// Return a normalized version of this vector (length 1, same direction).
@@ -60,22 +90,14 @@ namespace spectra {
 			// Compute the sum of two vectors.
 			T operator+(const T &rhs) const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i) + rhs.get(i);
-				}
-
+				result.vec = vec + rhs.vec;
 				return result;
 			}
 
 			// Compute the difference of two vectors.
 			T operator-(const T &rhs) const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i) - rhs.get(i);
-				}
-
+				result.vec = vec - rhs.vec;
 				return result;
 			}
 
@@ -83,121 +105,81 @@ namespace spectra {
 			// This is not technically a valid vector operation, but is often helpful for scaling.
 			T operator*(const T &rhs) const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i) * rhs.get(i);
-				}
-
+				result.vec = vec * rhs.vec;
 				return result;
 			}
 
 			// Compute the product of this vector and a scalar.
 			T operator*(float rhs) const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i) * rhs;
-				}
-
+				result.vec = vec * rhs;
 				return result;
 			}
 
 			// Compute the result of dividing this vector by a scalar.
 			T operator/(float rhs) const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i) / rhs;
-				}
-
+				result.vec = vec / rhs;
 				return result;
 			}
 
 			// Determine if two vectors are equal.
 			bool operator==(const T &rhs) const {
-				bool result = true;
-
-				for (int i = 0; i < S; i++) {
-					result &= (get(i) == rhs.get(i));
-				}
-
-				return result;
+				return vec == rhs.vec;
 			}
 
 			// Determine if two vectors are unequal.
 			bool operator!=(const T &rhs) const {
-				bool result = true;
-
-				for (int i = 0; i < S; i++) {
-					result &= (get(i) != rhs.get(i));
-				}
-
-				return result;
+				return vec != rhs.vec;
 			}
 
 			// Return the negation of this vector.
 			T operator-() const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = -get(i);
-				}
+				result.vec = -vec;
+				return result;
 			}
 
 			// In-place addition.
 			void operator+=(const T &rhs) {
-				for (int i = 0; i < S; i++) {
-					data[i] += rhs.get(i);
-				}
+				vec += rhs.vec;
 			}
 
 			// In-place subtraction.
 			void operator-=(const T &rhs) {
-				for (int i = 0; i < S; i++) {
-					data[i] -= rhs.get(i);
-				}
+				vec -= rhs.vec;
 			}
 
 			// In-place component multiplication.
 			void operator*=(const T &rhs) {
-				for (int i = 0; i < S; i++) {
-					data[i] *= rhs.get(i);
-				}
+				vec *= rhs.vec;
 			}
 
 			// In-place scalar multiplication.
 			void operator*=(float f) {
-				for (int i = 0; i < S; i++) {
-					data[i] *= f;
-				}
+				vec *= f;
 			}
 
 			// In-place scalar division.
 			void operator/=(float f) {
-				for (int i = 0; i < S; i++) {
-					data[i] /= f;
-				}
+				vec /= f;
 			}
 
 			// Implicitly cast to subtype.
 			operator T() const {
 				T result;
-
-				for (int i = 0; i < S; i++) {
-					result[i] = get(i);
-				}
-
+				result.vec = vec;
 				return result;
 			}
 
 		protected:
 			// Components of this vector.
-			float data[S];
+			G vec;
 		};
 
 		// Output a vector to a stream.
-		template<char S, typename T> std::ostream &operator<<(std::ostream &stream, const Vector<S, T> &vec) {
-			stream << "(";
+		template<char S, class T, class G> std::ostream &operator<<(std::ostream &stream, const Vector<S, T, G> &vec) {
+ 			stream << "(";
 			for (int i = 0; i < S; i++) {
 				stream << vec.get(i);
 				if (i < S - 1) {
@@ -212,7 +194,7 @@ namespace spectra {
 	}
 
 	// A two-component vector.
-	class Vector2 : public internal::Vector<2, Vector2> {
+	class Vector2 : public internal::Vector<2, Vector2, glm::vec2> {
 	public:
 		// Initialize x and y.
 		Vector2(float x, float y);
@@ -227,14 +209,14 @@ namespace spectra {
 		Vector2& operator=(const Vector2 &other);
 
 		// Direct access to x component.
-		float &x = data[0];
+		float &x = vec.x;
 
 		// Direct access to y component.
-		float &y = data[1];
+		float &y = vec.y;
 	};
 	
 	// A three-component vector.
-	class Vector3 : public internal::Vector<3, Vector3> {
+	class Vector3 : public internal::Vector<3, Vector3, glm::vec3> {
 	public:
 		// Initialize x, y, and z.
 		Vector3(float x, float y, float z);
@@ -248,22 +230,39 @@ namespace spectra {
 		// Assignment operator.
 		Vector3& operator=(const Vector3 &other);
 
+		static Vector3 rotate(const Vector3 &vector, const Vector3 &axis, float angle);
+
+		static Vector3 rotate(const Vector3 &vector, const Vector3 &axis);
+
+		static Vector3 slerp(const Vector3 &v1, const Vector3 &v2, float amount);
+
+		static Vector3 rotateTowards(const Vector3 &v1, const Vector3 &v2, float maxDeltaAngle, float maxDeltaLength = 0.0f);
+
 		// Direct access to x component.
-		float &x = data[0];
+		float &x = vec.x;
 
 		// Direct access to y component.
-		float &y = data[1];
+		float &y = vec.y;
 
 		// Direct access to z component.
-		float &z = data[2];
+		float &z = vec.z;
 
 		// Compute cross product of two vectors.
 		// This operation only makes sense for three-component vectors.
 		static Vector3 cross(const Vector3 &v1, const Vector3 &v2);
+
+		const static Vector3 right;
+		const static Vector3 left;
+		const static Vector3 up;
+		const static Vector3 down;
+		const static Vector3 forward;
+		const static Vector3 back;
+		const static Vector3 zero;
 	};
 
 	// A four-component vector.
-	class Vector4 : public internal::Vector<4, Vector4> {
+	class Vector4 : public internal::Vector<4, Vector4, glm::vec4> {
+	public:
 		// Initialize x, y, z, and w.
 		Vector4(float x, float y, float z, float w);
 
@@ -277,15 +276,15 @@ namespace spectra {
 		Vector4& operator=(const Vector4 &other);
 
 		// Direct access to x component.
-		float &x = data[0];
+		float &x = vec.x;
 
 		// Direct access to y component.
-		float &y = data[1];
+		float &y = vec.y;
 
 		// Direct access to z component.
-		float &z = data[2];
+		float &z = vec.z;
 
 		// Direct access to w component.
-		float &w = data[3];
+		float &w = vec.w;
 	};
 }
