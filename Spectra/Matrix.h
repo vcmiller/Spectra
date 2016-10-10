@@ -134,6 +134,10 @@ namespace spectra {
 		// Construct a 4x4 matrix given four vectors.
 		Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3);
 
+		Vector3 transformPoint(Vector3 point) const;
+
+		Vector3 transformVector(Vector3 vector) const;
+
 		// Construct a translation matrix.
 		static Matrix4 translation(Vector3 vector);
 

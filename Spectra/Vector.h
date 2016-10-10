@@ -1,5 +1,4 @@
 #pragma once
-#include <math.h>
 #include <ostream>
 
 #define GLM_FORCE_RADIANS
@@ -53,9 +52,9 @@ namespace spectra {
 				if (f <= maxDelta) {
 					return v2;
 				} else {
-					float dir = (v2 - v1) / f;
+					T dir = (v2 - v1) / f;
 
-					result.vec = v1.vec + dir * maxDelta;
+					result.vec = v1.vec + dir.vec * maxDelta;
 					return result;
 				}
 			}
@@ -230,12 +229,14 @@ namespace spectra {
 		// Assignment operator.
 		Vector3& operator=(const Vector3 &other);
 
+		// Rotate vector around axis by angle, in radians.
+		// Axis must be normalized, or this will produce unexpected results.
 		static Vector3 rotate(const Vector3 &vector, const Vector3 &axis, float angle);
 
-		static Vector3 rotate(const Vector3 &vector, const Vector3 &axis);
-
+		// Spherical interpolation between two direction vectors by amount.
 		static Vector3 slerp(const Vector3 &v1, const Vector3 &v2, float amount);
 
+		// Rotate vector towards another vector by absolute amount, with optional length interpoplation.
 		static Vector3 rotateTowards(const Vector3 &v1, const Vector3 &v2, float maxDeltaAngle, float maxDeltaLength = 0.0f);
 
 		// Direct access to x component.

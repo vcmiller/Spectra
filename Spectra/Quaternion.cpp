@@ -9,6 +9,14 @@ namespace spectra {
 		quat = glm::quat();
 	}
 
+	Quaternion::Quaternion(const Quaternion &q) {
+		quat = q.quat;
+	}
+
+	void Quaternion::operator=(const Quaternion &q) {
+		quat = q.quat;
+	}
+
 	Quaternion Quaternion::inverse() {
 		Quaternion result;
 		result.quat = glm::inverse(quat);

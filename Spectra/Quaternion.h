@@ -19,6 +19,10 @@ namespace spectra {
 		// Construct identity quaternion.
 		Quaternion();
 
+		Quaternion(const Quaternion &q);
+
+		void operator=(const Quaternion &q);
+
 		// Compute inverse quaternion.
 		Quaternion inverse();
 

@@ -1,6 +1,7 @@
 #include "Vector.h"
 #include <iostream>
 #include "Quaternion.h"
+#include "Math.h"
 
 namespace spectra {
 	// ========================== Vector2 ========================== 
@@ -51,15 +52,13 @@ namespace spectra {
 	}
 
 	Vector3 Vector3::rotate(const Vector3 &vector, const Vector3 &axis, float angle) {
-		return Quaternion::angleAxis(angle, axis) * vector;
-	}
-
-	Vector3 Vector3::rotate(const Vector3 &vector, const Vector3 &axis) {
-		return Quaternion::angleAxis(1, axis) * vector;
+		return vector * Math::cos(angle) + cross(axis, vector) * Math::sin(angle) + axis * dot(vector, axis) * (1 - Math::cos(angle));
 	}
 
 	Vector3 Vector3::slerp(const Vector3 &v1, const Vector3 &v2, float amount) {
-		return rotate(v1, cross(v1, v2), amount);
+		Vector3 axis = cross(v1, v2).normalized();
+		float angle = Vector3::angle(v1, v2);
+		return rotate(v1, axis, angle * amount);
 	}
 
 	Vector3 Vector3::rotateTowards(const Vector3 &v1, const Vector3 &v2, float maxDeltaAngle, float maxDeltaLength) {
@@ -78,17 +77,7 @@ namespace spectra {
 			float l = v1.magnitude();
 			float l2 = v2.magnitude();
 
-			float newlen;
-
-			if (abs(l2 - l) <= maxDeltaLength) {
-				newlen = l2;
-			} else if (l2 > l) {
-				newlen = l + maxDeltaLength;
-			} else {
-				newlen = l - maxDeltaLength;
-			}
-
-			result = result / l * newlen;
+			result = result / l * Math::moveTowards(l, l2, maxDeltaLength);
 		}
 
 		return result;

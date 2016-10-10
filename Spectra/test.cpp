@@ -1,11 +1,10 @@
 #include "Property.h"
 #include "Vector.h"
 #include "Matrix.h"
-
-#include <iostream>
+#include "Log.h"
+#include "List.h"
 
 using namespace util;
-using namespace spectra::internal;
 using namespace spectra;
 using namespace std;
 
@@ -31,13 +30,26 @@ private:
 };
 
 void main() {
-	Vector3 vec(2, 3, 0);
+	Vector3 vec(1, 0, 0);
 
-	Vector3 vec2(3, 1, 2);
+	Vector3 vec2(0, 1, 0);
 
 	Vector3 r = vec + vec2;
+	float halfpi = 3.141592f / 2.0f;
 
-	std::cout << Vector3::lerp(vec, vec2, 0.5f) << std::endl;
+	Quaternion q1 = Quaternion::euler(Vector3(0, halfpi, 0));
+	Quaternion q2 = Quaternion::euler(Vector3(0, 0, 0));
+
+	Log::log(Quaternion::angle(q1, q2));
 	glm::vec3 v1(2, 3, 0);
 	glm::vec3 v2(3, 1, 2);
+
+	List<int> list;
+	list.add(2);
+	list.add(3);
+	list.add(4);
+
+	for (int i : list) {
+		Log::log << i << "\n";
+	}
 }

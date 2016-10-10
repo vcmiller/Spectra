@@ -59,6 +59,18 @@ namespace spectra {
 		mat = glm::mat4(c0.x, c0.y, c0.z, c0.w, c1.x, c1.y, c1.z, c1.w, c2.x, c2.y, c2.z, c2.w, c3.x, c3.y, c3.z, c3.w);
 	}
 
+	Vector3 Matrix4::transformPoint(Vector3 point) const {
+		Vector4 vec(point.x, point.y, point.z, 1.0f);
+		vec = (*this) * vec;
+		return Vector3(vec.x, vec.y, vec.z);
+	}
+
+	Vector3 Matrix4::transformVector(Vector3 vector) const {
+		Vector4 vec(vector.x, vector.y, vector.z, 0.0f);
+		vec = (*this) * vec;
+		return Vector3(vec.x, vec.y, vec.z);
+	}
+
 	// Construct a translation matrix.
 	Matrix4 Matrix4::translation(Vector3 vector) {
 		Matrix4 mat;
