@@ -32,6 +32,10 @@ namespace spectra {
 			return items[index];
 		}
 
+		T get(int index) const {
+			return items[index];
+		}
+
 		int length() {
 			return count;
 		}
@@ -90,6 +94,8 @@ namespace spectra {
 			items = new T[newSize];
 			std::memcpy(items, old, arraySize * sizeof(T));
 			arraySize = newSize;
+
+			delete old;
 		}
 	};
 }

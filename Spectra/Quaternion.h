@@ -24,19 +24,22 @@ namespace spectra {
 		void operator=(const Quaternion &q);
 
 		// Compute inverse quaternion.
-		Quaternion inverse();
+		Quaternion inverse() const;
 
 		// Combine the rotations of two quaternions.
-		Quaternion operator*(const Quaternion &rhs);
+		Quaternion operator*(const Quaternion &rhs) const;
 
 		// Apply quaternion to vector.
-		Vector3 operator*(const Vector3 &rhs);
+		Vector3 operator*(const Vector3 &rhs) const;
+
+		// In-place multiplicaton
+		void operator *= (const Quaternion &rhs);
 
 		// Check for equality.
-		bool operator==(const Quaternion &rhs);
+		bool operator==(const Quaternion &rhs) const;
 
 		// Check for inequality.
-		bool operator!=(const Quaternion &rhs);
+		bool operator!=(const Quaternion &rhs) const;
 
 		// Compute angle between two quaternions.
 		static float angle(const Quaternion &q1, const Quaternion &q2);

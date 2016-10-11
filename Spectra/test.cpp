@@ -49,6 +49,8 @@ void main() {
 	list.add(3);
 	list.add(4);
 
+	Log::log << list[1];
+
 	for (int i : list) {
 		Log::log << i << "\n";
 	}

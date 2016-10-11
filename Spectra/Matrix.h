@@ -68,8 +68,9 @@ namespace spectra {
 
 			// Multiply matrix by vector.
 			V operator* (const V &vec) const {
+
 				V result;
-				result.vec = 
+				result.vec = mat * vec.vec;
 				return result;
 			}
 

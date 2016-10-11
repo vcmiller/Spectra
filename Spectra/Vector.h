@@ -8,6 +8,8 @@
 
 namespace spectra {
 	namespace internal {
+		template <char S, class T, class V, class G> class Matrix;
+
 		// A generic Vector structure, with components stored in a GLM vector.
 		// First type parameter is number of components.
 		// Second is the subclass returned by vector operations.
@@ -172,6 +174,7 @@ namespace spectra {
 			}
 
 		protected:
+			template <char S, class T, class V, class G> friend class Matrix;
 			// Components of this vector.
 			G vec;
 		};

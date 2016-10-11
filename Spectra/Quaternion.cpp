@@ -17,28 +17,32 @@ namespace spectra {
 		quat = q.quat;
 	}
 
-	Quaternion Quaternion::inverse() {
+	Quaternion Quaternion::inverse() const {
 		Quaternion result;
 		result.quat = glm::inverse(quat);
 		return result;
 	}
 
-	Quaternion Quaternion::operator*(const Quaternion &rhs) {
+	Quaternion Quaternion::operator*(const Quaternion &rhs) const {
 		Quaternion result;
 		result.quat = quat * rhs.quat;
 		return result;
 	}
 
-	Vector3 Quaternion::operator*(const Vector3 &rhs) {
+	Vector3 Quaternion::operator*(const Vector3 &rhs) const {
 		glm::vec3 result = quat * glm::vec3(rhs.x, rhs.y, rhs.z);
 		return Vector3(result.x, result.y, result.z);
 	}
 
-	bool Quaternion::operator==(const Quaternion &rhs) {
+	void Quaternion::operator *= (const Quaternion &rhs) {
+		quat *= rhs.quat;
+	}
+
+	bool Quaternion::operator==(const Quaternion &rhs) const {
 		return quat == rhs.quat;
 	}
 
-	bool Quaternion::operator!=(const Quaternion &rhs) {
+	bool Quaternion::operator!=(const Quaternion &rhs) const {
 		return quat != rhs.quat;
 	}
 

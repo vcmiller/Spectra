@@ -29,9 +29,9 @@ namespace spectra {
 		void rotate(Vector3 euler, Space relative = Space::global);
 		void rotate(Vector3 axis, float angle, Space relative = Space::global);
 
-		void setParent(Transform* parent, bool keepWorld = true);
+		void setParent(Transform* parent, bool keepWorld = false);
 		Transform* getParent() const;
-		Transform* getRoot() const;
+		Transform* getRoot();
 
 		Vector3 getForward() const;
 		Vector3 getUp() const;
