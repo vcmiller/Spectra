@@ -103,26 +103,6 @@ namespace spectra {
 		}
 	}
 
-	// A 2x2 matrix.
-	class Matrix2 : public internal::Matrix<2, Matrix2, Vector2, glm::mat2> {
-	public:
-		// Initialize as identity.
-		Matrix2();
-
-		// Initialize all elements.
-		Matrix2(float r0c0, float r0c1, float r1c0, float r1c1);
-	};
-
-	// A 3x3 matrix.
-	class Matrix3 : public internal::Matrix<3, Matrix3, Vector3, glm::mat3> {
-	public:
-		// Initialize as identity.
-		Matrix3();
-
-		// Initialize all elements.
-		Matrix3(float r0c0, float r0c1, float r0c2, float r1c0, float r1c1, float r1c2, float r2c0, float r2c1, float r2c2);
-	};
-
 	// A 4x4 matrix.
 	class Matrix4 : public internal::Matrix<4, Matrix4, Vector4, glm::mat4> {
 	public:
@@ -130,10 +110,15 @@ namespace spectra {
 		Matrix4();
 
 		// Initialize all elements.
-		Matrix4(float r0c0, float r0c1, float r0c2, float r0c3, float r1c0, float r1c1, float r1c2, float r1c3, float r2c0, float r2c1, float r2c2, float r2c3, float r3c0, float r3c1, float r3c2, float r3c3);
+		Matrix4(float r0c0, float r0c1, float r0c2, float r0c3, 
+			    float r1c0, float r1c1, float r1c2, float r1c3, 
+				float r2c0, float r2c1, float r2c2, float r2c3, 
+				float r3c0, float r3c1, float r3c2, float r3c3);
 
 		// Construct a 4x4 matrix given four vectors.
 		Matrix4(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3);
+
+		static Matrix4 transpose(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3);
 
 		Vector3 transformPoint(Vector3 point) const;
 

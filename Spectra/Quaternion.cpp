@@ -88,4 +88,10 @@ namespace spectra {
 		
 		return slerp(a, b, slerpAmount);
 	}
+
+	Quaternion Quaternion::fromToRotation(const Vector3 & v1, const Vector3 & v2) {
+		Quaternion result;
+		result.quat = glm::rotation(v1.vec, v2.vec);
+		return result;
+	}
 }

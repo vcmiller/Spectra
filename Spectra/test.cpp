@@ -3,6 +3,8 @@
 #include "Matrix.h"
 #include "Log.h"
 #include "List.h"
+#include "Object.h"
+#include "ObjectSet.h"
 
 using namespace util;
 using namespace spectra;
@@ -30,28 +32,30 @@ private:
 };
 
 void main() {
-	Vector3 vec(1, 0, 0);
+	ObjectSet<Object*> objs;
 
-	Vector3 vec2(0, 1, 0);
+	Object bob;
+	bob.setName("Bob");
 
-	Vector3 r = vec + vec2;
-	float halfpi = 3.141592f / 2.0f;
+	Object fred;
+	fred.setName("Fred");
 
-	Quaternion q1 = Quaternion::euler(Vector3(0, halfpi, 0));
-	Quaternion q2 = Quaternion::euler(Vector3(0, 0, 0));
+	Object steve;
+	steve.setName("Steve");
 
-	Log::log(Quaternion::angle(q1, q2));
-	glm::vec3 v1(2, 3, 0);
-	glm::vec3 v2(3, 1, 2);
+	objs.add(&bob);
+	objs.add(&fred);
+	objs.add(&steve);
 
-	List<int> list;
-	list.add(2);
-	list.add(3);
-	list.add(4);
+	for (Object *obj : objs) {
+		Log::log << obj->getName() << ", " << obj->getIndex(&objs) << "\n";
+	}
 
-	Log::log << list[1];
+	Log::log("========");
 
-	for (int i : list) {
-		Log::log << i << "\n";
+	objs.remove(&bob);
+
+	for (Object *obj : objs) {
+		Log::log << obj->getName() << ", " << obj->getIndex(&objs) << "\n";
 	}
 }

@@ -162,6 +162,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="Transform.cpp" />
@@ -172,6 +173,8 @@
     <ClInclude Include="Log.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectSet.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Space.h" />

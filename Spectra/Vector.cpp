@@ -101,6 +101,13 @@ namespace spectra {
 
 	Vector4::Vector4() : Vector4(0, 0, 0, 0) {}
 
+	Vector4::Vector4(Vector3 xyz, float w) {
+		x = xyz.x;
+		y = xyz.y;
+		z = xyz.z;
+		this->w = w;
+	}
+
 	Vector4::Vector4(const Vector4 &other) {
 		x = other.x;
 		y = other.y;

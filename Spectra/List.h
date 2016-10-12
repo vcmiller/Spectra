@@ -13,11 +13,11 @@ namespace spectra {
 			count = 0;
 		}
 
-		List(std::initializer_list<T> items) {
-			items = new T[items.size];
-			std::memcpy(contents, items.begin(), items.size * sizeof(T));
-			arraySize = items.size;
-			count = items.size;
+		List(const List<T>& other) {
+			items = new T[other.arraySize];
+			std::memcpy(this->items, other.items, other.length() * sizeof(T));
+			arraySize = other.arraySize;
+			count = other.count;
 		}
 
 		T* begin() {
@@ -36,7 +36,7 @@ namespace spectra {
 			return items[index];
 		}
 
-		int length() {
+		int length() const {
 			return count;
 		}
 
@@ -69,8 +69,25 @@ namespace spectra {
 
 		bool removeItem(T item) {
 			int index = indexOf(item);
-			if (i != -1) {
-				remove(i);
+			if (index != -1) {
+				remove(index);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		bool removeWhere(bool (*pred) (T)) {
+			int index = -1;
+			for (int i = 0; i < count; i++) {
+				if (pred(items[i])) {
+					index = i;
+					break;
+				}
+			}
+
+			if (index >= 0) {
+				removeItem(index);
 				return true;
 			} else {
 				return false;
@@ -81,7 +98,7 @@ namespace spectra {
 			T pop = items[index];
 			std::memmove(items + index, items + index + 1, (count - index - 1) * sizeof(T));
 			count--;
-			return T;
+			return pop;
 		}
 
 	private:

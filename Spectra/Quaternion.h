@@ -63,6 +63,9 @@ namespace spectra {
 		// Similar to Quaternion::slerp, except maxDelta is an absolute amount.
 		static Quaternion rotateTowards(const Quaternion &a, const Quaternion &b, float maxDelta);
 
+		// Return a quaternion that will rotate from one direction to another.
+		static Quaternion fromToRotation(const Vector3 &v1, const Vector3 &v2);
+
 		float &x = quat.x;
 		float &y = quat.y;
 		float &z = quat.z;

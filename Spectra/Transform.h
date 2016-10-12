@@ -44,6 +44,9 @@ namespace spectra {
 		Matrix4 localToWorldMatrix() const;
 		Matrix4 worldToLocalMatrix() const;
 
+		Matrix4 parentToLocalMatrix() const;
+		Matrix4 localToParentMatrix() const;
+
 		Matrix4 parentToWorldMatrix() const;
 		Matrix4 worldToParentMatrix() const;
 

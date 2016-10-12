@@ -7,6 +7,7 @@
 #include <glm/gtx/vector_angle.hpp>
 
 namespace spectra {
+	class Quaternion;
 	namespace internal {
 		template <char S, class T, class V, class G> class Matrix;
 
@@ -175,6 +176,7 @@ namespace spectra {
 
 		protected:
 			template <char S, class T, class V, class G> friend class Matrix;
+			friend class Quaternion;
 			// Components of this vector.
 			G vec;
 		};
@@ -272,6 +274,9 @@ namespace spectra {
 
 		// Initialize x, y, z, and w to zero.
 		Vector4();
+
+		// Initialize from vector (x, y, z) and w.
+		Vector4(Vector3 xyz, float w);
 
 		// Copy constructor.
 		Vector4(const Vector4 &other);

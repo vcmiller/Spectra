@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Utility">
       <UniqueIdentifier>{e2ff4548-32f6-40f0-997f-20877f4e5230}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Object">
+      <UniqueIdentifier>{249ef041-d226-4415-bcc9-156466451439}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Object">
+      <UniqueIdentifier>{9b238213-3418-46f8-8d4e-088933fc9eba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +90,12 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Space.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectSet.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>

@@ -154,59 +154,88 @@ namespace spectra {
 	}
 
 	void Transform::setForward(Vector3 vec) {
-
+		Vector3 cur = getForward();
+		rotation *= Quaternion::fromToRotation(cur, vec);
 	}
 
 	void Transform::setUp(Vector3 vec) {
-
+		Vector3 cur = getUp();
+		rotation *= Quaternion::fromToRotation(cur, vec);
 	}
 
 	void Transform::setRight(Vector3 vec) {
-
+		Vector3 cur = getRight();
+		rotation *= Quaternion::fromToRotation(cur, vec);
 	}
 
 	Matrix4 Transform::localToWorldMatrix() const {
-
+		Matrix4 l2p = localToParentMatrix();
+		if (parent) {
+			return parentToWorldMatrix() * l2p;
+		} else {
+			return l2p;
+		}
 	}
 
 	Matrix4 Transform::worldToLocalMatrix() const {
+		Matrix4 p2l = parentToLocalMatrix();
+		if (parent) {
+			return p2l * worldToParentMatrix();
+		} else {
+			return p2l;
+		}
+	}
 
+	Matrix4 Transform::parentToLocalMatrix() const {
+		Vector4 right(rotation * Vector3::right / scale.x, 0);
+		Vector4 up(rotation * Vector3::up / scale.y, 0);
+		Vector4 forward(rotation * Vector3::forward / scale.z, 0);
+		Vector4 pos(position, 1);
+		return Matrix4::transpose(right, up, forward, pos);
+	}
+
+	Matrix4 Transform::localToParentMatrix() const {
+		Vector4 right(rotation * Vector3::right * scale.x, 0);
+		Vector4 up(rotation * Vector3::up * scale.y, 0);
+		Vector4 forward(rotation * Vector3::forward * scale.z, 0);
+		Vector4 pos(position, 1);
+		return Matrix4(right, up, forward, pos);
 	}
 
 	Matrix4 Transform::parentToWorldMatrix() const {
-
+		return parent->localToWorldMatrix();
 	}
 
 	Matrix4 Transform::worldToParentMatrix() const {
-
+		return parent->worldToLocalMatrix();
 	}
 
 	Vector3 Transform::transformVector(Vector3 vec) const {
-
+		return localToWorldMatrix().transformVector(vec);
 	}
 
 	Vector3 Transform::transformPoint(Vector3 point) const {
-
+		return localToWorldMatrix().transformPoint(point);
 	}
 
 	Quaternion Transform::transformRotation(Quaternion quat) const {
-
+		return getRotation() * quat;
 	}
 
 	Vector3 Transform::inverseTransformVector(Vector3 vec) const {
-
+		return worldToLocalMatrix().transformVector(vec);
 	}
 
 	Vector3 Transform::inverseTransformPoint(Vector3 point) const {
-
+		return worldToLocalMatrix().transformPoint(point);
 	}
 
 	Quaternion Transform::inverseTransformRotation(Quaternion quat) const {
-
+		return getRotation().inverse() * quat;
 	}
 
 	int Transform::getChildCount() const {
-
+		return children.length();
 	}
 
 	Transform * Transform::getChild(int i) const {
