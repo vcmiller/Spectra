@@ -6,27 +6,27 @@
 #include "List.h"
 
 namespace spectra {
-	template <typename T> class ObjectSet {
+	template <class T> class ObjectSet {
 	public:
 		ObjectSet(int initialCapacity = 128) {
-			items = new T[initialCapacity];
+			items = new T*[initialCapacity];
 			arraySize = initialCapacity;
 			count = 0;
 		}
 
-		T* begin() {
+		T** begin() {
 			return items;
 		}
 
-		T* end() {
+		T** end() {
 			return items + count;
 		}
 
-		T operator[] (int index) const {
+		T* operator[] (int index) const {
 			return items[index];
 		}
 
-		T get(int index) const {
+		T* get(int index) const {
 			return items[index];
 		}
 
@@ -34,7 +34,7 @@ namespace spectra {
 			return count;
 		}
 
-		void add(T item) {
+		void add(T* item) {
 			if (count >= arraySize) {
 				resize(arraySize * 2);
 			}
@@ -43,11 +43,11 @@ namespace spectra {
 			items[count++] = item;
 		}
 
-		int indexOf(T item) {
+		int indexOf(T* item) {
 			return item->getIndex(this);
 		}
 
-		bool remove(T item) {
+		bool remove(T* item) {
 			int index = indexOf(item);
 			if (index != -1) {
 				remove(index);
@@ -58,22 +58,22 @@ namespace spectra {
 		}
 
 	private:
-		T* items;
+		T** items;
 		int count;
 		int arraySize;
 
 		void resize(int newSize) {
-			T* old = items;
-			items = new T[newSize];
+			T** old = items;
+			items = new T*[newSize];
 			std::memcpy(items, old, arraySize * sizeof(T));
 			arraySize = newSize;
 
 			delete old;
 		}
 
-		T remove(int index) {
-			T pop = items[index];
-			T sub = items[count - 1];
+		T* remove(int index) {
+			T* pop = items[index];
+			T* sub = items[count - 1];
 			sub->updateIndex(this, index);
 			items[index] = sub;
 

@@ -17,7 +17,7 @@ namespace spectra {
 		y = other.y;
 	}
 
-	Vector2& Vector2::operator=(const Vector2 &other) {
+	void Vector2::operator=(const Vector2 &other) {
 		x = other.x;
 		y = other.y;
 	}
@@ -37,12 +37,10 @@ namespace spectra {
 		z = other.z;
 	}
 
-	Vector3 &Vector3::operator=(const Vector3 &other) {
+	void Vector3::operator=(const Vector3 &other) {
 		x = other.x;
 		y = other.y;
 		z = other.z;
-
-		return *this;
 	}
 
 	Vector3 Vector3::cross(const Vector3 &v1, const Vector3 &v2) {
@@ -115,7 +113,7 @@ namespace spectra {
 		w = other.w;
 	}
 
-	Vector4& Vector4::operator=(const Vector4 &other) {
+	void Vector4::operator=(const Vector4 &other) {
 		x = other.x;
 		y = other.y;
 		z = other.z;

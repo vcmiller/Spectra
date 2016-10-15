@@ -158,7 +158,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
@@ -166,12 +168,17 @@
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Quaternion.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="jsoncpp\json-forwards.h" />
     <ClInclude Include="jsoncpp\json.h" />
     <ClInclude Include="List.h" />
@@ -182,10 +189,13 @@
     <ClInclude Include="ObjectSet.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Space.h" />
+    <ClInclude Include="Spectra.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="VReference.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

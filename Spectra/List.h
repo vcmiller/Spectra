@@ -96,9 +96,15 @@ namespace spectra {
 
 		T remove(int index) {
 			T pop = items[index];
-			std::memmove(items + index, items + index + 1, (count - index - 1) * sizeof(T));
+			if (index < count - 1 && index < arraySize - 1) {
+				std::memmove(items + index, items + index + 1, (count - index - 1) * sizeof(T));
+			}
 			count--;
 			return pop;
+		}
+
+		void clear() {
+			count = 0;
 		}
 
 	private:

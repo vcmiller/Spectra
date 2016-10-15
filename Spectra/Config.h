@@ -8,7 +8,7 @@ namespace spectra {
 	public:
 		Config(std::string file);
 		Config();
-		Config(Config& cfg);
+		Config(const Config& cfg);
 
 		void operator=(const Config& cfg);
 
@@ -18,11 +18,11 @@ namespace spectra {
 
 		int length();
 
-		operator int();
-		operator long long();
-		operator float();
-		operator bool();
-		operator std::string();
+		int intValue();
+		long long int64Value();
+		float floatValue();
+		bool boolValue();
+		std::string stringValue();
 
 		void operator=(int);
 		void operator=(long long);
@@ -30,14 +30,21 @@ namespace spectra {
 		void operator=(bool);
 		void operator=(std::string);
 
+		void setArray();
+		void setObject();
+
 		bool isLoaded();
 
+		void write();
+		void write(std::string filename);
+
 	private:
-		Json::Value dummyNode;
-		Json::Value &node;
-		Json::Reader reader;
+		Json::Value nodeVal;
+		Json::Value *nodePtr;
 		bool loaded;
 
-		Config(Json::Value &node);
+		std::string filename;
+
+		Config(Json::Value *node);
 	};
 }

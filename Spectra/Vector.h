@@ -210,7 +210,7 @@ namespace spectra {
 		Vector2(const Vector2 &other);
 
 		// Assignment operator.
-		Vector2& operator=(const Vector2 &other);
+		void operator=(const Vector2 &other);
 
 		// Direct access to x component.
 		float &x = vec.x;
@@ -232,7 +232,7 @@ namespace spectra {
 		Vector3(const Vector3 &other);
 
 		// Assignment operator.
-		Vector3& operator=(const Vector3 &other);
+		void operator=(const Vector3 &other);
 
 		// Rotate vector around axis by angle, in radians.
 		// Axis must be normalized, or this will produce unexpected results.
@@ -282,7 +282,7 @@ namespace spectra {
 		Vector4(const Vector4 &other);
 
 		// Assignment operator.
-		Vector4& operator=(const Vector4 &other);
+		void operator=(const Vector4 &other);
 
 		// Direct access to x component.
 		float &x = vec.x;

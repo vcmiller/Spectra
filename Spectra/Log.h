@@ -62,7 +62,7 @@ namespace spectra {
 		// Argument type must support writing with the << operator to an std::ostream.
 		template <typename T> const Log& operator << (const T &val) const {
 			if (writeConsole) {
-				cout << val;
+				std::cout << val;
 			}
 
 			if (writeFile && fileOpen) {
