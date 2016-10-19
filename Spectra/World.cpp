@@ -1,6 +1,18 @@
 #include "World.h"
+#include "Log.h"
 
 namespace spectra {
+
+	spectra::ObjectSet<spectra::GameObject> World::gameObjects;
+	spectra::ObjectSet<spectra::Component> World::components;
+	spectra::ObjectSet<spectra::Component> World::updateComponents;
+	spectra::ObjectSet<spectra::Component> World::renderComponents;
+	spectra::List<GameObject*> World::newGameObjects;
+	spectra::List<Component*> World::newComponents;
+	spectra::List<GameObject*> World::deleteGameObjects;
+	spectra::List<Component*> World::deleteComponents;
+	spectra::List<Scene*> World::loadedScenes;
+
 	World::World() {}
 
 	void World::update() {
@@ -17,7 +29,7 @@ namespace spectra {
 
 			delete cmp;
 		}
-
+		
 		for (GameObject *obj : deleteGameObjects) {
 			gameObjects.remove(obj);
 			delete obj;
@@ -37,6 +49,11 @@ namespace spectra {
 				updateComponents.add(cmp);
 			}
 		}
+
+		deleteComponents.clear();
+		deleteGameObjects.clear();
+		newComponents.clear();
+		newGameObjects.clear();
 	}
 
 	void World::render() {

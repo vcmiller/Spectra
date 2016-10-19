@@ -14,8 +14,8 @@ namespace spectra {
 		GameObject();
 
 		template <class T> void addComponent() {
+			Component::assign = this;
 			T* component = new T();
-			component->gameObject = this;
 			components.add(component);
 			component->onCreate();
 		}

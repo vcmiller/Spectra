@@ -25,6 +25,7 @@ namespace spectra {
 
 			if (!loaded) {
 				Log::log(reader.getFormattedErrorMessages());
+				nodeVal = Json::objectValue;
 			}
 		} else {
 			loaded = false;
@@ -37,14 +38,28 @@ namespace spectra {
 		loaded = false;
 	}
 
-	Config::Config(const Config& cfg) : nodePtr(cfg.nodePtr) {
-		filename = "";
-		loaded = false;
+	Config::Config(const Config& cfg) {
+		if (cfg.nodePtr == &cfg.nodeVal) {
+			nodePtr = &nodeVal;
+			nodeVal = cfg.nodeVal;
+		} else {
+			nodePtr = cfg.nodePtr;
+		}
+
+		filename = cfg.filename;
+		loaded = cfg.loaded;
 	}
 
 	void Config::operator=(const Config & cfg) {
-		filename = "";
-		loaded = false;
+		if (cfg.nodePtr == &cfg.nodeVal) {
+			nodePtr = &nodeVal;
+			nodeVal = cfg.nodeVal;
+		} else {
+			nodePtr = cfg.nodePtr;
+		}
+
+		filename = cfg.filename;
+		loaded = cfg.loaded;
 	}
 
 	Config Config::operator[](int index) {

@@ -3,9 +3,11 @@
 
 namespace spectra {
 
-	Component::Component(GameObject &obj) : gameObject(obj), transform(obj.transform) {
+	Component::Component() : gameObject(*assign), transform(assign->transform) {
 		receivesRender = false;
 		receivesUpdate = true;
+
+		World::newComponents.add(this);
 	}
 
 	void Component::onCreate() { }
@@ -17,4 +19,6 @@ namespace spectra {
 		World::deleteComponents.add(this);
 		onDestroy();
 	}
+
+	GameObject *Component::assign;
 }

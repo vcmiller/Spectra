@@ -24,12 +24,14 @@ namespace spectra {
 
 	private:
 		friend class World;
-		Component(GameObject &obj);
-
 		friend class GameObject;
-		friend class GameObject;
-
+		
 		bool receivesUpdate;
 		bool receivesRender;
+
+		static GameObject *assign;
+
+	protected:
+		Component();
 	};
 }

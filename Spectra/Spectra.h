@@ -6,12 +6,16 @@
 namespace spectra {
 	class Spectra {
 	public:
-		void run(Scene* start);
-		void quit();
+		static void run(Scene* start);
+		static void quit();
+
+		static int getTargetFPS();
 
 	private:
 		Spectra();
 
-		Config config;
+		static Config config;
+		static bool running;
+		static int targetFPS;
 	};
 }
