@@ -107,11 +107,6 @@ namespace spectra {
 			count = 0;
 		}
 
-	private:
-		T* items;
-		int count;
-		int arraySize;
-
 		void resize(int newSize) {
 			T* old = items;
 			items = new T[newSize];
@@ -120,5 +115,10 @@ namespace spectra {
 
 			delete old;
 		}
+
+	private:
+		T* items;
+		int count;
+		int arraySize;
 	};
 }

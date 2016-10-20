@@ -162,6 +162,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GPU.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Vector.cpp" />
+    <ClCompile Include="Vulkan.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +185,8 @@
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GPU.h" />
+    <ClInclude Include="Vulkan.h" />
     <ClInclude Include="jsoncpp\json-forwards.h" />
     <ClInclude Include="jsoncpp\json.h" />
     <ClInclude Include="List.h" />
