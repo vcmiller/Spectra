@@ -5,6 +5,8 @@
 #include "Time.h"
 #include "Vulkan.h"
 #include "Window.h"
+#include "Shader.h"
+#include "Material.h"
 
 namespace spectra {
 	using namespace internal;
@@ -42,6 +44,8 @@ namespace spectra {
 
 		Vulkan::init(&config);
 		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra");
+		Shader *shader = new Shader("Shaders/triangle", Window::main->getDevice());
+		Material *material = new Material(Window::main, shader);
 
 		if (start) {
 			World::load(start, false);
@@ -65,6 +69,9 @@ namespace spectra {
 		}
 
 		World::clear();
+
+		delete material;
+		delete shader;
 
 		internal::Clock::stop();
 

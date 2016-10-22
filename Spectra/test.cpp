@@ -21,11 +21,9 @@ using namespace std;
 
 class FramePrinter : public Component {
 public:
-	Window* window;
 
 	FramePrinter() { }
 	void onCreate() {
-		window = new Window(200, 200, "Custom Window");
 	}
 
 	void update() {
@@ -35,7 +33,6 @@ public:
 	}
 
 	void onDestroy() {
-		delete window;
 	}
 };
 

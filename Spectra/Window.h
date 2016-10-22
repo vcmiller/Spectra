@@ -1,6 +1,5 @@
 #pragma once
 
-#pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -22,6 +21,10 @@ namespace spectra {
 
 			VkSurfaceKHR getSurface();
 			LogicalDevice *getDevice();
+
+			VkFormat getSwapChainImageFormat();
+			VkExtent2D getSwapChainExtent();
+			VkFormat getDepthFormat();
 
 			static Window *getMainWindow();
 

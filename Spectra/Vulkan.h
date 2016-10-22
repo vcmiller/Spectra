@@ -22,6 +22,8 @@ namespace spectra {
 
 			static const PhysicalDevice *getPhysicalDevice();
 
+			static VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
 		private:
 			static void createInstance();
 			static void setupDebugCallback(); 
