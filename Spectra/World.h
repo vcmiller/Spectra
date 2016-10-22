@@ -13,6 +13,8 @@ namespace spectra {
 		static void update();
 		static void render();
 
+		static void clear();
+
 		static void load(Scene* scene, bool replace = true);
 		static void unload(std::string label);
 

@@ -12,6 +12,7 @@
 #include "Scene.h"
 #include "GameObject.h"
 #include "Component.h"
+#include "Window.h"
 
 using namespace util;
 using namespace spectra;
@@ -20,13 +21,21 @@ using namespace std;
 
 class FramePrinter : public Component {
 public:
+	Window* window;
+
 	FramePrinter() { }
 	void onCreate() {
-		Log::log("Created");
+		window = new Window(200, 200, "Custom Window");
 	}
 
 	void update() {
-		Log::log << "Delta time: " << Time::delta() << "\n";
+		//Log::log << "Delta time: " << Time::delta() << "\n";
+		//string s;
+		//cin >> s;
+	}
+
+	void onDestroy() {
+		delete window;
 	}
 };
 

@@ -3,8 +3,12 @@
 #include "World.h"
 #include "Clock.h"
 #include "Time.h"
+#include "Vulkan.h"
+#include "Window.h"
 
 namespace spectra {
+	using namespace internal;
+
 	Config Spectra::config;
 	bool Spectra::running;
 	int Spectra::targetFPS;
@@ -36,12 +40,16 @@ namespace spectra {
 		internal::Clock clock;
 		Time::init(spf);
 
+		Vulkan::init(&config);
+		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra");
+
 		if (start) {
 			World::load(start, false);
 		}
 
-		while (running) {
+		while (running && !Window::main->closeRequested()) {
 			clock.reset();
+			Window::pollEvents();
 			World::update();
 			World::render();
 
@@ -56,7 +64,12 @@ namespace spectra {
 			Time::tick();
 		}
 
+		World::clear();
+
 		internal::Clock::stop();
+
+		delete Window::main;
+		Window::main = nullptr;
 	}
 
 	void Spectra::quit() {

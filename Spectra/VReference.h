@@ -1,5 +1,7 @@
 #pragma once
+
 #include <functional>
+#include "Log.h"
 
 namespace spectra {
 	namespace internal {
@@ -18,14 +20,15 @@ namespace spectra {
 
 			/// <summary> Initialize with deletion function that consumes a VkInstance, a pointer to the object and callbacks </summary>
 			/// <param name="deletef"> The deletion function </param>
-			VReference(const VReference<VkInstance>& instance, std::function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
-				this->deleter = [&instance, deletef](T obj) { deletef(instance, obj, nullptr); };
+			VReference(VkInstance instance, std::function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
+				this->deleter = [instance, deletef](T obj) { deletef(instance, obj, nullptr); };
 			}
 
 			/// <summary> Initialize with deletion function that consumes a VkDevice, a pointer to the object and callbacks </summary>
 			/// <param name="deletef"> The deletion function </param>
-			VReference(const VReference<VkDevice>& device, std::function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
-				this->deleter = [&device, deletef](T obj) { deletef(device, obj, nullptr); };
+			VReference(VkDevice device, std::function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
+
+				this->deleter = [device, deletef](T obj) { deletef(device, obj, nullptr); };
 			}
 
 			/// <summary> Call the given deletion function to cleanup the referenced Vulkan object </summary>

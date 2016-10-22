@@ -62,14 +62,21 @@ namespace spectra {
 		}
 	}
 
+	void World::clear() {
+		for (GameObject *object : gameObjects) {
+			object->destroy();
+		}
+	}
+
 	void World::load(Scene *scene, bool replace) {
 		if (replace) {
 			for (Scene *scene : loadedScenes) {
-				scene->depopulate();
 				delete scene;
 			}
 
 			loadedScenes.clear();
+
+			clear();
 		}
 
 		if (loadedScenes.indexOf(scene) == -1) {

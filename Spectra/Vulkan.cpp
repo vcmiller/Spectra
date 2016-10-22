@@ -18,13 +18,23 @@ const std::vector<const char*> deviceExtensions = {
 namespace spectra {
 	namespace internal {
 
-		void Vulkan::init() {
+		void Vulkan::init(Config* config) {
+			Vulkan::config = config;
+
+			glfwInit();
+			glfwSetErrorCallback(windowErrorCallback);
+
 			createInstance();
 			setupDebugCallback();
+			pickPhysicalDevice();
 		}
 
 		VkInstance Vulkan::getInstance() {
 			return instance;
+		}
+
+		Config *Vulkan::getConfig() {
+			return config;
 		}
 
 		void Vulkan::createInstance() {
@@ -65,6 +75,8 @@ namespace spectra {
 
 		void Vulkan::setupDebugCallback() {
 			if (!enableValidationLayers) return;
+
+			callback = VReference<VkDebugReportCallbackEXT>(instance, DestroyDebugReportCallbackEXT);
 
 			VkDebugReportCallbackCreateInfoEXT createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
@@ -119,10 +131,31 @@ namespace spectra {
 			return extensions;
 		}
 
+		void Vulkan::pickPhysicalDevice() {
+			int bestScore = 0;
+			Vulkan::physicalDevice = nullptr;
+
+			for (auto device : PhysicalDevice::enumerate()) {
+				int score = device->rate();
+				if (score > bestScore) {
+					bestScore = score;
+					Vulkan::physicalDevice = device;
+				}
+			}
+
+			if (!Vulkan::physicalDevice) {
+				throw std::runtime_error("failed to find a suitable GPU!");
+			}
+		}
+
 		VKAPI_ATTR VkBool32 VKAPI_CALL Vulkan::debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData) {
 			Log::log << "validation layer: " << msg << "\n";
 
 			return VK_FALSE;
+		}
+
+		void Vulkan::windowErrorCallback(int error, const char * description) {
+			Log::log << "GLFW Error: " << description << "\n";
 		}
 
 		void Vulkan::DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, VkAllocationCallbacks* pAllocator) {
@@ -143,8 +176,28 @@ namespace spectra {
 
 		Vulkan::Vulkan() { }
 
-		spectra::internal::VReference<VkInstance> Vulkan::instance { vkDestroyInstance };
-		spectra::internal::VReference<VkDebugReportCallbackEXT> Vulkan::callback { instance, DestroyDebugReportCallbackEXT };
+		const std::vector<const char*>& Vulkan::getValidationLayers() {
+			return validationLayers;
+		}
+
+		const std::vector<const char*>& Vulkan::getDeviceExtensions() {
+			return deviceExtensions;
+		}
+
+		bool Vulkan::getEnableValidationLayers() {
+			return enableValidationLayers;
+		}
+
+		const PhysicalDevice * Vulkan::getPhysicalDevice() {
+			return physicalDevice;
+		}
+
+
+		const PhysicalDevice *Vulkan::physicalDevice = nullptr;
+		Config *Vulkan::config;
+
+		VReference<VkInstance> Vulkan::instance(vkDestroyInstance);
+		VReference<VkDebugReportCallbackEXT> Vulkan::callback;
 
 	}
 }

@@ -1,4 +1,4 @@
-#define asdf
+//#define asdf
 #ifdef asdf
 
 #define GLFW_INCLUDE_VULKAN
@@ -160,11 +160,11 @@ private:
 	VkExtent2D swapChainExtent;
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
+	std::vector<VkImage> swapChainImages;
 
 	std::vector<VReference<VkImageView>> swapChainImageViews;
 	VReference<VkRenderPass> renderPass{ device, vkDestroyRenderPass };
 
-	std::vector<VkImage> swapChainImages;
 
 	VReference<VkDescriptorSetLayout> descriptorSetLayout{ device, vkDestroyDescriptorSetLayout };
 	VReference<VkPipelineLayout> pipelineLayout{ device, vkDestroyPipelineLayout };

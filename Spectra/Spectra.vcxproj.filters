@@ -105,10 +105,19 @@
     <ClCompile Include="Time.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="GPU.cpp">
+    <ClCompile Include="Vulkan.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Vulkan.cpp">
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicalDevice.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicalDevice.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageView.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -182,10 +191,22 @@
     <ClInclude Include="Time.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="GPU.h">
+    <ClInclude Include="Vulkan.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Vulkan.h">
+    <ClInclude Include="Window.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicalDevice.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicalDevice.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageView.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
