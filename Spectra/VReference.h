@@ -15,7 +15,9 @@ namespace spectra {
 			/// <summary> Initialize with deletion function that consumes only a pointer to the object and callbacks </summary>
 			/// <param name="deletef"> The deletion function </param>
 			VReference(std::function<void(T, VkAllocationCallbacks*)> deletef) {
-				this->deleter = [=](T obj) { deletef(obj, nullptr); };
+				this->deleter = [=](T obj) {
+					deletef(obj, nullptr); 
+				};
 			}
 
 			/// <summary> Initialize with deletion function that consumes a VkInstance, a pointer to the object and callbacks </summary>
@@ -70,13 +72,6 @@ namespace spectra {
 				return object == T(rhs);
 			}
 
-		private:
-			/// <summary> The managed object </summary>
-			T object{ VK_NULL_HANDLE };
-
-			/// <summary> Function used to delete the managed object </summary>
-			std::function<void(T)> deleter;
-
 			/// <summary> Call the deletion function on the managed object, as long as the object is non-null </summary>
 			void cleanup() {
 				if (object != VK_NULL_HANDLE) {
@@ -84,6 +79,13 @@ namespace spectra {
 				}
 				object = VK_NULL_HANDLE;
 			}
+
+		private:
+			/// <summary> The managed object </summary>
+			T object{ VK_NULL_HANDLE };
+
+			/// <summary> Function used to delete the managed object </summary>
+			std::function<void(T)> deleter;
 
 		};
 	}

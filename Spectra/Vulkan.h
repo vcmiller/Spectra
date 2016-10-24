@@ -10,9 +10,13 @@
 
 namespace spectra {
 	namespace internal {
+		class Window;
+		class LogicalDevice;
+
 		class Vulkan {
 		public:
 			static void init(Config *config);
+			static void createLogicalDevice(Window *window);
 			static VkInstance getInstance();
 			static Config* getConfig();
 
@@ -21,8 +25,11 @@ namespace spectra {
 			static bool getEnableValidationLayers();
 
 			static const PhysicalDevice *getPhysicalDevice();
+			static LogicalDevice *getLogicalDevice();
 
 			static VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+			static uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+			static void windowErrorCallback(int error, const char* description);
 
 		private:
 			static void createInstance();
@@ -32,7 +39,6 @@ namespace spectra {
 			static std::vector<const char*> getRequiredExtensions();
 
 			static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData);
-			static void windowErrorCallback(int error, const char* description);
 
 			static void DestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, VkAllocationCallbacks* pAllocator);
 			static VkResult CreateDebugReportCallbackEXT(VkInstance instance, const VkDebugReportCallbackCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugReportCallbackEXT* pCallback);
@@ -43,6 +49,7 @@ namespace spectra {
 			static VReference<VkDebugReportCallbackEXT> callback;
 
 			static const PhysicalDevice *physicalDevice;
+			static LogicalDevice logicalDevice;
 
 			static Config* config;
 		};

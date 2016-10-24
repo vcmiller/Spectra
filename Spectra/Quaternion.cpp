@@ -1,4 +1,6 @@
 #include "Quaternion.h"
+#include "Log.h"
+#include "Math.h"
 
 namespace spectra {
 	Quaternion::Quaternion(float w, float x, float y, float z) {
@@ -48,7 +50,15 @@ namespace spectra {
 
 
 	float Quaternion::angle(const Quaternion &q1, const Quaternion &q2) {
-		return glm::angle(q1.quat * glm::inverse(q2.quat));
+		float f = Math::acos((q2.quat * glm::inverse(q1.quat)).w) * 2;
+		Log::log(f);
+
+		if (f > Math::halfCircle) {
+			f -= Math::fullCircle;
+			f = Math::abs(f);
+		}
+
+		return f;
 	}
 
 	float Quaternion::dot(const Quaternion &q1, const Quaternion &q2) {
@@ -83,7 +93,7 @@ namespace spectra {
 		float angle = Quaternion::angle(a, b);
 		float slerpAmount = 1.0f;
 		if (angle > maxDelta) {
-			slerpAmount = angle / maxDelta;
+			slerpAmount = maxDelta / angle;
 		}
 		
 		return slerp(a, b, slerpAmount);

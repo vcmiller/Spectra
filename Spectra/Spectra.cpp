@@ -7,6 +7,9 @@
 #include "Window.h"
 #include "Shader.h"
 #include "Material.h"
+#include "Texture.h"
+#include "Mesh.h"
+#include "MeshRenderer.h"
 
 namespace spectra {
 	using namespace internal;
@@ -42,20 +45,36 @@ namespace spectra {
 		internal::Clock clock;
 		Time::init(spf);
 
+		Window::init();
 		Vulkan::init(&config);
-		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra");
-		Shader *shader = new Shader("Shaders/triangle", Window::main->getDevice());
-		Material *material = new Material(Window::main, shader);
+		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra", false, false);
+		Vulkan::createLogicalDevice(Window::main);
+		Window::main->complete();
+
+
+		Shader *shader = new Shader("Shaders/triangle");
+		Texture *texture = new Texture("Textures/chalet.jpg");
+		Material *material = new Material(Window::main, shader, texture);
+		Mesh *mesh = new Mesh("Models/chalet.obj");
 
 		if (start) {
 			World::load(start, false);
 		}
 
+		GameObject *bob = new GameObject();
+		bob->addComponent<MeshRenderer>()->init(mesh, material, Window::main);
+
 		while (running && !Window::main->closeRequested()) {
 			clock.reset();
 			Window::pollEvents();
 			World::update();
+			bob->transform.setRotation(Quaternion::rotateTowards(bob->transform.getRotation(), Quaternion::euler(Vector3(0, Math::quarterCircle, 0)), Time::delta() ));
+
+			Window::main->acquireNextImage();
+
 			World::render();
+
+			Window::main->display();
 
 			ulong time = clock.elapsed();
 
@@ -68,10 +87,14 @@ namespace spectra {
 			Time::tick();
 		}
 
+		Vulkan::getLogicalDevice()->waitIdle();
+
 		World::clear();
 
 		delete material;
 		delete shader;
+		delete texture;
+		delete mesh;
 
 		internal::Clock::stop();
 

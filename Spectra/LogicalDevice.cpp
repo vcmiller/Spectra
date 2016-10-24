@@ -13,6 +13,35 @@ namespace spectra {
 		void LogicalDevice::init(const PhysicalDevice* physicalDevice, Window* window) {
 			this->physicalDevice = physicalDevice;
 
+			createDevice(window);
+			createCommandPool(window);
+		}
+
+		VkDevice LogicalDevice::getDevice() {
+			return device;
+		}
+
+		const PhysicalDevice * LogicalDevice::getPhysicalDevice() {
+			return physicalDevice;
+		}
+
+		CommandPool *LogicalDevice::getCommandPool() {
+			return &commandPool;
+		}
+
+		VkQueue LogicalDevice::getGraphicsQueue() {
+			return graphicsQueue;
+		}
+
+		VkQueue LogicalDevice::getPresentQueue() {
+			return presentQueue;
+		}
+
+		void LogicalDevice::waitIdle() {
+			vkDeviceWaitIdle(device);
+		}
+
+		void LogicalDevice::createDevice(Window* window) {
 			PhysicalDevice::QueueFamilyIndices indices = physicalDevice->getQueueFamilyIndices(window);
 
 			std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -61,8 +90,10 @@ namespace spectra {
 			vkGetDeviceQueue(device, indices.presentFamily, 0, &presentQueue);
 		}
 
-		VkDevice LogicalDevice::getDevice() {
-			return device;
+		void LogicalDevice::createCommandPool(Window* window) {
+			commandPool.init(this, window);
 		}
+
+		
 	}
 }

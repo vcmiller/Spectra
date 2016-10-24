@@ -8,7 +8,9 @@
 #include <glm/gtc/matrix_inverse.hpp>
 
 namespace spectra {
+	class Material;
 	namespace internal {
+
 		// A generic Matrix structure, with elements stored in a GLM matrix.
 		// First type parameter is number of rows/cols.
 		// Second is the subclass returned by matrix operations.
@@ -75,6 +77,8 @@ namespace spectra {
 			}
 
 		protected:
+			friend class Material;
+
 			// The matrix data.
 			G mat;
 

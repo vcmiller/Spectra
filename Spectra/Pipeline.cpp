@@ -1,43 +1,20 @@
 #include "Pipeline.h"
 #include "Vertex.h"
+#include "Vulkan.h"
 
 namespace spectra {
 	namespace internal {
 
-		void createShaderModule(VkDevice device, const std::vector<char>& code, VReference<VkShaderModule>& shaderModule) {
-			VkShaderModuleCreateInfo createInfo = {};
-			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-			createInfo.codeSize = code.size();
-			createInfo.pCode = (uint32_t*)code.data();
-
-			if (vkCreateShaderModule(device, &createInfo, nullptr, shaderModule.replace()) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create shader module!");
-			}
-		}
-
-		static std::vector<char> readFile(const std::string& filename) {
-			std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-			if (!file.is_open()) {
-				throw std::runtime_error("failed to open file!");
-			}
-
-			size_t fileSize = (size_t)file.tellg();
-			std::vector<char> buffer(fileSize);
-
-			file.seekg(0);
-			file.read(buffer.data(), fileSize);
-
-			file.close();
-
-			return buffer;
-		}
-
 		Pipeline::Pipeline() {}
 
 		void Pipeline::init(Window *window, Shader *shader, RenderPass *renderPass) {
-			pipelineLayout = VReference<VkPipelineLayout>(window->getDevice()->getDevice(), vkDestroyPipelineLayout);
-			graphicsPipeline = VReference<VkPipeline>(window->getDevice()->getDevice(), vkDestroyPipeline);
+			internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
+			pipelineLayout.cleanup();
+			graphicsPipeline.cleanup();
+
+			pipelineLayout = VReference<VkPipelineLayout>(device->getDevice(), vkDestroyPipelineLayout);
+			graphicsPipeline = VReference<VkPipeline>(device->getDevice(), vkDestroyPipeline);
 
 			VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 			vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -166,7 +143,7 @@ namespace spectra {
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
 
-			if (vkCreatePipelineLayout(window->getDevice()->getDevice(), &pipelineLayoutInfo, nullptr, pipelineLayout.replace()) != VK_SUCCESS) {
+			if (vkCreatePipelineLayout(device->getDevice(), &pipelineLayoutInfo, nullptr, pipelineLayout.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create pipeline layout!");
 			}
 
@@ -200,11 +177,20 @@ namespace spectra {
 			pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 			pipelineInfo.basePipelineIndex = -1; // Optional
 
-			VkDevice device = window->getDevice()->getDevice();
-
-			if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, graphicsPipeline.replace()) != VK_SUCCESS) {
+			if (vkCreateGraphicsPipelines(device->getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, graphicsPipeline.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create graphics pipeline!");
 			}
+		}
+
+		void Pipeline::bind(CommandBuffer * commandBuffer) {
+			vkCmdBindPipeline(commandBuffer->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		}
+		VkPipelineLayout Pipeline::getLayout() {
+			return pipelineLayout;
+		}
+
+		VkPipeline Pipeline::getPipeline() {
+			return graphicsPipeline;
 		}
 	}
 }

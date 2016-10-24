@@ -13,11 +13,12 @@ namespace spectra {
 
 		GameObject();
 
-		template <class T> void addComponent() {
+		template <class T> T* addComponent() {
 			Component::assign = this;
 			T* component = new T();
 			components.add(component);
 			component->onCreate();
+			return component;
 		}
 
 		template <class T> T *getComponent() {

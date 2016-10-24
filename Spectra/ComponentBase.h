@@ -22,6 +22,9 @@ namespace spectra {
 		template <class T> T *getComponent();
 		template <class T> List<T*> getComponents();
 
+		void setRecievesUpdate(bool b);
+		void setRecievesRender(bool b);
+
 	private:
 		friend class World;
 		friend class GameObject;

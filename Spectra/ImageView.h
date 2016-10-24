@@ -13,14 +13,14 @@ namespace spectra {
 		public:
 			ImageView();
 			~ImageView();
-			ImageView(VkImage image, LogicalDevice* device, VkFormat format, VkImageAspectFlags aspectFlags);
 
-			void init(VkImage image, LogicalDevice* device, VkFormat format, VkImageAspectFlags aspectFlags);
+			void init(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 			VkImageView getImageView();
+			bool isCreated();
 
 		private:
-			VkImageView imageView;
-			VkDevice device;
+			bool created = false;
+			VReference<VkImageView> imageView;
 		};
 	}
 }

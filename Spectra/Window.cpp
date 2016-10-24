@@ -5,7 +5,7 @@
 
 namespace spectra {
 	namespace internal {
-		Window::Window(int width, int height, std::string name, bool resizeable) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
+		Window::Window(int width, int height, std::string name, bool resizeable, bool complete) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
 			this->width = width;
 			this->height = height;
 
@@ -18,21 +18,85 @@ namespace spectra {
 			glfwSetWindowSizeCallback(window, Window::resized);
 
 			createSurface();
-			createLogicalDevice();
+			//createLogicalDevice();
+
+			if (complete) {
+				this->complete();
+			}
+		}
+
+		void Window::complete() {
 			createSwapChain();
 			createImageViews();
+			createDepthImage();
+			createRenderPass();
+			createFramebuffers();
+			createSemafores();
+		}
+
+		void Window::display() {
+			VkSemaphore semaphores[] = { renderFinishedSemaphore };
+
+			VkPresentInfoKHR presentInfo = {};
+			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = semaphores;
+			VkSwapchainKHR swapChains[] = { swapChain };
+			presentInfo.swapchainCount = 1;
+			presentInfo.pSwapchains = swapChains;
+			presentInfo.pImageIndices = &currentImage;
+			presentInfo.pResults = nullptr; // Optional
+
+			VkResult result = vkQueuePresentKHR(Vulkan::getLogicalDevice()->getPresentQueue(), &presentInfo);
+
+			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+				recreateSwapChain();
+				Log::log("RECREATE SWAP CHAIN");
+			} else if (result != VK_SUCCESS) {
+				throw std::runtime_error("failed to present swap chain image!");
+			}
+		}
+
+		VkSemaphore Window::getImageSemaphore() {
+			return imageAvailableSemaphore;
+		}
+
+		VkSemaphore Window::getRenderSemaphore() {
+			return renderFinishedSemaphore;
+		}
+
+		void Window::acquireNextImage() {
+			VkResult result = vkAcquireNextImageKHR(Vulkan::getLogicalDevice()->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &currentImage);
+
+			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+				recreateSwapChain();
+				Log::log("RECREATE SWAP CHAIN");
+				return;
+			} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+				throw std::runtime_error("failed to acquire swap chain image!");
+			}
+		}
+
+		uint32_t Window::getCurrentImage() {
+			return currentImage;
 		}
 
 		Window::~Window() {
 			glfwDestroyWindow(window);
 		}
 
+		void Window::init() {
+			glfwInit();
+			glfwSetErrorCallback(Vulkan::windowErrorCallback);
+		}
+
 		VkSurfaceKHR Window::getSurface() {
 			return surface;
 		}
 
-		LogicalDevice *Window::getDevice() {
-			return &device;
+		VkSwapchainKHR Window::getSwapChain() {
+			return swapChain;
 		}
 
 		VkFormat Window::getSwapChainImageFormat() {
@@ -51,6 +115,18 @@ namespace spectra {
 			);
 		}
 
+		RenderPass *Window::getRenderPass() {
+			return &renderPass;
+		}
+
+		int Window::getNumFramebuffers() {
+			return framebuffers.size();
+		}
+
+		Framebuffer * Window::getFramebuffer(int i) {
+			return &framebuffers[i];
+		}
+
 		Window *Window::getMainWindow() {
 			return main;
 		}
@@ -64,7 +140,9 @@ namespace spectra {
 		}
 
 		void Window::createSwapChain() {
-			swapChain = VReference<VkSwapchainKHR>(device.getDevice(), vkDestroySwapchainKHR);
+			LogicalDevice *device = Vulkan::getLogicalDevice();
+
+			swapChain = VReference<VkSwapchainKHR>(device->getDevice(), vkDestroySwapchainKHR);
 
 			const PhysicalDevice* physicalDevice = Vulkan::getPhysicalDevice();
 			auto swapChainSupport = physicalDevice->getSwapChainSupportDetails(this);
@@ -113,30 +191,73 @@ namespace spectra {
 			createInfo.oldSwapchain = oldSwapChain;
 
 			VkSwapchainKHR newSwapChain;
-			if (vkCreateSwapchainKHR(device.getDevice(), &createInfo, nullptr, &newSwapChain) != VK_SUCCESS) {
+			if (vkCreateSwapchainKHR(device->getDevice(), &createInfo, nullptr, &newSwapChain) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create swap chain!");
 			}
 
 			swapChain = newSwapChain;
 
-			vkGetSwapchainImagesKHR(device.getDevice(), swapChain, &imageCount, nullptr);
+			vkGetSwapchainImagesKHR(device->getDevice(), swapChain, &imageCount, nullptr);
 			swapChainImages.resize(imageCount);
-			vkGetSwapchainImagesKHR(device.getDevice(), swapChain, &imageCount, swapChainImages.data());
+			vkGetSwapchainImagesKHR(device->getDevice(), swapChain, &imageCount, swapChainImages.data());
 
 			swapChainImageFormat = surfaceFormat.format;
 			swapChainExtent = extent;
 		}
 
 		void Window::createImageViews() {
+
 			swapChainImageViews.resize(swapChainImages.size());
 
 			for (uint32_t i = 0; i < swapChainImages.size(); i++) {
-				swapChainImageViews[i].init(swapChainImages[i], &device, swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+				swapChainImageViews[i].init(swapChainImages[i], swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			}
+		}
+
+		void Window::createDepthImage() {
+			VkFormat depthFormat = getDepthFormat();
+			depthImage.init(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT);
+			depthImage.createImageView(VK_IMAGE_ASPECT_DEPTH_BIT);
+
+			depthImage.transition(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		}
+
+		void Window::createRenderPass() {
+			renderPass.init(this);
+		}
+
+		void Window::createFramebuffers() {
+			framebuffers.resize(swapChainImages.size());
+
+			for (int i = 0; i < framebuffers.size(); i++) {
+				framebuffers[i].init(swapChainExtent.width, swapChainExtent.height, &renderPass, &swapChainImageViews[i], depthImage.getImageView());
+			}
+		}
+
+		void Window::createSemafores() {
+
+			imageAvailableSemaphore.cleanup();
+			renderFinishedSemaphore.cleanup();
+
+			LogicalDevice *device = Vulkan::getLogicalDevice();
+
+			imageAvailableSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
+			renderFinishedSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
+
+			VkSemaphoreCreateInfo semaphoreInfo = {};
+			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+			if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, imageAvailableSemaphore.replace()) != VK_SUCCESS ||
+				vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, renderFinishedSemaphore.replace()) != VK_SUCCESS) {
+
+				throw std::runtime_error("failed to create semaphores!");
 			}
 		}
 
 		void Window::recreateSwapChain() {
-			vkDeviceWaitIdle(device.getDevice());
+			LogicalDevice *device = Vulkan::getLogicalDevice();
+
+			vkDeviceWaitIdle(device->getDevice());
 
 			createSwapChain();
 			createImageViews();
@@ -183,10 +304,6 @@ namespace spectra {
 			if (glfwCreateWindowSurface(Vulkan::getInstance(), window, nullptr, surface.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create window surface!");
 			}
-		}
-
-		void Window::createLogicalDevice() {
-			device.init(Vulkan::getPhysicalDevice(), this);
 		}
 
 		void Window::resized(GLFWwindow* window, int width, int height) {

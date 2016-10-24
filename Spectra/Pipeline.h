@@ -6,6 +6,7 @@
 #include "Window.h"
 #include "Shader.h"
 #include "RenderPass.h"
+#include "CommandBuffer.h"
 
 namespace spectra {
 	namespace internal {
@@ -14,6 +15,10 @@ namespace spectra {
 			Pipeline();
 
 			void init(Window *window, Shader *shader, RenderPass *renderPass);
+			void bind(CommandBuffer *commandBuffer);
+
+			VkPipelineLayout getLayout();
+			VkPipeline getPipeline();
 
 		private:
 			VReference<VkPipelineLayout> pipelineLayout;

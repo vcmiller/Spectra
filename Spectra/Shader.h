@@ -13,21 +13,26 @@ namespace spectra {
 		class Pipeline;
 	}
 
+	class Material;
+
 	class Shader {
 	public:
-		Shader(std::string name, internal::LogicalDevice *device);
+		Shader(std::string name);
 
 	private:
 		friend class internal::Pipeline;
+		friend class Material;
 
-		void createShaderModules(std::string name, internal::LogicalDevice *device);
-		void createDescriptorSetLayout(internal::LogicalDevice *device);
+		void createShaderModules(std::string name);
+		void createDescriptorSetLayout();
+		void createDescriptorPool();
 
-		static VkShaderModule createShaderModule(const std::vector<char>& code, internal::LogicalDevice *device);
+		static VkShaderModule createShaderModule(const std::vector<char>& code);
 		static std::vector<char> readFile(const std::string & filename);
 
 		internal::VReference<VkShaderModule> vertexModule;
 		internal::VReference<VkShaderModule> fragmentModule;
 		internal::VReference<VkDescriptorSetLayout> descriptorSetLayout;
+		internal::VReference<VkDescriptorPool> descriptorPool;
 	};
 }

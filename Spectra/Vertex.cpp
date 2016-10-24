@@ -1,6 +1,10 @@
 #include "Vertex.h"
 
 namespace spectra {
+	bool Vertex::operator==(const Vertex & other) const {
+		return position == other.position && normal == other.normal && texcoord == other.texcoord;
+	}
+
 	VkVertexInputBindingDescription Vertex::getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;

@@ -1,4 +1,6 @@
 #include "RenderPass.h"
+#include "Vulkan.h"
+#include "Window.h"
 
 #include <array>
 
@@ -7,7 +9,11 @@ namespace spectra {
 		RenderPass::RenderPass() {}
 
 		void RenderPass::init(Window *window) {
-			renderPass = VReference<VkRenderPass>(window->getDevice()->getDevice(), vkDestroyRenderPass);
+			internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
+			renderPass.cleanup();
+
+			renderPass = VReference<VkRenderPass>(device->getDevice(), vkDestroyRenderPass);
 
 			VkAttachmentDescription colorAttachment = {};
 			colorAttachment.format = window->getSwapChainImageFormat();
@@ -63,12 +69,42 @@ namespace spectra {
 			renderPassInfo.dependencyCount = 1;
 			renderPassInfo.pDependencies = &dependency;
 
-			if (vkCreateRenderPass(window->getDevice()->getDevice(), &renderPassInfo, nullptr, renderPass.replace()) != VK_SUCCESS) {
+			if (vkCreateRenderPass(device->getDevice(), &renderPassInfo, nullptr, renderPass.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create render pass!");
 			}
 		}
+
 		VkRenderPass RenderPass::getRenderPass() {
 			return renderPass;
 		}
+
+		void RenderPass::begin(CommandBuffer *commandBuffer, Framebuffer *framebuffer) {
+			VkRenderPassBeginInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.framebuffer = framebuffer->getBuffer();
+
+			renderPassInfo.renderArea.offset = { 0, 0 };
+
+			int i = framebuffer->getWidth();
+			int j = framebuffer->getHeight();
+
+			renderPassInfo.renderArea.extent.width = i;
+			renderPassInfo.renderArea.extent.height = j;
+
+			std::array<VkClearValue, 2> clearValues = {};
+			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
+
+			renderPassInfo.clearValueCount = clearValues.size();
+			renderPassInfo.pClearValues = clearValues.data();
+
+			vkCmdBeginRenderPass(commandBuffer->getBuffer(), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		}
+
+		void RenderPass::end(CommandBuffer *commandBuffer) {
+			vkCmdEndRenderPass(commandBuffer->getBuffer());
+		}
+
 	}
 }

@@ -8,15 +8,13 @@ namespace spectra {
 		ImageView::ImageView() {}
 
 		ImageView::~ImageView() {
-			vkDestroyImageView(device, imageView, nullptr);
 		}
 
-		ImageView::ImageView(VkImage image, LogicalDevice *device, VkFormat format, VkImageAspectFlags aspectFlags) {
-			init(image, device, format, aspectFlags);
-		}
+		void ImageView::init(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
+			LogicalDevice *device = Vulkan::getLogicalDevice();
 
-		void ImageView::init(VkImage image, LogicalDevice *device, VkFormat format, VkImageAspectFlags aspectFlags) {
-			this->device = device->getDevice();;
+			imageView.cleanup();
+			imageView = VReference<VkImageView>(device->getDevice(), vkDestroyImageView);
 
 			VkImageViewCreateInfo viewInfo = {};
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -29,13 +27,19 @@ namespace spectra {
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(device->getDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+			if (vkCreateImageView(device->getDevice(), &viewInfo, nullptr, imageView.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
 			}
+
+			created = true;
 		}
 
 		VkImageView ImageView::getImageView() {
-			return VkImageView();
+			return imageView;
+		}
+
+		bool ImageView::isCreated() {
+			return created;
 		}
 	}
 }

@@ -6,6 +6,9 @@
 #include "VReference.h"
 #include "LogicalDevice.h"
 #include "ImageView.h"
+#include "Image.h"
+#include "RenderPass.h"
+#include "Framebuffer.h"
 
 #include <string>
 #include <vector>
@@ -16,35 +19,60 @@ namespace spectra {
 	namespace internal {
 		class Window {
 		public:
-			Window(int width, int height, std::string name, bool resizeable = false);
+			Window(int width, int height, std::string name, bool resizeable = false, bool complete = true);
 			~Window();
 
+			static void init();
+
 			VkSurfaceKHR getSurface();
-			LogicalDevice *getDevice();
+			VkSwapchainKHR getSwapChain();
 
 			VkFormat getSwapChainImageFormat();
 			VkExtent2D getSwapChainExtent();
 			VkFormat getDepthFormat();
+			RenderPass *getRenderPass();
+
+			int getNumFramebuffers();
+			Framebuffer *getFramebuffer(int i);
 
 			static Window *getMainWindow();
 
 			bool closeRequested();
 			static void pollEvents();
 
+			void complete();
+
+			void display();
+
+			void acquireNextImage();
+			uint32_t getCurrentImage();
+
+			VkSemaphore getImageSemaphore();
+			VkSemaphore getRenderSemaphore();
+
 		private:
 			friend class Spectra;
 
 			void createSurface();
-			void createLogicalDevice();
 			void createSwapChain();
 			void createImageViews();
+			void createDepthImage();
+			void createRenderPass();
+			void createFramebuffers();
+			void createSemafores();
+
 			void recreateSwapChain();
 
 			VReference<VkSurfaceKHR> surface;
-			LogicalDevice device;
 			VReference<VkSwapchainKHR> swapChain;
 			std::vector<VkImage> swapChainImages;
 			std::vector<ImageView> swapChainImageViews;
+			Image depthImage;
+			RenderPass renderPass;
+			std::vector<Framebuffer> framebuffers;
+
+			VReference<VkSemaphore> imageAvailableSemaphore;
+			VReference<VkSemaphore> renderFinishedSemaphore;
 
 			VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 			VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
@@ -52,6 +80,8 @@ namespace spectra {
 
 			VkFormat swapChainImageFormat;
 			VkExtent2D swapChainExtent;
+
+			uint32_t currentImage;
 
 			GLFWwindow *window;
 

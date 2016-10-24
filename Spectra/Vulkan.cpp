@@ -1,8 +1,10 @@
 #include "Vulkan.h"
 #include "Log.h"
+#include "Window.h"
+#include "LogicalDevice.h"
 
 #ifdef NDEBUG
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 #else
 const bool enableValidationLayers = true;
 #endif
@@ -20,9 +22,6 @@ namespace spectra {
 
 		void Vulkan::init(Config* config) {
 			Vulkan::config = config;
-
-			glfwInit();
-			glfwSetErrorCallback(windowErrorCallback);
 
 			createInstance();
 			setupDebugCallback();
@@ -148,6 +147,10 @@ namespace spectra {
 			}
 		}
 
+		void Vulkan::createLogicalDevice(Window *window) {
+			logicalDevice.init(physicalDevice, window);
+		}
+
 		VKAPI_ATTR VkBool32 VKAPI_CALL Vulkan::debugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objType, uint64_t obj, size_t location, int32_t code, const char * layerPrefix, const char * msg, void * userData) {
 			Log::log << "validation layer: " << msg << "\n";
 
@@ -192,6 +195,10 @@ namespace spectra {
 			return physicalDevice;
 		}
 
+		LogicalDevice *Vulkan::getLogicalDevice() {
+			return &logicalDevice;
+		}
+
 		VkFormat Vulkan::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 			for (VkFormat format : candidates) {
 				VkFormatProperties props;
@@ -207,12 +214,26 @@ namespace spectra {
 			}
 		}
 
+		uint32_t Vulkan::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+			VkPhysicalDeviceMemoryProperties memProperties;
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice->getDevice(), &memProperties);
+
+			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+					return i;
+				}
+			}
+
+			throw std::runtime_error("failed to find suitable memory type!");
+		}
+
 
 		const PhysicalDevice *Vulkan::physicalDevice = nullptr;
 		Config *Vulkan::config;
 
 		VReference<VkInstance> Vulkan::instance(vkDestroyInstance);
 		VReference<VkDebugReportCallbackEXT> Vulkan::callback;
+		LogicalDevice Vulkan::logicalDevice;
 
 	}
 }

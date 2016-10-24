@@ -20,5 +20,13 @@ namespace spectra {
 		onDestroy();
 	}
 
+	void Component::setRecievesUpdate(bool b) {
+		this->receivesUpdate = b;
+	}
+
+	void Component::setRecievesRender(bool b) {
+		this->receivesRender = b;
+	}
+
 	GameObject *Component::assign;
 }

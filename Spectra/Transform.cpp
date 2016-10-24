@@ -3,7 +3,11 @@
 
 namespace spectra {
 
-	Transform::Transform() { }
+	Transform::Transform() { 
+		position = Vector3();
+		rotation = Quaternion();
+		scale = Vector3(1, 1, 1);
+	}
 
 	Transform::Transform(const Transform &other) { }
 

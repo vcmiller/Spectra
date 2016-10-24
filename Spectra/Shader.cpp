@@ -1,27 +1,36 @@
 #include "Shader.h"
 #include "Log.h"
+#include "Vulkan.h"
 
 #include <vector>
 #include <array>
 
 namespace spectra {
-	Shader::Shader(std::string name, internal::LogicalDevice *device) {
-		createShaderModules(name, device);
-		createDescriptorSetLayout(device);
+	Shader::Shader(std::string name) {
+		createShaderModules(name);
+		createDescriptorSetLayout();
+		createDescriptorPool();
 	}
 
-	void Shader::createShaderModules(std::string name, internal::LogicalDevice *device) {
+	void Shader::createShaderModules(std::string name) {
 		auto vertShaderCode = readFile(name + "-vert.spv");
 		auto fragShaderCode = readFile(name + "-frag.spv");
+
+		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
+		vertexModule.cleanup();
+		fragmentModule.cleanup();
 
 		vertexModule = internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule);
 		fragmentModule = internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule);
 
-		vertexModule = createShaderModule(vertShaderCode, device);
-		fragmentModule = createShaderModule(fragShaderCode, device);
+		vertexModule = createShaderModule(vertShaderCode);
+		fragmentModule = createShaderModule(fragShaderCode);
 	}
 
-	void Shader::createDescriptorSetLayout(internal::LogicalDevice *device) {
+	void Shader::createDescriptorSetLayout() {
+		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
 		descriptorSetLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
 
 		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
@@ -50,7 +59,31 @@ namespace spectra {
 		}
 	}
 
-	VkShaderModule Shader::createShaderModule(const std::vector<char>& code, internal::LogicalDevice *device) {
+	void Shader::createDescriptorPool() {
+		auto device = internal::Vulkan::getLogicalDevice();
+
+		descriptorPool = internal::VReference<VkDescriptorPool>(device->getDevice(), vkDestroyDescriptorPool);
+
+		std::array<VkDescriptorPoolSize, 2> poolSizes = {};
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].descriptorCount = 1;
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = 1;
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.poolSizeCount = poolSizes.size();
+		poolInfo.pPoolSizes = poolSizes.data();
+		poolInfo.maxSets = 1;
+
+		if (vkCreateDescriptorPool(device->getDevice(), &poolInfo, nullptr, descriptorPool.replace()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+
+	VkShaderModule Shader::createShaderModule(const std::vector<char>& code) {
+		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = code.size();

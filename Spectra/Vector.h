@@ -167,6 +167,11 @@ namespace spectra {
 				vec /= f;
 			}
 
+			// Assign from subtype
+			void operator=(const T &other) {
+				vec = other.vec;
+			}
+
 			// Implicitly cast to subtype.
 			operator T() const {
 				T result;
