@@ -19,17 +19,17 @@ namespace spectra {
 		public:
 			// Get a reference to the element at a given row and column.
 			float &operator () (int row, int col) {
-				return mat[row][col];
+				return mat[col][row];
 			}
 
 			// Get the value to the element at a given row and column.
 			float get(int row, int col) const {
-				return mat[row][col];
+				return mat[col][row];
 			}
 
 			// Set the value of the element at a given row and column.
 			void set(int row, int col, float f) {
-				mat[row][col] = f;
+				mat[col][row] = f;
 			}
 
 			// Compute inverse matrix.
@@ -51,6 +51,12 @@ namespace spectra {
 			T inverseTranspose() const {
 				T result;
 				result.mat = glm::inverseTranspose(mat);
+				return result;
+			}
+
+			T translate(const Vector3 &vec) const {
+				T result;
+				result.mat = glm::translate(mat, vec.vec);
 				return result;
 			}
 

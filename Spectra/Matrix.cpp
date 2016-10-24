@@ -24,7 +24,7 @@ namespace spectra {
 
 	Matrix4 Matrix4::transpose(Vector4 c0, Vector4 c1, Vector4 c2, Vector4 c3) {
 		Matrix4 result;
-		result.mat = glm::mat4(c0.x, c1.x, c2.x, c3.x, c0.y, c1.y, c2.y, c3.y, c0.z, c1.z, c2.z, c3.z, c0.w, c1.w, c3.w, c2.w);
+		result.mat = glm::mat4(c0.x, c1.x, c2.x, c3.x, c0.y, c1.y, c2.y, c3.y, c0.z, c1.z, c2.z, c3.z, c0.w, c1.w, c2.w, c3.w);
 		return result;
 	}
 

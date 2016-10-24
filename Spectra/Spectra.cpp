@@ -43,7 +43,6 @@ namespace spectra {
 		}
 
 		internal::Clock clock;
-		Time::init(spf);
 
 		Window::init();
 		Vulkan::init(&config);
@@ -61,6 +60,8 @@ namespace spectra {
 			World::load(start, false);
 		}
 
+		Time::init(spf);
+
 		GameObject *bob = new GameObject();
 		bob->addComponent<MeshRenderer>()->init(mesh, material, Window::main);
 
@@ -68,7 +69,8 @@ namespace spectra {
 			clock.reset();
 			Window::pollEvents();
 			World::update();
-			bob->transform.setRotation(Quaternion::rotateTowards(bob->transform.getRotation(), Quaternion::euler(Vector3(0, Math::quarterCircle, 0)), Time::delta() ));
+			//bob->transform.setRotation(Quaternion::euler(Vector3(0, Math::quarterCircle, 0)));
+			bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
 
 			Window::main->acquireNextImage();
 

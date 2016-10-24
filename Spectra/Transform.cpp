@@ -7,6 +7,7 @@ namespace spectra {
 		position = Vector3();
 		rotation = Quaternion();
 		scale = Vector3(1, 1, 1);
+		parent = nullptr;
 	}
 
 	Transform::Transform(const Transform &other) { }
@@ -194,8 +195,7 @@ namespace spectra {
 		Vector4 right(rotation * Vector3::right / scale.x, 0);
 		Vector4 up(rotation * Vector3::up / scale.y, 0);
 		Vector4 forward(rotation * Vector3::forward / scale.z, 0);
-		Vector4 pos(position, 1);
-		return Matrix4::transpose(right, up, forward, pos);
+		return Matrix4::transpose(right, up, forward, Vector4(0, 0, 0, 1)).translate(-position);
 	}
 
 	Matrix4 Transform::localToParentMatrix() const {
