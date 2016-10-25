@@ -10,6 +10,7 @@
 #include "Texture.h"
 #include "Mesh.h"
 #include "MeshRenderer.h"
+#include "Camera.h"
 
 namespace spectra {
 	using namespace internal;
@@ -52,9 +53,9 @@ namespace spectra {
 
 
 		Shader *shader = new Shader("Shaders/triangle");
-		Texture *texture = new Texture("Textures/chalet.jpg");
+		Texture *texture = new Texture("Textures/spas.png");
 		Material *material = new Material(Window::main, shader, texture);
-		Mesh *mesh = new Mesh("Models/chalet.obj");
+		Mesh *mesh = new Mesh("Models/spas.obj");
 
 		if (start) {
 			World::load(start, false);
@@ -65,16 +66,21 @@ namespace spectra {
 		GameObject *bob = new GameObject();
 		bob->addComponent<MeshRenderer>()->init(mesh, material, Window::main);
 
+		GameObject *camera = new GameObject();
+		camera->addComponent<Camera>();
+
 		while (running && !Window::main->closeRequested()) {
 			clock.reset();
 			Window::pollEvents();
 			World::update();
-			//bob->transform.setRotation(Quaternion::euler(Vector3(0, Math::quarterCircle, 0)));
-			bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
+			bob->transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
+			//bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
 
 			Window::main->acquireNextImage();
 
-			World::render();
+			for (Camera *camera : Camera::allCameras) {
+				camera->capture();
+			}
 
 			Window::main->display();
 
@@ -90,7 +96,6 @@ namespace spectra {
 		}
 
 		Vulkan::getLogicalDevice()->waitIdle();
-
 		World::clear();
 
 		delete material;

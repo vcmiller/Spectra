@@ -85,11 +85,16 @@ namespace spectra {
 
 		Matrix4 mat = transform->localToWorldMatrix();
 		ubo.model = mat.mat;//glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		//ubo.view = glm::lookAt(glm::vec3(0.0f, 0.0, 4.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		Transform t;
-		t.setPosition(Vector3(2, 2, 2));
+		t.setPosition(Vector3(0, 0, -1));
+		//t.setRotation(Quaternion::euler(Vector3(0, Math::halfCircle, 0)));
 
 		mat = t.worldToLocalMatrix();
+
+		//mat.mat = ubo.view;
+		Log::log << "Forward: " << t.getForward() << "\n";
+		Log::log << "Position: " << t.getPosition() << "\n";
 		Log::log(mat);
 		
 		ubo.view = t.worldToLocalMatrix().mat;

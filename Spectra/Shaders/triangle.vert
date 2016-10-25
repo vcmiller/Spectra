@@ -17,6 +17,9 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+	vec4 viewPos = ubo.view * ubo.model * vec4(inPosition, 1.0);
+	viewPos.z *= -1;
+
+    gl_Position = ubo.proj * viewPos;
     fragTexCoord = inTexCoord;
 }

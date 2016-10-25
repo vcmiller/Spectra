@@ -31,8 +31,8 @@ namespace spectra {
 		Material *material;
 		internal::Window *window;
 
-		void createCommandBuffers();
+		void createCommandBuffer();
 
-		std::vector<internal::CommandBuffer> commandBuffers;
+		internal::CommandBuffer drawCmd;
 	};
 }
