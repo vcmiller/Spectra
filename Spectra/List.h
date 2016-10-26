@@ -5,6 +5,8 @@
 #include "Math.h"
 
 namespace spectra {
+	template <typename K, typename V> class Map;
+
 	template <typename T> class List {
 	public:
 		List(int initialCapacity = 32) {
@@ -117,6 +119,8 @@ namespace spectra {
 		}
 
 	private:
+		template <typename K, typename V> friend class Map;
+
 		T* items;
 		int count;
 		int arraySize;

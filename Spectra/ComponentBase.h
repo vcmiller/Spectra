@@ -8,6 +8,7 @@ namespace spectra {
 
 	class Component : public Object {
 	public:
+		virtual ~Component();
 
 		virtual void onCreate();
 		virtual void update();

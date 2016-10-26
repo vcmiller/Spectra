@@ -44,7 +44,6 @@ namespace spectra {
 		}
 
 		internal::Clock clock;
-
 		Window::init();
 		Vulkan::init(&config);
 		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra", false, false);
@@ -64,10 +63,17 @@ namespace spectra {
 		Time::init(spf);
 
 		GameObject *bob = new GameObject();
-		bob->addComponent<MeshRenderer>()->init(mesh, material, Window::main);
+		bob->addComponent<MeshRenderer>()->init(mesh, material);
+
+		bob->transform.setPosition(Vector3(-.5f, 0, 2));
+
+		GameObject *joe = new GameObject();
+		joe->addComponent<MeshRenderer>()->init(mesh, material);
+		joe->transform.setPosition(Vector3(.5f, 0, 2));
 
 		GameObject *camera = new GameObject();
 		camera->addComponent<Camera>();
+		camera->transform.setPosition(Vector3(0, 0, -1));
 
 		while (running && !Window::main->closeRequested()) {
 			clock.reset();
@@ -88,6 +94,7 @@ namespace spectra {
 
 			if (time < uspf) {
 				clock.sleep(uspf - time);
+				//Log::log << "Time: " << int(time / 1000) << "ms\n";
 			} else {
 				Log::log << "Can't keep up! Frame time " << int(time / 1000) << " milliseconds.\n";
 			}

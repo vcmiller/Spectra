@@ -8,8 +8,8 @@
 namespace spectra {
 	Shader::Shader(std::string name) {
 		createShaderModules(name);
-		createDescriptorSetLayout();
-		createDescriptorPool();
+		createDescriptorSetLayouts();
+		createDescriptorPools();
 	}
 
 	void Shader::createShaderModules(std::string name) {
@@ -28,55 +28,80 @@ namespace spectra {
 		fragmentModule = createShaderModule(fragShaderCode);
 	}
 
-	void Shader::createDescriptorSetLayout() {
+	void Shader::createDescriptorSetLayouts() {
 		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
 
-		descriptorSetLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
+		matricesLayout.cleanup();
+		materialLayout.cleanup();
 
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.descriptorCount = 1;
+		materialLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
+		matricesLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
 
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+		VkDescriptorSetLayoutBinding matricesLayoutBinding = {};
+		matricesLayoutBinding.binding = 0;
+		matricesLayoutBinding.descriptorCount = 1;
+		matricesLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		matricesLayoutBinding.pImmutableSamplers = nullptr;
+		matricesLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		VkDescriptorSetLayoutBinding materialLayoutBinding = {};
+		materialLayoutBinding.binding = 1;
+		materialLayoutBinding.descriptorCount = 1;
+		materialLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		materialLayoutBinding.pImmutableSamplers = nullptr;
+		materialLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = bindings.size();
-		layoutInfo.pBindings = bindings.data();
+		VkDescriptorSetLayoutCreateInfo matricesLayoutInfo = {};
+		matricesLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		matricesLayoutInfo.bindingCount = 1;
+		matricesLayoutInfo.pBindings = &matricesLayoutBinding;
 
-		if (vkCreateDescriptorSetLayout(device->getDevice(), &layoutInfo, nullptr, descriptorSetLayout.replace()) != VK_SUCCESS) {
+		VkDescriptorSetLayoutCreateInfo materialLayoutInfo = {};
+		materialLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		materialLayoutInfo.bindingCount = 1;
+		materialLayoutInfo.pBindings = &materialLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(device->getDevice(), &matricesLayoutInfo, nullptr, matricesLayout.replace()) != VK_SUCCESS ||
+			vkCreateDescriptorSetLayout(device->getDevice(), &materialLayoutInfo, nullptr, materialLayout.replace()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
 	}
 
-	void Shader::createDescriptorPool() {
+	void Shader::createDescriptorPools() {
 		auto device = internal::Vulkan::getLogicalDevice();
 
-		descriptorPool = internal::VReference<VkDescriptorPool>(device->getDevice(), vkDestroyDescriptorPool);
+		matricesPool.cleanup();
+		materialPool.cleanup();
 
-		std::array<VkDescriptorPoolSize, 2> poolSizes = {};
-		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSizes[0].descriptorCount = 1;
-		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[1].descriptorCount = 1;
+		matricesPool = internal::VReference<VkDescriptorPool>(device->getDevice(), vkDestroyDescriptorPool);
+		materialPool = internal::VReference<VkDescriptorPool>(device->getDevice(), vkDestroyDescriptorPool);
 
-		VkDescriptorPoolCreateInfo poolInfo = {};
-		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		poolInfo.poolSizeCount = poolSizes.size();
-		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = 1;
+		VkDescriptorPoolSize matricesPoolSize = {};
+		matricesPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		matricesPoolSize.descriptorCount = 5;
 
-		if (vkCreateDescriptorPool(device->getDevice(), &poolInfo, nullptr, descriptorPool.replace()) != VK_SUCCESS) {
+		VkDescriptorPoolSize materialPoolSize = {};
+		materialPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		materialPoolSize.descriptorCount = 5;
+
+		VkDescriptorPoolCreateInfo matricesPoolInfo = {};
+		matricesPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		matricesPoolInfo.poolSizeCount = 1;
+		matricesPoolInfo.pPoolSizes = &matricesPoolSize;
+		matricesPoolInfo.maxSets = 5;
+		matricesPoolInfo.pNext = nullptr;
+		matricesPoolInfo.flags = 0;
+
+		VkDescriptorPoolCreateInfo materialPoolInfo = {};
+		materialPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		materialPoolInfo.poolSizeCount = 1;
+		materialPoolInfo.pPoolSizes = &materialPoolSize;
+		materialPoolInfo.maxSets = 5;
+		materialPoolInfo.pNext = nullptr;
+		materialPoolInfo.flags = 0;
+
+		if (vkCreateDescriptorPool(device->getDevice(), &matricesPoolInfo, nullptr, matricesPool.replace()) != VK_SUCCESS ||
+			vkCreateDescriptorPool(device->getDevice(), &materialPoolInfo, nullptr, materialPool.replace()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor pool!");
 		}
 	}

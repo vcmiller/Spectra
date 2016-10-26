@@ -10,6 +10,8 @@ namespace spectra {
 		World::newComponents.add(this);
 	}
 
+	Component::~Component() {}
+
 	void Component::onCreate() { }
 	void Component::update() { }
 	void Component::render() { }

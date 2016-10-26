@@ -21,6 +21,8 @@ namespace spectra {
 
 		internal::CommandBuffer *getCommandBuffer();
 
+		Matrix4 projection;
+
 	private:
 		friend class Spectra;
 

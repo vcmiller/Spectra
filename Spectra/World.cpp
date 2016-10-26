@@ -1,5 +1,6 @@
 #include "World.h"
 #include "Log.h"
+#include "MeshRenderer.h"
 
 namespace spectra {
 
@@ -66,6 +67,23 @@ namespace spectra {
 		for (GameObject *object : gameObjects) {
 			object->destroy();
 		}
+
+		for (Component *cmp : deleteComponents) {
+			components.remove(cmp);
+			updateComponents.remove(cmp);
+			renderComponents.remove(cmp);
+
+			cmp->gameObject.components.removeItem(cmp);
+			delete cmp;
+		}
+
+		for (GameObject *obj : deleteGameObjects) {
+			gameObjects.remove(obj);
+			delete obj;
+		}
+
+		deleteComponents.clear();
+		deleteGameObjects.clear();
 	}
 
 	void World::load(Scene *scene, bool replace) {

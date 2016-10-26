@@ -44,11 +44,18 @@ namespace spectra {
 
 			void display();
 
+			int getWidth();
+
+			int getHeight();
+
 			void acquireNextImage();
 			uint32_t getCurrentImage();
 
 			VkSemaphore getImageSemaphore();
 			VkSemaphore getRenderSemaphore();
+			VkFence getRenderFence();
+
+			CommandPool *getCommandPool();
 
 		private:
 			friend class Spectra;
@@ -73,6 +80,10 @@ namespace spectra {
 
 			VReference<VkSemaphore> imageAvailableSemaphore;
 			VReference<VkSemaphore> renderFinishedSemaphore;
+			VReference<VkFence> renderFinishedFence;
+
+			std::vector<CommandPool> commandPools;
+			CommandPool *currentCommandPool;
 
 			VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 			VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);

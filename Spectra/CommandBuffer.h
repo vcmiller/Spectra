@@ -12,12 +12,12 @@ namespace spectra {
 		public:
 			CommandBuffer();
 			CommandBuffer(bool singleUse);
-			CommandBuffer(CommandPool *commandPool, bool singleUse = true);
+			CommandBuffer(CommandPool *commandPool, bool singleUse, bool destroy);
 
 			~CommandBuffer();
 
-			void init(bool singleUse = false);
-			void init(CommandPool *commandPool, bool singleUse = false);
+			void init(bool singleUse);
+			void init(CommandPool *commandPool, bool singleUse, bool destroy);
 
 			void begin();
 			void end();
@@ -27,6 +27,7 @@ namespace spectra {
 
 		private:
 			bool singleUse;
+			bool destroy;
 			CommandPool *commandPool;
 			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 		};

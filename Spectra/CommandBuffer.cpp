@@ -10,33 +10,38 @@ namespace spectra {
 			init(singleUse);
 		}
 
-		CommandBuffer::CommandBuffer(CommandPool *commandPool, bool singleUse) {
-			init(commandPool, singleUse);
+		CommandBuffer::CommandBuffer(CommandPool *commandPool, bool singleUse, bool destroy) {
+			init(commandPool, singleUse, destroy);
 		}
 
 		CommandBuffer::~CommandBuffer() {
-			vkFreeCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), commandPool->getPool(), 1, &commandBuffer);
+			if (destroy) {
+				vkFreeCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), commandPool->getPool(), 1, &commandBuffer);
+			}
 		}
 
 		void CommandBuffer::init(bool singleUse) {
-			init(Vulkan::getLogicalDevice()->getCommandPool());
+			init(Vulkan::getLogicalDevice()->getCommandPool(), singleUse, true);
 		}
 
-		void CommandBuffer::init(CommandPool *commandPool, bool singleUse) {
-			this->commandPool = commandPool;
-			this->singleUse = singleUse;
+		void CommandBuffer::init(CommandPool *commandPool, bool singleUse, bool destroy) {
 
 			if (commandBuffer) {
-				vkFreeCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), commandPool->getPool(), 1, &commandBuffer);
+				//vkFreeCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), commandPool->getPool(), 1, &commandBuffer);
+				vkResetCommandBuffer(commandBuffer, 0);
+			} else {
+				this->commandPool = commandPool;
+				this->singleUse = singleUse;
+				this->destroy = destroy;
+
+				VkCommandBufferAllocateInfo allocInfo = {};
+				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+				allocInfo.commandPool = commandPool->getPool();
+				allocInfo.commandBufferCount = 1;
+
+				vkAllocateCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), &allocInfo, &commandBuffer);
 			}
-
-			VkCommandBufferAllocateInfo allocInfo = {};
-			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			allocInfo.commandPool = commandPool->getPool();
-			allocInfo.commandBufferCount = 1;
-
-			vkAllocateCommandBuffers(Vulkan::getLogicalDevice()->getDevice(), &allocInfo, &commandBuffer);
 		}
 
 		void CommandBuffer::begin() {

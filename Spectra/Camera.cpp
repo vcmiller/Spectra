@@ -14,7 +14,10 @@ namespace spectra {
 
 		allCameras.add(this);
 
-		commandBuffers.resize(window->getNumFramebuffers());
+		//commandBuffers.resize(window->getNumFramebuffers());
+		commandBuffers.resize(1);
+
+		projection = Matrix4::perspective(glm::radians(45.0f), float(window->getWidth()) / float(window->getHeight()), 0.1f, 10.0f);
 	}
 
 	void Camera::onDestroy() {
@@ -27,15 +30,14 @@ namespace spectra {
 
 	void Camera::capture() {
 		current = this;
-
 		int i = window->getCurrentImage();
 
-		commandBuffers[i].init(true);
-		currentCommandBuffer = &commandBuffers[i];
+		commandBuffers[0].init(true);
+		currentCommandBuffer = &commandBuffers[0];
 
-		begin(&commandBuffers[i], i);
+		begin(&commandBuffers[0], i);
 		World::render();
-		end(&commandBuffers[i]);
+		end(&commandBuffers[0]);
 
 		current = nullptr;
 	}
@@ -71,7 +73,10 @@ namespace spectra {
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vkQueueSubmit(device->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+		VkFence signalFence = window->getRenderFence();
+		vkResetFences(device->getDevice(), 1, &signalFence);
+
+		if (vkQueueSubmit(device->getGraphicsQueue(), 1, &submitInfo, signalFence) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 	}

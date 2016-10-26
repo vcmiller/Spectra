@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "World.h"
+#include "Log.h"
 
 namespace spectra {
 	GameObject::GameObject() {

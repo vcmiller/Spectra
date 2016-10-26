@@ -14,6 +14,7 @@ namespace spectra {
 	}
 
 	class Material;
+	class MeshRenderer;
 
 	class Shader {
 	public:
@@ -22,17 +23,20 @@ namespace spectra {
 	private:
 		friend class internal::Pipeline;
 		friend class Material;
+		friend class MeshRenderer;
 
 		void createShaderModules(std::string name);
-		void createDescriptorSetLayout();
-		void createDescriptorPool();
+		void createDescriptorSetLayouts();
+		void createDescriptorPools();
 
 		static VkShaderModule createShaderModule(const std::vector<char>& code);
 		static std::vector<char> readFile(const std::string & filename);
 
 		internal::VReference<VkShaderModule> vertexModule;
 		internal::VReference<VkShaderModule> fragmentModule;
-		internal::VReference<VkDescriptorSetLayout> descriptorSetLayout;
-		internal::VReference<VkDescriptorPool> descriptorPool;
+		internal::VReference<VkDescriptorSetLayout> materialLayout;
+		internal::VReference<VkDescriptorSetLayout> matricesLayout;
+		internal::VReference<VkDescriptorPool> materialPool;
+		internal::VReference<VkDescriptorPool> matricesPool;
 	};
 }

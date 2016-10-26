@@ -16,6 +16,7 @@ namespace spectra {
 
 			void init(LogicalDevice *device, Window *window);
 			VkCommandPool getPool();
+			void clear();
 
 		private:
 

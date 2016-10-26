@@ -32,6 +32,11 @@ namespace spectra {
 			createRenderPass();
 			createFramebuffers();
 			createSemafores();
+
+			commandPools.resize(getNumFramebuffers());
+			for (int i = 0; i < commandPools.size(); i++) {
+				commandPools[i].init(Vulkan::getLogicalDevice(), this);
+			}
 		}
 
 		void Window::display() {
@@ -58,6 +63,14 @@ namespace spectra {
 			}
 		}
 
+		int Window::getWidth() {
+			return width;
+		}
+
+		int Window::getHeight() {
+			return height;
+		}
+
 		VkSemaphore Window::getImageSemaphore() {
 			return imageAvailableSemaphore;
 		}
@@ -66,8 +79,21 @@ namespace spectra {
 			return renderFinishedSemaphore;
 		}
 
+		VkFence Window::getRenderFence() {
+			return renderFinishedFence;
+		}
+
+		CommandPool * Window::getCommandPool() {
+			return currentCommandPool;
+		}
+
 		void Window::acquireNextImage() {
+			vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), 1, &renderFinishedFence, VK_FALSE, 16000000L);
+
 			VkResult result = vkAcquireNextImageKHR(Vulkan::getLogicalDevice()->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &currentImage);
+
+			currentCommandPool = &commandPools[currentImage];
+			currentCommandPool->clear();
 
 			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 				recreateSwapChain();
@@ -238,11 +264,13 @@ namespace spectra {
 
 			imageAvailableSemaphore.cleanup();
 			renderFinishedSemaphore.cleanup();
+			renderFinishedFence.cleanup();
 
 			LogicalDevice *device = Vulkan::getLogicalDevice();
 
 			imageAvailableSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
 			renderFinishedSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
+			renderFinishedFence = VReference<VkFence>(device->getDevice(), vkDestroyFence);
 
 			VkSemaphoreCreateInfo semaphoreInfo = {};
 			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -251,6 +279,14 @@ namespace spectra {
 				vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, renderFinishedSemaphore.replace()) != VK_SUCCESS) {
 
 				throw std::runtime_error("failed to create semaphores!");
+			}
+
+			VkFenceCreateInfo fenceInfo = {};
+			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+			if (vkCreateFence(device->getDevice(), &fenceInfo, nullptr, renderFinishedFence.replace()) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create fence!");
 			}
 		}
 

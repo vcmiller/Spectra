@@ -134,14 +134,15 @@ namespace spectra {
 			dynamicState.pDynamicStates = dynamicStates;
 			*/
 
-			VkDescriptorSetLayout setLayouts[] = { shader->descriptorSetLayout };
+			VkDescriptorSetLayout setLayouts[] = { shader->matricesLayout, shader->materialLayout };
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 1;
+			pipelineLayoutInfo.setLayoutCount = 2;
 			pipelineLayoutInfo.pSetLayouts = setLayouts;
 
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
+
 
 			if (vkCreatePipelineLayout(device->getDevice(), &pipelineLayoutInfo, nullptr, pipelineLayout.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create pipeline layout!");

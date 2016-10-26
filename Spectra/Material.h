@@ -11,6 +11,7 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "Transform.h"
+#include "Map.h"
 
 namespace spectra {
 	class MeshRenderer;
@@ -22,24 +23,16 @@ namespace spectra {
 	private:
 		friend class MeshRenderer;
 		void createPipeline();
-		void createUniformBuffer();
 		void createDescriptorSet();
-
-		void updateUniformBuffer(Transform *transform);
 
 		Shader *shader;
 		Texture *texture;
 		internal::Window *window;
 
 		internal::Pipeline pipeline;
-		internal::Buffer uniformBuffer;
+		Map<internal::Window *, internal::Pipeline> pipelines;
+
 
 		VkDescriptorSet descriptorSet;
-
-		struct UniformBufferObject {
-			glm::mat4 model;
-			glm::mat4 view;
-			glm::mat4 proj;
-		};
 	};
 }

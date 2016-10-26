@@ -20,8 +20,9 @@ namespace spectra {
 	class MeshRenderer : public Component {
 	public:
 		MeshRenderer();
+		virtual ~MeshRenderer();
 
-		void init(Mesh *mesh, Material *material, internal::Window *window);
+		void init(Mesh *mesh, Material *material);
 
 		void render();
 
@@ -29,10 +30,21 @@ namespace spectra {
 
 		Mesh *mesh;
 		Material *material;
-		internal::Window *window;
 
-		void createCommandBuffer();
+		void createMatrixBuffer();
+		void createDescriptorSet();
+		void updateMatrixBuffer();
+
+		internal::Buffer matrixBuffer;
+		VkDescriptorSet descriptorSet;
 
 		internal::CommandBuffer drawCmd;
+
+
+		struct MatrixBufferObject {
+			glm::mat4 model;
+			glm::mat4 view;
+			glm::mat4 proj;
+		};
 	};
 }

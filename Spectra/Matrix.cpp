@@ -74,6 +74,7 @@ namespace spectra {
 	Matrix4 Matrix4::perspective(float fovy, float aspect, float near, float far) {
 		Matrix4 mat;
 		mat.mat = glm::perspective(fovy, aspect, near, far);
+		mat.mat[1][1] *= -1;
 		return mat;
 	}
 }
