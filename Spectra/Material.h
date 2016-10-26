@@ -21,18 +21,18 @@ namespace spectra {
 	public:
 		Material(Shader *shader, Texture *texture);
 
-		internal::Pipeline *getPipeline(internal::Window *window);
-		void checkPipeline(internal::Window *window);
+		internal::Pipeline *getPipeline(Camera *camera);
+		void checkPipeline(Camera *camera);
 
 	private:
 		friend class MeshRenderer;
-		void createPipeline(internal::Pipeline &pipeline, internal::Window *window);
+		void createPipeline(internal::Pipeline &pipeline, Camera *camera);
 		void createDescriptorSet();
 
 		Shader *shader;
 		Texture *texture;
 
-		std::map<internal::Window *, internal::Pipeline> pipelines;
+		std::map<Camera *, internal::Pipeline> pipelines;
 
 
 		VkDescriptorSet descriptorSet;

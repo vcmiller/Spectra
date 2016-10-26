@@ -14,21 +14,21 @@ namespace spectra {
 		createDescriptorSet();
 	}
 
-	internal::Pipeline * Material::getPipeline(internal::Window * window) {
-		return &pipelines[window];
+	internal::Pipeline * Material::getPipeline(Camera * camera) {
+		return &pipelines[camera];
 	}
 
-	void Material::checkPipeline(internal::Window * window) {
-		internal::Pipeline &pipeline = pipelines[window];
+	void Material::checkPipeline(Camera * camera) {
+		internal::Pipeline &pipeline = pipelines[camera];
 
 		if (!pipeline.isInitialized()) {
 			Log::log("Creating pipeline");
-			createPipeline(pipeline, window);
+			createPipeline(pipeline, camera);
 		}
 	}
 
-	void Material::createPipeline(internal::Pipeline &pipeline, internal::Window *window) {
-		pipeline.init(window, shader, window->getRenderPass());
+	void Material::createPipeline(internal::Pipeline &pipeline, Camera * camera) {
+		pipeline.init(camera, shader, camera->getRenderWindow()->getRenderPass());
 	}
 
 	void Material::createDescriptorSet() {
@@ -54,7 +54,7 @@ namespace spectra {
 
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = descriptorSet;
-		descriptorWrite.dstBinding = 1;
+		descriptorWrite.dstBinding = 2;
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrite.descriptorCount = 1;

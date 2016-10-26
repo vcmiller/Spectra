@@ -35,6 +35,8 @@ namespace spectra {
 		projection = Matrix4::perspective(glm::radians(45.0f), float(window->getWidth()) / float(window->getHeight()), 0.1f, 10.0f);
 
 		createSemafores();
+		createMatrixBuffer();
+		createDescriptorSet();
 	}
 
 	void Camera::onDestroy() {
@@ -46,6 +48,8 @@ namespace spectra {
 	}
 
 	void Camera::capture() {
+		updateMatrixBuffer();
+
 		current = this;
 		int i = window->getCurrentImage();
 
@@ -88,6 +92,116 @@ namespace spectra {
 		}
 	}
 
+	void Camera::createMatrixBuffer() {
+		VkDeviceSize bufferSize = sizeof(CameraMatrices);
+
+		matrixBuffer.init(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	}
+
+	void Camera::createDescriptorSet() {
+		auto device = internal::Vulkan::getLogicalDevice();
+
+		VkDescriptorSetLayout layouts[] = { descriptorLayout };
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = layouts;
+
+		if (vkAllocateDescriptorSets(device->getDevice(), &allocInfo, &descriptorSet) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor set!");
+		}
+
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = matrixBuffer.getBuffer();
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(CameraMatrices);
+
+		VkWriteDescriptorSet descriptorWrite = {};
+
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = descriptorSet;
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+
+		vkUpdateDescriptorSets(device->getDevice(), 1, &descriptorWrite, 0, nullptr);
+	}
+
+	void Camera::updateMatrixBuffer() {
+		auto device = internal::Vulkan::getLogicalDevice();
+
+		CameraMatrices ubo = {};
+
+		ubo.view = transform.worldToLocalMatrix().mat;
+		ubo.proj = projection.mat;
+
+		void* data;
+		vkMapMemory(device->getDevice(), matrixBuffer.getMemory(), 0, sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(device->getDevice(), matrixBuffer.getMemory());
+	}
+
+	void Camera::init() {
+		createDescriptorSetLayout();
+		createDescriptorPool();
+	}
+
+	void Camera::cleanup() {
+		descriptorLayout.cleanup();
+		descriptorPool.cleanup();
+	}
+
+	void Camera::createDescriptorSetLayout() {
+		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
+
+		descriptorLayout.cleanup();
+
+		descriptorLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
+
+		VkDescriptorSetLayoutBinding descriptorLayoutBinding = {};
+		descriptorLayoutBinding.binding = 0;
+		descriptorLayoutBinding.descriptorCount = 1;
+		descriptorLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorLayoutBinding.pImmutableSamplers = nullptr;
+		descriptorLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo = {};
+		descriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		descriptorLayoutInfo.bindingCount = 1;
+		descriptorLayoutInfo.pBindings = &descriptorLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(device->getDevice(), &descriptorLayoutInfo, nullptr, descriptorLayout.replace()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create descriptor set layout!");
+		}
+	}
+
+	void Camera::createDescriptorPool() {
+		auto device = internal::Vulkan::getLogicalDevice();
+
+		descriptorPool.cleanup();
+
+		descriptorPool = internal::VReference<VkDescriptorPool>(device->getDevice(), vkDestroyDescriptorPool);
+
+		VkDescriptorPoolSize descriptorPoolSize = {};
+		descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorPoolSize.descriptorCount = 10;
+
+		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descriptorPoolInfo.poolSizeCount = 1;
+		descriptorPoolInfo.pPoolSizes = &descriptorPoolSize;
+		descriptorPoolInfo.maxSets = 10;
+		descriptorPoolInfo.pNext = nullptr;
+		descriptorPoolInfo.flags = 0;
+
+		if (vkCreateDescriptorPool(device->getDevice(), &descriptorPoolInfo, nullptr, descriptorPool.replace()) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create descriptor pool!");
+		}
+	}
+
 	void Camera::begin(internal::CommandBuffer *cmd, int i) {
 		cmd->begin();
 		window->getRenderPass()->begin(cmd, window->getFramebuffer(i));
@@ -126,4 +240,7 @@ namespace spectra {
 	}
 
 	Camera *Camera::current = nullptr;
+
+	internal::VReference<VkDescriptorSetLayout> Camera::descriptorLayout;
+	internal::VReference<VkDescriptorPool> Camera::descriptorPool;
 }

@@ -1,13 +1,14 @@
 #include "Pipeline.h"
 #include "Vertex.h"
 #include "Vulkan.h"
+#include "Camera.h"
 
 namespace spectra {
 	namespace internal {
 
 		Pipeline::Pipeline() {}
 
-		void Pipeline::init(Window *window, Shader *shader, RenderPass *renderPass) {
+		void Pipeline::init(Camera *camera, Shader *shader, RenderPass *renderPass) {
 			internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
 
 			pipelineLayout.cleanup();
@@ -46,7 +47,7 @@ namespace spectra {
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-			auto swapChainExtent = window->getSwapChainExtent();
+			auto swapChainExtent = camera->getRenderWindow()->getSwapChainExtent();
 
 			VkViewport viewport = {};
 			viewport.x = 0.0f;
@@ -134,10 +135,10 @@ namespace spectra {
 			dynamicState.pDynamicStates = dynamicStates;
 			*/
 
-			VkDescriptorSetLayout setLayouts[] = { shader->matricesLayout, shader->materialLayout };
+			VkDescriptorSetLayout setLayouts[] = { camera->descriptorLayout, shader->matricesLayout, shader->materialLayout };
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 2;
+			pipelineLayoutInfo.setLayoutCount = 3;
 			pipelineLayoutInfo.pSetLayouts = setLayouts;
 
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional

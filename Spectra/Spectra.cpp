@@ -51,6 +51,8 @@ namespace spectra {
 		Vulkan::createLogicalDevice(Window::main);
 		Window::main->complete();
 
+		Camera::init();
+
 		if (start) {
 			World::load(start, false);
 		}
@@ -83,6 +85,8 @@ namespace spectra {
 
 		Vulkan::getLogicalDevice()->waitIdle();
 		World::clear();
+
+		Camera::cleanup();
 
 		internal::Clock::stop();
 

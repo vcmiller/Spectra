@@ -23,27 +23,27 @@ namespace spectra {
 		updateMatrixBuffer();
 
 		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getCommandBuffer();
-		internal::Pipeline *pipeline = material->getPipeline(Camera::currentCamera()->getRenderWindow());
+		internal::Pipeline *pipeline = material->getPipeline(Camera::currentCamera());
 
 		pipeline->bind(drawCmd);
 
 		VkBuffer vertexBuffers[] = { mesh->getVertexBuffer()->getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 
-		VkDescriptorSet descriptorSets[] = { descriptorSet, material->descriptorSet };
+		VkDescriptorSet descriptorSets[] = { Camera::currentCamera()->descriptorSet, descriptorSet, material->descriptorSet };
 
-		vkCmdBindDescriptorSets(drawCmd->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 0, 2, descriptorSets, 0, nullptr);
+		vkCmdBindDescriptorSets(drawCmd->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 0, 3, descriptorSets, 0, nullptr);
 		vkCmdBindVertexBuffers(drawCmd->getBuffer(), 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(drawCmd->getBuffer(), mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		vkCmdDrawIndexed(drawCmd->getBuffer(), mesh->indices.length(), 1, 0, 0, 0);
 	}
 
 	void MeshRenderer::preRender() {
-		material->checkPipeline(Camera::currentCamera()->getRenderWindow());
+		material->checkPipeline(Camera::currentCamera());
 	}
 
 	void MeshRenderer::createMatrixBuffer() {
-		VkDeviceSize bufferSize = sizeof(MatrixBufferObject);
+		VkDeviceSize bufferSize = sizeof(ObjectMatrices);
 
 		matrixBuffer.init(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	}
@@ -65,13 +65,13 @@ namespace spectra {
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = matrixBuffer.getBuffer();
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(MatrixBufferObject);
+		bufferInfo.range = sizeof(ObjectMatrices);
 
 		VkWriteDescriptorSet descriptorWrite = {};
 
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = descriptorSet;
-		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstBinding = 1;
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		descriptorWrite.descriptorCount = 1;
@@ -81,21 +81,13 @@ namespace spectra {
 	}
 
 	void MeshRenderer::updateMatrixBuffer() {
-		static auto startTime = std::chrono::high_resolution_clock::now();
-
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
 		auto device = internal::Vulkan::getLogicalDevice();
 
-		MatrixBufferObject ubo = {};
+		ObjectMatrices ubo = {};
 
 		Matrix4 mat = transform.localToWorldMatrix();
 		ubo.model = mat.mat;
-
-		ubo.view = Camera::currentCamera()->transform.worldToLocalMatrix().mat;
-
-		ubo.proj = Camera::currentCamera()->projection.mat;
 
 		void* data;
 		vkMapMemory(device->getDevice(), matrixBuffer.getMemory(), 0, sizeof(ubo), 0, &data);

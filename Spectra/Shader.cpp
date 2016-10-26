@@ -38,14 +38,14 @@ namespace spectra {
 		matricesLayout = internal::VReference<VkDescriptorSetLayout>(device->getDevice(), vkDestroyDescriptorSetLayout);
 
 		VkDescriptorSetLayoutBinding matricesLayoutBinding = {};
-		matricesLayoutBinding.binding = 0;
+		matricesLayoutBinding.binding = 1;
 		matricesLayoutBinding.descriptorCount = 1;
 		matricesLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		matricesLayoutBinding.pImmutableSamplers = nullptr;
 		matricesLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 		VkDescriptorSetLayoutBinding materialLayoutBinding = {};
-		materialLayoutBinding.binding = 1;
+		materialLayoutBinding.binding = 2;
 		materialLayoutBinding.descriptorCount = 1;
 		materialLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		materialLayoutBinding.pImmutableSamplers = nullptr;

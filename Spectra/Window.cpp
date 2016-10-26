@@ -49,8 +49,6 @@ namespace spectra {
 
 				for (Camera *camera : cameras) {
 					camera->capture();
-
-					vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), 1, &camera->renderFinishedFence, VK_FALSE, 16000000L);
 				}
 
 				display();
@@ -105,7 +103,7 @@ namespace spectra {
 		}
 
 		void Window::acquireNextImage() {
-			/*
+
 			List<VkFence> fences;
 
 			for (Camera *camera : cameras) {
@@ -117,7 +115,7 @@ namespace spectra {
 
 			if (fences.length() > 0) {
 				vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), fences.length(), fences.begin(), VK_TRUE, 16000000L);
-			}*/
+			}
 
 			VkResult result = vkAcquireNextImageKHR(Vulkan::getLogicalDevice()->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &currentImage);
 

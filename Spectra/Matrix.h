@@ -10,6 +10,7 @@
 namespace spectra {
 	class Material;
 	class MeshRenderer;
+	class Camera;
 	namespace internal {
 
 		// A generic Matrix structure, with elements stored in a GLM matrix.
@@ -86,6 +87,7 @@ namespace spectra {
 		protected:
 			friend class Material;
 			friend class MeshRenderer;
+			friend class Camera;
 
 			// The matrix data.
 			G mat;
