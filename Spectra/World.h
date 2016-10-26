@@ -11,6 +11,7 @@ namespace spectra {
 	class World {
 	public:
 		static void update();
+		static void preRender();
 		static void render();
 
 		static void clear();

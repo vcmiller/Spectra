@@ -13,6 +13,7 @@ namespace spectra {
 		virtual void onCreate();
 		virtual void update();
 		virtual void render();
+		virtual void preRender();
 		virtual void onDestroy();
 
 		void destroy();

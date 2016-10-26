@@ -15,6 +15,7 @@ namespace spectra {
 	void Component::onCreate() { }
 	void Component::update() { }
 	void Component::render() { }
+	void Component::preRender() { }
 	void Component::onDestroy() { }
 
 	void Component::destroy() {

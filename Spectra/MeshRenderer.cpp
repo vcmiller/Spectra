@@ -23,7 +23,7 @@ namespace spectra {
 		updateMatrixBuffer();
 
 		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getCommandBuffer();
-		internal::Pipeline *pipeline = &material->pipeline;
+		internal::Pipeline *pipeline = material->getPipeline(Camera::currentCamera()->getRenderWindow());
 
 		pipeline->bind(drawCmd);
 
@@ -36,6 +36,10 @@ namespace spectra {
 		vkCmdBindVertexBuffers(drawCmd->getBuffer(), 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(drawCmd->getBuffer(), mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		vkCmdDrawIndexed(drawCmd->getBuffer(), mesh->indices.length(), 1, 0, 0, 0);
+	}
+
+	void MeshRenderer::preRender() {
+		material->checkPipeline(Camera::currentCamera()->getRenderWindow());
 	}
 
 	void MeshRenderer::createMatrixBuffer() {

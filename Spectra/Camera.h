@@ -1,6 +1,5 @@
 #pragma once
 #include "Component.h"
-#include "Window.h"
 #include "CommandBuffer.h"
 #include "World.h"
 
@@ -8,11 +7,17 @@
 
 namespace spectra {
 	class Spectra;
+
+	namespace internal {
+		class Window;
+	}
+
 	class Camera : public Component {
 	public:
 		Camera();
 
 		void setRenderWindow(internal::Window *window);
+		internal::Window *getRenderWindow();
 
 		static Camera* currentCamera();
 
@@ -25,16 +30,23 @@ namespace spectra {
 
 	private:
 		friend class Spectra;
+		friend class internal::Window;
 
 		static Camera *current;
-		static ObjectSet<Camera> allCameras;
 
 		void capture();
+
+		void createSemafores();
 
 		void begin(internal::CommandBuffer *cmd, int i);
 		void end(internal::CommandBuffer *cmd);
 
-		internal::Window *window;
+		internal::Window *window = nullptr;
+
+		bool pendingRender = false;
+
+		internal::VReference<VkSemaphore> renderFinishedSemaphore;
+		internal::VReference<VkFence> renderFinishedFence;
 
 		std::vector<internal::CommandBuffer> commandBuffers;
 		internal::CommandBuffer *currentCommandBuffer;

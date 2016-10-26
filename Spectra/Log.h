@@ -48,7 +48,7 @@ namespace spectra {
 		// Write to log as if it were a function consuming any type of data.
 		// Argument type must support writing with the << operator to an std::ostream.
 		template <typename T> void operator () (const T &val, bool newline = true) const {
-			(*this) << val;;
+			(*this) << val;
 			if (newline) {
 				(*this) << "\n";
 			}

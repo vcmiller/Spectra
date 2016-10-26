@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "Math.h"
+#include "Log.h"
 
 namespace spectra {
 	template <typename K, typename V> class Map;
@@ -20,6 +21,10 @@ namespace spectra {
 			std::memcpy(this->items, other.items, other.length() * sizeof(T));
 			arraySize = other.arraySize;
 			count = other.count;
+		}
+
+		virtual ~List() {
+			delete items;
 		}
 
 		T* begin() {

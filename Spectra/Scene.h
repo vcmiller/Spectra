@@ -9,7 +9,7 @@ namespace spectra {
 	public:
 		virtual void populate() = 0;
 
-		void depopulate();
+		virtual void depopulate();
 		void add(GameObject* obj);
 
 		std::string label;

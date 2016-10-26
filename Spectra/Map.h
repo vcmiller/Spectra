@@ -30,7 +30,7 @@ namespace spectra {
 			}
 
 			data.add(Pair(key));
-			return data[data.length() - 1];
+			return data[data.length() - 1].value;
 		}
 
 		bool contains(const K &key) {

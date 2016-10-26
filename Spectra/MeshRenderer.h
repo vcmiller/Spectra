@@ -25,6 +25,7 @@ namespace spectra {
 		void init(Mesh *mesh, Material *material);
 
 		void render();
+		void preRender();
 
 	private:
 
@@ -37,8 +38,6 @@ namespace spectra {
 
 		internal::Buffer matrixBuffer;
 		VkDescriptorSet descriptorSet;
-
-		internal::CommandBuffer drawCmd;
 
 
 		struct MatrixBufferObject {

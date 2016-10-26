@@ -9,6 +9,7 @@
 #include "Image.h"
 #include "RenderPass.h"
 #include "Framebuffer.h"
+#include "Camera.h"
 
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@ namespace spectra {
 	namespace internal {
 		class Window {
 		public:
-			Window(int width, int height, std::string name, bool resizeable = false, bool complete = true);
+			Window(int width, int height, std::string name, bool resizeable = false, bool complete = true, bool repaintOnRender = true);
 			~Window();
 
 			static void init();
@@ -41,24 +42,21 @@ namespace spectra {
 			static void pollEvents();
 
 			void complete();
-
-			void display();
+			void repaint();
 
 			int getWidth();
 
 			int getHeight();
 
-			void acquireNextImage();
 			uint32_t getCurrentImage();
 
 			VkSemaphore getImageSemaphore();
-			VkSemaphore getRenderSemaphore();
-			VkFence getRenderFence();
 
 			CommandPool *getCommandPool();
 
 		private:
 			friend class Spectra;
+			friend class Camera;
 
 			void createSurface();
 			void createSwapChain();
@@ -70,6 +68,9 @@ namespace spectra {
 
 			void recreateSwapChain();
 
+			void acquireNextImage();
+			void display();
+
 			VReference<VkSurfaceKHR> surface;
 			VReference<VkSwapchainKHR> swapChain;
 			std::vector<VkImage> swapChainImages;
@@ -79,8 +80,6 @@ namespace spectra {
 			std::vector<Framebuffer> framebuffers;
 
 			VReference<VkSemaphore> imageAvailableSemaphore;
-			VReference<VkSemaphore> renderFinishedSemaphore;
-			VReference<VkFence> renderFinishedFence;
 
 			std::vector<CommandPool> commandPools;
 			CommandPool *currentCommandPool;
@@ -99,9 +98,14 @@ namespace spectra {
 			int width;
 			int height;
 
+			bool repaintOnRender;
+
+			List<Camera *> cameras;
+
 			static void resized(GLFWwindow* window, int width, int height);
 
 			static Window *main;
+			static List<Window*> allWindows;
 		};
 	}
 }

@@ -7,16 +7,27 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace spectra {
-	Material::Material(internal::Window *window, Shader *shader, Texture *texture) {
-		this->window = window;
+	Material::Material(Shader *shader, Texture *texture) {
 		this->shader = shader;
 		this->texture = texture;
 
-		createPipeline();
 		createDescriptorSet();
 	}
 
-	void Material::createPipeline() {
+	internal::Pipeline * Material::getPipeline(internal::Window * window) {
+		return &pipelines[window];
+	}
+
+	void Material::checkPipeline(internal::Window * window) {
+		internal::Pipeline &pipeline = pipelines[window];
+
+		if (!pipeline.isInitialized()) {
+			Log::log("Creating pipeline");
+			createPipeline(pipeline, window);
+		}
+	}
+
+	void Material::createPipeline(internal::Pipeline &pipeline, internal::Window *window) {
 		pipeline.init(window, shader, window->getRenderPass());
 	}
 

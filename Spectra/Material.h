@@ -11,26 +11,28 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "Transform.h"
-#include "Map.h"
+
+#include <map>
 
 namespace spectra {
 	class MeshRenderer;
 
 	class Material {
 	public:
-		Material(internal::Window *window, Shader *shader, Texture *texture);
+		Material(Shader *shader, Texture *texture);
+
+		internal::Pipeline *getPipeline(internal::Window *window);
+		void checkPipeline(internal::Window *window);
 
 	private:
 		friend class MeshRenderer;
-		void createPipeline();
+		void createPipeline(internal::Pipeline &pipeline, internal::Window *window);
 		void createDescriptorSet();
 
 		Shader *shader;
 		Texture *texture;
-		internal::Window *window;
 
-		internal::Pipeline pipeline;
-		Map<internal::Window *, internal::Pipeline> pipelines;
+		std::map<internal::Window *, internal::Pipeline> pipelines;
 
 
 		VkDescriptorSet descriptorSet;

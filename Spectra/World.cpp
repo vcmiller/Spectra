@@ -57,6 +57,12 @@ namespace spectra {
 		newGameObjects.clear();
 	}
 
+	void World::preRender() {
+		for (Component *cmp : renderComponents) {
+			cmp->preRender();
+		}
+	}
+
 	void World::render() {
 		for (Component *cmp : renderComponents) {
 			cmp->render();
@@ -64,6 +70,13 @@ namespace spectra {
 	}
 
 	void World::clear() {
+		for (Scene *scene : loadedScenes) {
+			scene->depopulate();
+			delete scene;
+		}
+
+		loadedScenes.clear();
+
 		for (GameObject *object : gameObjects) {
 			object->destroy();
 		}
@@ -88,12 +101,6 @@ namespace spectra {
 
 	void World::load(Scene *scene, bool replace) {
 		if (replace) {
-			for (Scene *scene : loadedScenes) {
-				delete scene;
-			}
-
-			loadedScenes.clear();
-
 			clear();
 		}
 

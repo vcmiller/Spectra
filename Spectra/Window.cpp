@@ -5,9 +5,10 @@
 
 namespace spectra {
 	namespace internal {
-		Window::Window(int width, int height, std::string name, bool resizeable, bool complete) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
+		Window::Window(int width, int height, std::string name, bool resizeable, bool complete, bool repaintOnRender) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
 			this->width = width;
 			this->height = height;
+			this->repaintOnRender = repaintOnRender;
 
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			glfwWindowHint(GLFW_RESIZABLE, resizeable);
@@ -37,16 +38,40 @@ namespace spectra {
 			for (int i = 0; i < commandPools.size(); i++) {
 				commandPools[i].init(Vulkan::getLogicalDevice(), this);
 			}
+
+			allWindows.add(this);
+		}
+
+		void Window::repaint() {
+
+			if (cameras.length() > 0) {
+				acquireNextImage();
+
+				for (Camera *camera : cameras) {
+					camera->capture();
+
+					vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), 1, &camera->renderFinishedFence, VK_FALSE, 16000000L);
+				}
+
+				display();
+			}
 		}
 
 		void Window::display() {
-			VkSemaphore semaphores[] = { renderFinishedSemaphore };
+			List<VkSemaphore> semaphores;
+
+			for (Camera *camera : cameras) {
+				if (camera->pendingRender) {
+					semaphores.add(camera->renderFinishedSemaphore);
+				}
+			}
+
 
 			VkPresentInfoKHR presentInfo = {};
 			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-			presentInfo.waitSemaphoreCount = 1;
-			presentInfo.pWaitSemaphores = semaphores;
+			presentInfo.waitSemaphoreCount = semaphores.length();
+			presentInfo.pWaitSemaphores = semaphores.begin();
 			VkSwapchainKHR swapChains[] = { swapChain };
 			presentInfo.swapchainCount = 1;
 			presentInfo.pSwapchains = swapChains;
@@ -75,20 +100,24 @@ namespace spectra {
 			return imageAvailableSemaphore;
 		}
 
-		VkSemaphore Window::getRenderSemaphore() {
-			return renderFinishedSemaphore;
-		}
-
-		VkFence Window::getRenderFence() {
-			return renderFinishedFence;
-		}
-
 		CommandPool * Window::getCommandPool() {
 			return currentCommandPool;
 		}
 
 		void Window::acquireNextImage() {
-			vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), 1, &renderFinishedFence, VK_FALSE, 16000000L);
+			/*
+			List<VkFence> fences;
+
+			for (Camera *camera : cameras) {
+				if (camera->pendingRender) {
+					fences.add(camera->renderFinishedFence);
+					camera->pendingRender = false;
+				}
+			}
+
+			if (fences.length() > 0) {
+				vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), fences.length(), fences.begin(), VK_TRUE, 16000000L);
+			}*/
 
 			VkResult result = vkAcquireNextImageKHR(Vulkan::getLogicalDevice()->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &currentImage);
 
@@ -110,6 +139,8 @@ namespace spectra {
 
 		Window::~Window() {
 			glfwDestroyWindow(window);
+
+			allWindows.removeItem(this);
 		}
 
 		void Window::init() {
@@ -263,30 +294,16 @@ namespace spectra {
 		void Window::createSemafores() {
 
 			imageAvailableSemaphore.cleanup();
-			renderFinishedSemaphore.cleanup();
-			renderFinishedFence.cleanup();
 
 			LogicalDevice *device = Vulkan::getLogicalDevice();
 
 			imageAvailableSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
-			renderFinishedSemaphore = VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
-			renderFinishedFence = VReference<VkFence>(device->getDevice(), vkDestroyFence);
-
+			
 			VkSemaphoreCreateInfo semaphoreInfo = {};
 			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-			if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, imageAvailableSemaphore.replace()) != VK_SUCCESS ||
-				vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, renderFinishedSemaphore.replace()) != VK_SUCCESS) {
-
+			if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, imageAvailableSemaphore.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create semaphores!");
-			}
-
-			VkFenceCreateInfo fenceInfo = {};
-			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-			if (vkCreateFence(device->getDevice(), &fenceInfo, nullptr, renderFinishedFence.replace()) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create fence!");
 			}
 		}
 
@@ -347,7 +364,7 @@ namespace spectra {
 			w->recreateSwapChain();
 		}
 
-
+		List<Window *> Window::allWindows;
 		Window *Window::main = nullptr;
 	}
 }

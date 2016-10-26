@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
+#include "Window.h"
 
 namespace spectra {
 	using namespace internal;
@@ -50,50 +51,28 @@ namespace spectra {
 		Vulkan::createLogicalDevice(Window::main);
 		Window::main->complete();
 
-
-		Shader *shader = new Shader("Shaders/triangle");
-		Texture *texture = new Texture("Textures/spas.png");
-		Material *material = new Material(Window::main, shader, texture);
-		Mesh *mesh = new Mesh("Models/spas.obj");
-
 		if (start) {
 			World::load(start, false);
 		}
 
 		Time::init(spf);
 
-		GameObject *bob = new GameObject();
-		bob->addComponent<MeshRenderer>()->init(mesh, material);
-
-		bob->transform.setPosition(Vector3(-.5f, 0, 2));
-
-		GameObject *joe = new GameObject();
-		joe->addComponent<MeshRenderer>()->init(mesh, material);
-		joe->transform.setPosition(Vector3(.5f, 0, 2));
-
-		GameObject *camera = new GameObject();
-		camera->addComponent<Camera>();
-		camera->transform.setPosition(Vector3(0, 0, -1));
 
 		while (running && !Window::main->closeRequested()) {
 			clock.reset();
 			Window::pollEvents();
 			World::update();
-			bob->transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
 			//bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
-
-			Window::main->acquireNextImage();
-
-			for (Camera *camera : Camera::allCameras) {
-				camera->capture();
+			for (Window *window : Window::allWindows) {
+				if (window->repaintOnRender) {
+					window->repaint();
+				}
 			}
-
-			Window::main->display();
 
 			ulong time = clock.elapsed();
 
 			if (time < uspf) {
-				clock.sleep(uspf - time);
+				//clock.sleep(uspf - time);
 				//Log::log << "Time: " << int(time / 1000) << "ms\n";
 			} else {
 				Log::log << "Can't keep up! Frame time " << int(time / 1000) << " milliseconds.\n";
@@ -104,11 +83,6 @@ namespace spectra {
 
 		Vulkan::getLogicalDevice()->waitIdle();
 		World::clear();
-
-		delete material;
-		delete shader;
-		delete texture;
-		delete mesh;
 
 		internal::Clock::stop();
 

@@ -181,6 +181,8 @@ namespace spectra {
 			if (vkCreateGraphicsPipelines(device->getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, graphicsPipeline.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create graphics pipeline!");
 			}
+
+			initialized = true;
 		}
 
 		void Pipeline::bind(CommandBuffer * commandBuffer) {
@@ -192,6 +194,9 @@ namespace spectra {
 
 		VkPipeline Pipeline::getPipeline() {
 			return graphicsPipeline;
+		}
+		bool Pipeline::isInitialized() {
+			return initialized;
 		}
 	}
 }

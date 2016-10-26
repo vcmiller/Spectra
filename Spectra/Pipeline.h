@@ -20,7 +20,11 @@ namespace spectra {
 			VkPipelineLayout getLayout();
 			VkPipeline getPipeline();
 
+			bool isInitialized();
+
 		private:
+			bool initialized = false;
+
 			VReference<VkPipelineLayout> pipelineLayout;
 			VReference<VkPipeline> graphicsPipeline;
 		};
