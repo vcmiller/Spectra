@@ -33,8 +33,8 @@ public:
 	}
 
 	void update() {
-		//transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
-		transform.setPosition(Vector3(0, Math::sin(Time::time()), 2));
+		transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
+		//transform.setPosition(Vector3(0, Math::sin(Time::time()), 2));
 	}
 
 	void onDestroy() {

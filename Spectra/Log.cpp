@@ -11,6 +11,10 @@ namespace spectra {
 
 		file = std::ofstream("spectra.log");
 		fileOpen = file.is_open();
+
+		if (!fileOpen) {
+			throw std::runtime_error("Fail to open log file for writing!");
+		}
 	}
 
 	Log::~Log() { }
