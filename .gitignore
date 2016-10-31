@@ -50,7 +50,7 @@ artifacts/
 *_i.h
 *.ilk
 *.meta
-*.obj
+# OBJ files might also be 3D models, so we can't ignore all of them *.obj
 *.pch
 *.pdb
 *.pgc
