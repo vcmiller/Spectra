@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "Transform.h"
 #include "ComponentBase.h"
+#include "Log.h"
 
 namespace spectra {
 	class Component;
@@ -46,10 +47,14 @@ namespace spectra {
 		}
 
 		void destroy();
+
+		bool isDoomed();
 	
 	private:
 		friend class Component;
 		friend class World;
 		List<Component*> components;
+
+		bool doomed = false;
 	};
 }

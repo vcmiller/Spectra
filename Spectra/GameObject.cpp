@@ -8,10 +8,17 @@ namespace spectra {
 	}
 
 	void GameObject::destroy() {
-		World::deleteGameObjects.add(this);
+		if (!doomed) {
+			World::deleteGameObjects.add(this);
 
-		for (Component *c : components) {
-			c->destroy();
+			for (Component *c : components) {
+				c->destroy();
+			}
+
+			doomed = true;
 		}
+	}
+	bool GameObject::isDoomed() {
+		return doomed;
 	}
 }

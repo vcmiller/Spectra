@@ -79,6 +79,7 @@ public:
 		add(bob);
 		add(joe);
 		add(camera);
+		add(camera2);
 	}
 
 	void depopulate() {
