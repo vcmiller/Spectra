@@ -15,6 +15,7 @@ namespace spectra {
 
 			LogicalDevice *device = Vulkan::getLogicalDevice();
 
+			buffer.cleanup();
 			buffer = VReference<VkFramebuffer>(device->getDevice(), vkDestroyFramebuffer);
 
 			VkFramebufferCreateInfo framebufferInfo = {};

@@ -6,8 +6,6 @@
 namespace spectra {
 	namespace internal {
 		Window::Window(int width, int height, std::string name, bool resizeable, bool complete, bool repaintOnRender) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
-			this->width = width;
-			this->height = height;
 			this->repaintOnRender = repaintOnRender;
 
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -22,12 +20,12 @@ namespace spectra {
 			//createLogicalDevice();
 
 			if (complete) {
-				this->complete();
+				this->complete(width, height);
 			}
 		}
 
-		void Window::complete() {
-			createSwapChain();
+		void Window::complete(int width, int height) {
+			createSwapChain(true, width, height);
 			createImageViews();
 			createDepthImage();
 			createRenderPass();
@@ -35,6 +33,7 @@ namespace spectra {
 			createSemafores();
 
 			commandPools.resize(getNumFramebuffers());
+			commandBuffers.resize(getNumFramebuffers());
 			for (int i = 0; i < commandPools.size(); i++) {
 				commandPools[i].init(Vulkan::getLogicalDevice(), this);
 			}
@@ -48,8 +47,16 @@ namespace spectra {
 				acquireNextImage();
 
 				for (Camera *camera : cameras) {
-					camera->capture();
+					camera->prepare();
 				}
+
+				commandBuffers[currentImage].init(&commandPools[currentImage], true, true);
+				commandBuffers[currentImage].begin();
+				for (Camera *camera : cameras) {
+					camera->capture(&commandBuffers[currentImage]);
+				}
+				commandBuffers[currentImage].end();
+				submitBuffer(&commandBuffers[currentImage]);
 
 				display();
 			}
@@ -58,18 +65,14 @@ namespace spectra {
 		void Window::display() {
 			List<VkSemaphore> semaphores;
 
-			for (Camera *camera : cameras) {
-				if (camera->pendingRender) {
-					semaphores.add(camera->renderFinishedSemaphore);
-				}
-			}
+			semaphores.add(renderFinishedSemaphores[currentImage]);
 
 
 			VkPresentInfoKHR presentInfo = {};
 			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-			presentInfo.waitSemaphoreCount = semaphores.length();
-			presentInfo.pWaitSemaphores = semaphores.begin();
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = &renderFinishedSemaphores[currentImage];
 			VkSwapchainKHR swapChains[] = { swapChain };
 			presentInfo.swapchainCount = 1;
 			presentInfo.pSwapchains = swapChains;
@@ -79,19 +82,49 @@ namespace spectra {
 			VkResult result = vkQueuePresentKHR(Vulkan::getLogicalDevice()->getPresentQueue(), &presentInfo);
 
 			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-				recreateSwapChain();
+				onResized(swapChainExtent.width, swapChainExtent.height);
 				Log::log("RECREATE SWAP CHAIN");
 			} else if (result != VK_SUCCESS) {
 				throw std::runtime_error("failed to present swap chain image!");
 			}
 		}
 
+		void Window::submitBuffer(internal::CommandBuffer * cmd) {
+		
+			auto device = internal::Vulkan::getLogicalDevice();
+
+			VkSubmitInfo submitInfo = {};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+			VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+			VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+			submitInfo.waitSemaphoreCount = 1;
+			submitInfo.pWaitSemaphores = waitSemaphores;
+			submitInfo.pWaitDstStageMask = waitStages;
+
+			uint32_t img = getCurrentImage();
+
+			VkCommandBuffer cmdBuffer = cmd->getBuffer();
+
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &cmdBuffer;
+
+			submitInfo.signalSemaphoreCount = 1;
+			submitInfo.pSignalSemaphores = &renderFinishedSemaphores[img];
+
+			vkResetFences(device->getDevice(), 1, &renderFinishedFences[img]);
+
+			if (vkQueueSubmit(device->getGraphicsQueue(), 1, &submitInfo, renderFinishedFences[img]) != VK_SUCCESS) {
+				throw std::runtime_error("failed to submit draw command buffer!");
+			}
+		}
+
 		int Window::getWidth() {
-			return width;
+			return swapChainExtent.width;
 		}
 
 		int Window::getHeight() {
-			return height;
+			return swapChainExtent.height;
 		}
 
 		VkSemaphore Window::getImageSemaphore() {
@@ -104,26 +137,15 @@ namespace spectra {
 
 		void Window::acquireNextImage() {
 
-			List<VkFence> fences;
-
-			for (Camera *camera : cameras) {
-				if (camera->pendingRender) {
-					fences.add(camera->renderFinishedFence);
-					camera->pendingRender = false;
-				}
-			}
-
-			if (fences.length() > 0) {
-				vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), fences.length(), fences.begin(), VK_TRUE, 16000000L);
-			}
-
+			vkWaitForFences(Vulkan::getLogicalDevice()->getDevice(), 1, &renderFinishedFences[currentImage], VK_FALSE, 16000000L);
+			
 			VkResult result = vkAcquireNextImageKHR(Vulkan::getLogicalDevice()->getDevice(), swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &currentImage);
 
 			currentCommandPool = &commandPools[currentImage];
 			currentCommandPool->clear();
 
 			if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-				recreateSwapChain();
+				onResized(swapChainExtent.width, swapChainExtent.height);
 				Log::log("RECREATE SWAP CHAIN");
 				return;
 			} else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -139,6 +161,10 @@ namespace spectra {
 			glfwDestroyWindow(window);
 
 			allWindows.removeItem(this);
+
+			for (int i = cameras.length() - 1; i >= 0; i--) {
+				cameras[i]->setRenderWindow(nullptr);
+			}
 		}
 
 		void Window::init() {
@@ -170,16 +196,16 @@ namespace spectra {
 			);
 		}
 
-		RenderPass *Window::getRenderPass() {
-			return &renderPass;
-		}
-
 		int Window::getNumFramebuffers() {
 			return framebuffers.size();
 		}
 
 		Framebuffer * Window::getFramebuffer(int i) {
 			return &framebuffers[i];
+		}
+
+		CommandBuffer * Window::getCommandBuffer() {
+			return &commandBuffers[currentImage];
 		}
 
 		Window *Window::getMainWindow() {
@@ -192,19 +218,28 @@ namespace spectra {
 
 		void Window::pollEvents() {
 			glfwPollEvents();
+
+			for (int i = allWindows.length() - 1; i >= 0; i--) {
+				if (allWindows[i]->closeRequested() && allWindows[i] != main) {
+					vkDeviceWaitIdle(Vulkan::getLogicalDevice()->getDevice());
+					delete allWindows[i];
+				}
+			}
 		}
 
-		void Window::createSwapChain() {
+		void Window::createSwapChain(bool first, int width, int height) {
 			LogicalDevice *device = Vulkan::getLogicalDevice();
 
-			swapChain = VReference<VkSwapchainKHR>(device->getDevice(), vkDestroySwapchainKHR);
+			if (first) {
+				swapChain = VReference<VkSwapchainKHR>(device->getDevice(), vkDestroySwapchainKHR);
+			}
 
 			const PhysicalDevice* physicalDevice = Vulkan::getPhysicalDevice();
 			auto swapChainSupport = physicalDevice->getSwapChainSupportDetails(this);
 
 			VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 			VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-			VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+			VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, width, height);
 
 			uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 			if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -303,15 +338,46 @@ namespace spectra {
 			if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, imageAvailableSemaphore.replace()) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create semaphores!");
 			}
+
+			VkFenceCreateInfo fenceInfo = {};
+			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+			renderFinishedSemaphores.resize(getNumFramebuffers());
+			renderFinishedFences.resize(getNumFramebuffers());
+
+			for (int i = 0; i < getNumFramebuffers(); i++) {
+				renderFinishedSemaphores[i].cleanup();
+				renderFinishedFences[i].cleanup();
+
+				renderFinishedSemaphores[i] = internal::VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
+				renderFinishedFences[i] = internal::VReference<VkFence>(device->getDevice(), vkDestroyFence);
+
+				if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, renderFinishedSemaphores[i].replace()) != VK_SUCCESS) {
+					throw std::runtime_error("failed to create semaphores!");
+				}
+
+				if (vkCreateFence(device->getDevice(), &fenceInfo, nullptr, renderFinishedFences[i].replace()) != VK_SUCCESS) {
+					throw std::runtime_error("failed to create fence!");
+				}
+			}
 		}
 
-		void Window::recreateSwapChain() {
+		void Window::onResized(int width, int height) {
+
 			LogicalDevice *device = Vulkan::getLogicalDevice();
 
 			vkDeviceWaitIdle(device->getDevice());
 
-			createSwapChain();
+			createSwapChain(false, width, height);
 			createImageViews();
+			createDepthImage();
+			createRenderPass();
+			createFramebuffers();
+			
+			for (Camera *cam : cameras) {
+				cam->windowResized();
+			}
 		}
 
 		VkSurfaceFormatKHR Window::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
@@ -338,7 +404,7 @@ namespace spectra {
 			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 
-		VkExtent2D Window::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+		VkExtent2D Window::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, int width, int height) {
 			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 				return capabilities.currentExtent;
 			} else {
@@ -359,7 +425,13 @@ namespace spectra {
 
 		void Window::resized(GLFWwindow* window, int width, int height) {
 			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-			w->recreateSwapChain();
+			w->onResized(width, height);
+		}
+
+		void Window::closeAll() {
+			for (int i = allWindows.length() - 1; i >= 0; i--) {
+				delete allWindows[i];
+			}
 		}
 
 		List<Window *> Window::allWindows;

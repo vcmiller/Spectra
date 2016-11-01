@@ -7,19 +7,29 @@ namespace spectra {
 	Camera::Camera() {}
 
 	void Camera::setRenderWindow(internal::Window * window) {
-		if (this->window) {
-			this->window->cameras.removeItem(this);
-		}
+		if (window != this->window) {
+			if (this->window) {
+				this->window->cameras.removeItem(this);
+			}
 
-		if (window) {
-			window->cameras.add(this);
-		}
+			if (window) {
+				window->cameras.add(this);
+			}
 
-		this->window = window;
+			this->window = window;
+		}
 	}
 
 	internal::Window *Camera::getRenderWindow() {
 		return window;
+	}
+
+	internal::RenderPass *Camera::getRenderPass() {
+		return &renderPass;
+	}
+
+	int Camera::getRenderPassVersion() {
+		return renderPassVersion;
 	}
 
 	Camera * Camera::currentCamera() {
@@ -29,67 +39,66 @@ namespace spectra {
 	void Camera::onCreate() {
 		setRenderWindow(internal::Window::getMainWindow());
 
-		//commandBuffers.resize(window->getNumFramebuffers());
-		commandBuffers.resize(1);
+		setProjection(45, .1f, 100.0f);
 
-		projection = Matrix4::perspective(glm::radians(45.0f), float(window->getWidth()) / float(window->getHeight()), 0.1f, 10.0f);
-
-		createSemafores();
 		createMatrixBuffer();
 		createDescriptorSet();
+		createRenderPass();
 	}
 
 	void Camera::onDestroy() {
 		setRenderWindow(nullptr);
 	}
 
-	internal::CommandBuffer * Camera::getCommandBuffer() {
-		return currentCommandBuffer;
+	void Camera::setProjection(float fov, float clipNear, float clipFar) {
+		this->fov = fov;
+		this->nearClip = clipNear;
+		this->farClip = clipFar;
+
+		float w = window->getWidth() * viewWidth;
+		float h = window->getHeight() * viewHeight;
+
+		projection = Matrix4::perspective(glm::radians(fov), w / h, clipNear, clipFar);
 	}
 
-	void Camera::capture() {
+	void Camera::setViewport(float x, float y, float width, float height) {
+		viewX = x;
+		viewY = y;
+		viewWidth = width;
+		viewHeight = height;
+
+		setProjection(fov, nearClip, farClip);
+	}
+
+	void Camera::setClearFlags(bool clearColor, bool clearDepth) {
+		this->clearColor = clearColor;
+		this->clearDepth = clearDepth;
+
+		createRenderPass();
+	}
+
+	void Camera::setBackgroundColor(const Color & color) {
+		this->backgroundColor = color;
+	}
+
+	void Camera::prepare() {
 		updateMatrixBuffer();
+
+		current = this;
+
+		World::preRender();
+	}
+
+	void Camera::capture(internal::CommandBuffer *cmd) {
 
 		current = this;
 		int i = window->getCurrentImage();
 
-		World::preRender();
-
-		commandBuffers[0].init(true);
-		currentCommandBuffer = &commandBuffers[0];
-
-		begin(&commandBuffers[0], i);
+		begin(cmd, i);
 		World::render();
-		end(&commandBuffers[0]);
+		end(cmd);
 
 		current = nullptr;
-
-		pendingRender = true;
-	}
-
-	void Camera::createSemafores() {
-		renderFinishedSemaphore.cleanup();
-		renderFinishedFence.cleanup();
-
-		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
-
-		renderFinishedSemaphore = internal::VReference<VkSemaphore>(device->getDevice(), vkDestroySemaphore);
-		renderFinishedFence = internal::VReference<VkFence>(device->getDevice(), vkDestroyFence);
-
-		VkSemaphoreCreateInfo semaphoreInfo = {};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		if (vkCreateSemaphore(device->getDevice(), &semaphoreInfo, nullptr, renderFinishedSemaphore.replace()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create semaphores!");
-		}
-
-		VkFenceCreateInfo fenceInfo = {};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		if (vkCreateFence(device->getDevice(), &fenceInfo, nullptr, renderFinishedFence.replace()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create fence!");
-		}
 	}
 
 	void Camera::createMatrixBuffer() {
@@ -128,6 +137,17 @@ namespace spectra {
 		descriptorWrite.pBufferInfo = &bufferInfo;
 
 		vkUpdateDescriptorSets(device->getDevice(), 1, &descriptorWrite, 0, nullptr);
+	}
+
+	void Camera::createRenderPass() {
+		renderPassVersion++;
+		renderPass.init(window, clearColor, clearDepth);
+	}
+
+	void Camera::windowResized() {
+		createRenderPass();
+
+		setProjection(fov, nearClip, farClip);
 	}
 
 	void Camera::updateMatrixBuffer() {
@@ -203,40 +223,26 @@ namespace spectra {
 	}
 
 	void Camera::begin(internal::CommandBuffer *cmd, int i) {
-		cmd->begin();
-		window->getRenderPass()->begin(cmd, window->getFramebuffer(i));
+		int x = window->getWidth() * viewX;
+		int y = window->getHeight() * viewY;
+		int w = window->getWidth() * viewWidth;
+		int h = window->getHeight() * viewHeight;
+
+		renderPass.begin(cmd, window->getFramebuffer(i), x, y, w, h, backgroundColor);
+
+		VkViewport viewport = {};
+		viewport.x = x;
+		viewport.y = y;
+		viewport.width = w;
+		viewport.height = h;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+
+		vkCmdSetViewport(cmd->getBuffer(), 0, 1, &viewport);
 	}
 
 	void Camera::end(internal::CommandBuffer *cmd) {
-		window->getRenderPass()->end(cmd);
-		cmd->end();
-
-		auto device = internal::Vulkan::getLogicalDevice();
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-		VkSemaphore waitSemaphores[] = { window->getImageSemaphore() };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
-
-		uint32_t img = window->getCurrentImage();
-
-		VkCommandBuffer cmdBuffer = cmd->getBuffer();
-
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &cmdBuffer;
-
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &renderFinishedSemaphore;
-
-		vkResetFences(device->getDevice(), 1, &renderFinishedFence);
-
-		if (vkQueueSubmit(device->getGraphicsQueue(), 1, &submitInfo, renderFinishedFence) != VK_SUCCESS) {
-			throw std::runtime_error("failed to submit draw command buffer!");
-		}
+		renderPass.end(cmd);
 	}
 
 	Camera *Camera::current = nullptr;

@@ -11,13 +11,15 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "Transform.h"
+#include "Object.h"
 
 #include <map>
 
 namespace spectra {
 	class MeshRenderer;
+	class Camera;
 
-	class Material {
+	class Material : public Object {
 	public:
 		Material(Shader *shader, Texture *texture);
 
@@ -33,7 +35,6 @@ namespace spectra {
 		Texture *texture;
 
 		std::map<Camera *, internal::Pipeline> pipelines;
-
 
 		VkDescriptorSet descriptorSet;
 	};

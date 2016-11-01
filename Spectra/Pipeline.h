@@ -21,12 +21,17 @@ namespace spectra {
 			VkPipeline getPipeline();
 
 			bool isInitialized();
+			bool outOfDate();
 
 		private:
 			bool initialized = false;
 
+			Camera *camera;
+
 			VReference<VkPipelineLayout> pipelineLayout;
 			VReference<VkPipeline> graphicsPipeline;
+
+			int renderPassVersion = -1;
 		};
 	}
 }

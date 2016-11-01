@@ -19,16 +19,17 @@ namespace spectra {
 	}
 
 	void Material::checkPipeline(Camera * camera) {
+
 		internal::Pipeline &pipeline = pipelines[camera];
 
-		if (!pipeline.isInitialized()) {
+		if (!pipeline.isInitialized() || pipeline.outOfDate()) {
 			Log::log("Creating pipeline");
 			createPipeline(pipeline, camera);
 		}
 	}
 
 	void Material::createPipeline(internal::Pipeline &pipeline, Camera * camera) {
-		pipeline.init(camera, shader, camera->getRenderWindow()->getRenderPass());
+		pipeline.init(camera, shader, camera->getRenderPass());
 	}
 
 	void Material::createDescriptorSet() {

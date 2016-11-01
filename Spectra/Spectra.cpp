@@ -44,12 +44,15 @@ namespace spectra {
 			Log::log("Failed to initialize timing.");
 		}
 
+		int width = config["window_width"].intValue();
+		int height = config["window_height"].intValue();
+
 		internal::Clock clock;
 		Window::init();
 		Vulkan::init(&config);
-		Window::main = new Window(config["window_width"].intValue(), config["window_height"].intValue(), "Spectra", false, false);
+		Window::main = new Window(width, height, "Spectra", false, false);
 		Vulkan::createLogicalDevice(Window::main);
-		Window::main->complete();
+		Window::main->complete(width, height);
 
 		Camera::init();
 
@@ -90,8 +93,8 @@ namespace spectra {
 
 		internal::Clock::stop();
 
-		delete Window::main;
 		Window::main = nullptr;
+		Window::closeAll();
 	}
 
 	void Spectra::quit() {

@@ -3,6 +3,8 @@
 #include "CommandBuffer.h"
 #include "World.h"
 #include "Buffer.h"
+#include "RenderPass.h"
+#include "Material.h"
 
 #include <vector>
 
@@ -20,21 +22,27 @@ namespace spectra {
 
 		void setRenderWindow(internal::Window *window);
 		internal::Window *getRenderWindow();
+		internal::RenderPass *getRenderPass();
+
+		int getRenderPassVersion();
 
 		static Camera* currentCamera();
 
 		void onCreate();
 		void onDestroy();
 
-		internal::CommandBuffer *getCommandBuffer();
-
-		Matrix4 projection;
+		void setProjection(float fov, float clipNear, float clipFar);
+		void setViewport(float x, float y, float width, float height);
+		void setClearFlags(bool clearColor, bool clearDepth);
+		void setBackgroundColor(const Color &color);
 
 	private:
 		struct CameraMatrices {
 			glm::mat4 view;
 			glm::mat4 proj;
 		};
+
+		Matrix4 projection;
 
 		friend class Spectra;
 		friend class MeshRenderer;
@@ -43,12 +51,12 @@ namespace spectra {
 
 		static Camera *current;
 
-		void capture();
-
-		void createSemafores();
-
 		void createMatrixBuffer();
 		void createDescriptorSet();
+		void createRenderPass();
+
+		void windowResized();
+
 		void updateMatrixBuffer();
 
 		static void init();
@@ -56,21 +64,33 @@ namespace spectra {
 		static void createDescriptorSetLayout();
 		static void createDescriptorPool();
 
+		void prepare();
+		void capture(internal::CommandBuffer *cmd);
+
 		void begin(internal::CommandBuffer *cmd, int i);
 		void end(internal::CommandBuffer *cmd);
 
 		internal::Window *window = nullptr;
-
-		bool pendingRender = false;
+		internal::RenderPass renderPass;
 
 		internal::Buffer matrixBuffer;
 		VkDescriptorSet descriptorSet;
 
-		internal::VReference<VkSemaphore> renderFinishedSemaphore;
-		internal::VReference<VkFence> renderFinishedFence;
+		int renderPassVersion = -1;
 
-		std::vector<internal::CommandBuffer> commandBuffers;
-		internal::CommandBuffer *currentCommandBuffer;
+		float fov = 45;
+		float farClip = 100;
+		float nearClip = 0.1f;
+
+		bool clearColor = true;
+		bool clearDepth = true;
+
+		float viewX = 0.0f;
+		float viewY = 0.0f;
+		float viewWidth = 1.0f;
+		float viewHeight = 1.0f;
+
+		Color backgroundColor = Color(0, 0, 0, 1);
 
 		static internal::VReference<VkDescriptorSetLayout> descriptorLayout;
 		static internal::VReference<VkDescriptorPool> descriptorPool;

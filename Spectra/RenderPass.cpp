@@ -8,7 +8,7 @@ namespace spectra {
 	namespace internal {
 		RenderPass::RenderPass() {}
 
-		void RenderPass::init(Window *window) {
+		void RenderPass::init(Window *window, bool clearColor, bool clearDepth) {
 			internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
 
 			renderPass.cleanup();
@@ -19,7 +19,7 @@ namespace spectra {
 			colorAttachment.format = window->getSwapChainImageFormat();
 			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 
-			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			colorAttachment.loadOp = clearColor ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -34,7 +34,7 @@ namespace spectra {
 			VkAttachmentDescription depthAttachment = {};
 			depthAttachment.format = window->getDepthFormat();
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			depthAttachment.loadOp = clearDepth ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -78,22 +78,18 @@ namespace spectra {
 			return renderPass;
 		}
 
-		void RenderPass::begin(CommandBuffer *commandBuffer, Framebuffer *framebuffer) {
+		void RenderPass::begin(CommandBuffer *commandBuffer, Framebuffer *framebuffer, int32_t posx, int32_t posy, uint32_t width, uint32_t height, Color clearColor) {
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = renderPass;
 			renderPassInfo.framebuffer = framebuffer->getBuffer();
 
-			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.offset = { posx, posy };
 
-			int i = framebuffer->getWidth();
-			int j = framebuffer->getHeight();
+			renderPassInfo.renderArea.extent = { width, height };
 
-			renderPassInfo.renderArea.extent.width = i;
-			renderPassInfo.renderArea.extent.height = j;
-
-			std::array<VkClearValue, 2> clearValues = {};
-			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			std::array<VkClearValue, 2> clearValues;
+			clearValues[0].color = { clearColor.r, clearColor.g, clearColor.b, clearColor.a };
 			clearValues[1].depthStencil = { 1.0f, 0 };
 
 			renderPassInfo.clearValueCount = clearValues.size();

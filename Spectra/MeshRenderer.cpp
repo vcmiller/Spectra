@@ -22,7 +22,7 @@ namespace spectra {
 	void MeshRenderer::render() {
 		updateMatrixBuffer();
 
-		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getCommandBuffer();
+		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getRenderWindow()->getCommandBuffer();
 		internal::Pipeline *pipeline = material->getPipeline(Camera::currentCamera());
 
 		pipeline->bind(drawCmd);

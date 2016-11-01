@@ -31,17 +31,17 @@ namespace spectra {
 			VkFormat getSwapChainImageFormat();
 			VkExtent2D getSwapChainExtent();
 			VkFormat getDepthFormat();
-			RenderPass *getRenderPass();
 
 			int getNumFramebuffers();
 			Framebuffer *getFramebuffer(int i);
+			CommandBuffer *getCommandBuffer();
 
 			static Window *getMainWindow();
 
 			bool closeRequested();
 			static void pollEvents();
 
-			void complete();
+			void complete(int width, int height);
 			void repaint();
 
 			int getWidth();
@@ -59,17 +59,19 @@ namespace spectra {
 			friend class Camera;
 
 			void createSurface();
-			void createSwapChain();
+			void createSwapChain(bool first, int width, int height);
 			void createImageViews();
 			void createDepthImage();
 			void createRenderPass();
 			void createFramebuffers();
 			void createSemafores();
 
-			void recreateSwapChain();
+			void onResized(int width, int height);
 
 			void acquireNextImage();
 			void display();
+
+			void submitBuffer(internal::CommandBuffer *cmd);
 
 			VReference<VkSurfaceKHR> surface;
 			VReference<VkSwapchainKHR> swapChain;
@@ -81,12 +83,17 @@ namespace spectra {
 
 			VReference<VkSemaphore> imageAvailableSemaphore;
 
+			std::vector<VReference<VkSemaphore>> renderFinishedSemaphores;
+			std::vector<VReference<VkFence>> renderFinishedFences;
+
 			std::vector<CommandPool> commandPools;
 			CommandPool *currentCommandPool;
 
+			std::vector<CommandBuffer> commandBuffers;
+
 			VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 			VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> availablePresentModes);
-			VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR & capabilities);
+			VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR & capabilities, int width, int height);
 
 			VkFormat swapChainImageFormat;
 			VkExtent2D swapChainExtent;
@@ -95,14 +102,13 @@ namespace spectra {
 
 			GLFWwindow *window;
 
-			int width;
-			int height;
-
 			bool repaintOnRender;
 
 			List<Camera *> cameras;
 
 			static void resized(GLFWwindow* window, int width, int height);
+
+			static void closeAll();
 
 			static Window *main;
 			static List<Window*> allWindows;
