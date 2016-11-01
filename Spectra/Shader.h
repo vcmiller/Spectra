@@ -7,18 +7,22 @@
 #include "LogicalDevice.h"
 
 #include <string>
+#include <map>
+
+#include "Pipeline.h"
 
 namespace spectra {
-	namespace internal {
-		class Pipeline;
-	}
 
 	class Material;
 	class MeshRenderer;
+	class Camera;
 
 	class Shader {
 	public:
 		Shader(std::string name);
+
+		internal::Pipeline *getPipeline(Camera *camera);
+		void checkPipeline(Camera *camera);
 
 	private:
 		friend class internal::Pipeline;
@@ -28,6 +32,7 @@ namespace spectra {
 		void createShaderModules(std::string name);
 		void createDescriptorSetLayouts();
 		void createDescriptorPools();
+		void createPipeline(internal::Pipeline &pipeline, Camera *camera);
 
 		static VkShaderModule createShaderModule(const std::vector<char>& code);
 		static std::vector<char> readFile(const std::string & filename);
@@ -38,5 +43,7 @@ namespace spectra {
 		internal::VReference<VkDescriptorSetLayout> matricesLayout;
 		internal::VReference<VkDescriptorPool> materialPool;
 		internal::VReference<VkDescriptorPool> matricesPool;
+
+		std::map<Camera *, internal::Pipeline> pipelines;
 	};
 }

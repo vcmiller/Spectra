@@ -4,11 +4,11 @@
 
 #include "VReference.h"
 #include "Window.h"
-#include "Shader.h"
 #include "RenderPass.h"
 #include "CommandBuffer.h"
 
 namespace spectra {
+	class Shader;
 	namespace internal {
 		class Pipeline {
 		public:

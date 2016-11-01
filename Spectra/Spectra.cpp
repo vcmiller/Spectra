@@ -50,7 +50,7 @@ namespace spectra {
 		internal::Clock clock;
 		Window::init();
 		Vulkan::init(&config);
-		Window::main = new Window(width, height, "Spectra", false, false);
+		Window::main = new Window(width, height, "Spectra", true, false);
 		Vulkan::createLogicalDevice(Window::main);
 		Window::main->complete(width, height);
 

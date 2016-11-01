@@ -12,6 +12,24 @@ namespace spectra {
 		createDescriptorPools();
 	}
 
+	internal::Pipeline * Shader::getPipeline(Camera * camera) {
+		return &pipelines[camera];
+	}
+
+	void Shader::checkPipeline(Camera * camera) {
+
+		internal::Pipeline &pipeline = pipelines[camera];
+
+		if (!pipeline.isInitialized() || pipeline.outOfDate()) {
+			Log::log("Creating pipeline");
+			createPipeline(pipeline, camera);
+		}
+	}
+
+	void Shader::createPipeline(internal::Pipeline &pipeline, Camera * camera) {
+		pipeline.init(camera, this, camera->getRenderPass());
+	}
+
 	void Shader::createShaderModules(std::string name) {
 		auto vertShaderCode = readFile(name + "-vert.spv");
 		auto fragShaderCode = readFile(name + "-frag.spv");

@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "Vulkan.h"
 #include "Camera.h"
+#include "Shader.h"
 
 namespace spectra {
 	namespace internal {

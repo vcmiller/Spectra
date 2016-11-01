@@ -6,7 +6,6 @@
 
 #include "RenderPass.h"
 #include "Pipeline.h"
-#include "Shader.h"
 #include "Window.h"
 #include "Buffer.h"
 #include "Texture.h"
@@ -19,22 +18,20 @@ namespace spectra {
 	class MeshRenderer;
 	class Camera;
 
+	class Shader;
+
 	class Material : public Object {
 	public:
 		Material(Shader *shader, Texture *texture);
-
-		internal::Pipeline *getPipeline(Camera *camera);
-		void checkPipeline(Camera *camera);
+		void check(Camera *camera);
+		Shader *getShader();
 
 	private:
 		friend class MeshRenderer;
-		void createPipeline(internal::Pipeline &pipeline, Camera *camera);
 		void createDescriptorSet();
 
 		Shader *shader;
 		Texture *texture;
-
-		std::map<Camera *, internal::Pipeline> pipelines;
 
 		VkDescriptorSet descriptorSet;
 	};

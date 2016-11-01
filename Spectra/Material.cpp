@@ -1,6 +1,7 @@
 #include "Material.h"
 #include "Vulkan.h"
 #include "LogicalDevice.h"
+#include "Shader.h"
 
 #include <chrono>
 #include <array>
@@ -14,22 +15,12 @@ namespace spectra {
 		createDescriptorSet();
 	}
 
-	internal::Pipeline * Material::getPipeline(Camera * camera) {
-		return &pipelines[camera];
+	void Material::check(Camera * camera) {
+		shader->checkPipeline(camera);
 	}
 
-	void Material::checkPipeline(Camera * camera) {
-
-		internal::Pipeline &pipeline = pipelines[camera];
-
-		if (!pipeline.isInitialized() || pipeline.outOfDate()) {
-			Log::log("Creating pipeline");
-			createPipeline(pipeline, camera);
-		}
-	}
-
-	void Material::createPipeline(internal::Pipeline &pipeline, Camera * camera) {
-		pipeline.init(camera, shader, camera->getRenderPass());
+	Shader * Material::getShader() {
+		return shader;
 	}
 
 	void Material::createDescriptorSet() {

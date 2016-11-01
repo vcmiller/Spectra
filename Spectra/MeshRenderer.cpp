@@ -2,6 +2,7 @@
 #include "RenderPass.h"
 #include "Pipeline.h"
 #include "Camera.h"
+#include "Shader.h"
 
 #include <chrono>
 
@@ -23,7 +24,7 @@ namespace spectra {
 		updateMatrixBuffer();
 
 		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getRenderWindow()->getCommandBuffer();
-		internal::Pipeline *pipeline = material->getPipeline(Camera::currentCamera());
+		internal::Pipeline *pipeline = material->getShader()->getPipeline(Camera::currentCamera());
 
 		pipeline->bind(drawCmd);
 
@@ -39,7 +40,7 @@ namespace spectra {
 	}
 
 	void MeshRenderer::preRender() {
-		material->checkPipeline(Camera::currentCamera());
+		material->check(Camera::currentCamera());
 	}
 
 	void MeshRenderer::createMatrixBuffer() {
