@@ -15,6 +15,11 @@ namespace spectra {
 
 			glfwSetWindowUserPointer(window, this);
 			glfwSetWindowSizeCallback(window, Window::resized);
+			glfwSetKeyCallback(window, Window::keyEvent);
+			glfwSetCharCallback(window, Window::charEvent);
+			glfwSetCursorPosCallback(window, Window::mouseMoveEvent);
+			glfwSetMouseButtonCallback(window, Window::mouseButtonEvent);
+			glfwSetScrollCallback(window, Window::mouseWheelEvent);
 
 			createSurface();
 			//createLogicalDevice();
@@ -127,6 +132,20 @@ namespace spectra {
 			return swapChainExtent.height;
 		}
 
+		void Window::setCursorMode(CursorMode mode) {
+			switch (mode) {
+			case CursorMode::Normal: 
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				break;
+			case CursorMode::Hidden:
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				break;
+			case CursorMode::Locked:
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				break;
+			}
+		}
+
 		VkSemaphore Window::getImageSemaphore() {
 			return imageAvailableSemaphore;
 		}
@@ -217,6 +236,10 @@ namespace spectra {
 		}
 
 		void Window::pollEvents() {
+			for (Window *window : allWindows) {
+				window->inputHandler.update();
+			}
+
 			glfwPollEvents();
 
 			for (int i = allWindows.length() - 1; i >= 0; i--) {
@@ -426,6 +449,39 @@ namespace spectra {
 		void Window::resized(GLFWwindow* window, int width, int height) {
 			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 			w->onResized(width, height);
+		}
+
+		void Window::keyEvent(GLFWwindow * window, int key, int scancode, int action, int mods) {
+			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			if (action == GLFW_PRESS) {
+				w->inputHandler.keyEvent(key, ButtonState::Down);
+			} else if (action == GLFW_RELEASE) {
+				w->inputHandler.keyEvent(key, ButtonState::Up);
+			}
+		}
+
+		void Window::charEvent(GLFWwindow * window, unsigned int codepoint) {
+			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			w->inputHandler.charEvent(codepoint);
+		}
+
+		void Window::mouseMoveEvent(GLFWwindow * window, double x, double y) {
+			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			w->inputHandler.mouseMoveEvent(Vector2(x, w->getHeight() - y));
+		}
+
+		void Window::mouseButtonEvent(GLFWwindow * window, int button, int action, int mods) {
+			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			if (action == GLFW_PRESS) {
+				w->inputHandler.mouseButtonEvent(button, ButtonState::Down);
+			} else if (action == GLFW_RELEASE) {
+				w->inputHandler.mouseButtonEvent(button, ButtonState::Up);
+			}
+		}
+
+		void Window::mouseWheelEvent(GLFWwindow * window, double x, double y) {
+			Window* w = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			w->inputHandler.mouseWheelEvent(y);
 		}
 
 		void Window::closeAll() {

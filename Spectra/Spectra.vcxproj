@@ -170,6 +170,10 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageView.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="WindowInputHandler.cpp" />
+    <ClCompile Include="InputMap.cpp" />
+    <ClCompile Include="Key.cpp" />
     <ClCompile Include="LogicalDevice.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -200,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="ButtonState.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Clock.h" />
     <ClInclude Include="Color.h" />
@@ -208,10 +213,15 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="CursorMode.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="ImageView.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="WindowInputHandler.h" />
+    <ClInclude Include="InputMap.h" />
+    <ClInclude Include="Key.h" />
     <ClInclude Include="LogicalDevice.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Material.h" />

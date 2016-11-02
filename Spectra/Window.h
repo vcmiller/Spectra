@@ -10,6 +10,8 @@
 #include "RenderPass.h"
 #include "Framebuffer.h"
 #include "Camera.h"
+#include "WindowInputHandler.h"
+#include "CursorMode.h"
 
 #include <string>
 #include <vector>
@@ -48,11 +50,15 @@ namespace spectra {
 
 			int getHeight();
 
+			void setCursorMode(CursorMode mode);
+
 			uint32_t getCurrentImage();
 
 			VkSemaphore getImageSemaphore();
 
 			CommandPool *getCommandPool();
+
+			const WindowInputHandler &input{ inputHandler };
 
 		private:
 			friend class Spectra;
@@ -102,11 +108,18 @@ namespace spectra {
 
 			GLFWwindow *window;
 
+			WindowInputHandler inputHandler;
+
 			bool repaintOnRender;
 
 			List<Camera *> cameras;
 
 			static void resized(GLFWwindow* window, int width, int height);
+			static void keyEvent(GLFWwindow *window, int key, int scancode, int action, int mods);
+			static void charEvent(GLFWwindow *window, unsigned int codepoint);
+			static void mouseMoveEvent(GLFWwindow *window, double x, double y);
+			static void mouseButtonEvent(GLFWwindow *window, int button, int action, int mods);
+			static void mouseWheelEvent(GLFWwindow *window, double x, double y);
 
 			static void closeAll();
 

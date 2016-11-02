@@ -21,7 +21,6 @@ namespace spectra {
 		internal::Pipeline &pipeline = pipelines[camera];
 
 		if (!pipeline.isInitialized() || pipeline.outOfDate()) {
-			Log::log("Creating pipeline");
 			createPipeline(pipeline, camera);
 		}
 	}

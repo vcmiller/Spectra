@@ -2,6 +2,6 @@
 
 namespace spectra {
 	enum class Space {
-		local, global
+		Local, Parent, Global
 	};
 }

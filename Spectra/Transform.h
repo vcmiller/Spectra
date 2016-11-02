@@ -24,10 +24,10 @@ namespace spectra {
 		Vector3 getLocalScale() const;
 		void setLocalScale(Vector3 scl);
 
-		void translate(Vector3 delta, Space relative = Space::global);
-		void rotate(Quaternion delta);
-		void rotate(Vector3 euler, Space relative = Space::global);
-		void rotate(Vector3 axis, float angle, Space relative = Space::global);
+		void translate(Vector3 delta, Space relative = Space::Global);
+		void rotate(Quaternion delta, Space relative = Space::Global);
+		void rotate(Vector3 euler, Space relative = Space::Global);
+		void rotate(Vector3 axis, float angle, Space relative = Space::Global);
 
 		void setParent(Transform* parent, bool keepWorld = false);
 		Transform* getParent() const;

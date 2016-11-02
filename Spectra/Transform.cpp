@@ -71,33 +71,33 @@ namespace spectra {
 	}
 
 	void Transform::translate(Vector3 delta, Space relative) {
-		if (relative == Space::global) {
-			setPosition(getPosition() + delta);
-		} else {
+		if (relative == Space::Local) {
+			position += rotation * delta;
+		} else if (relative == Space::Parent || !parent) {
 			position += delta;
+		} else {
+			position += getParentInverseRotation() * delta;
 		}
 	}
 
-	void Transform::rotate(Quaternion delta) {
-		rotation *= delta;
+	void Transform::rotate(Quaternion delta, Space relative) {
+		if (relative == Space::Local) {
+			rotation *= delta;
+		} else if (relative == Space::Parent || !parent) {
+			rotation = delta * rotation;
+		} else {
+			rotation = delta * getParentInverseRotation() * rotation;
+		}
+
+		rotation = delta * rotation;
 	}
 
 	void Transform::rotate(Vector3 euler, Space relative) {
-		Quaternion rot = Quaternion::euler(euler);
-
-		if (relative == Space::global && parent) {
-			rot = getParentInverseRotation() * rot;
-		}
-
-		rotation *= rot;
+		rotate(Quaternion::euler(euler), relative);
 	}
 
 	void Transform::rotate(Vector3 axis, float angle, Space relative) {
-		if (parent) {
-			axis = getParentInverseRotation() * axis;
-		}
-
-		rotation *= Quaternion::angleAxis(angle, axis);
+		rotate(Quaternion::angleAxis(angle, axis), relative);
 	}
 
 	void Transform::setParent(Transform* parent, bool keepWorld) {

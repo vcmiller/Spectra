@@ -223,10 +223,10 @@ namespace spectra {
 	}
 
 	void Camera::begin(internal::CommandBuffer *cmd, int i) {
-		int x = window->getWidth() * viewX;
-		int y = window->getHeight() * viewY;
-		int w = window->getWidth() * viewWidth;
-		int h = window->getHeight() * viewHeight;
+		int x = Math::roundToInt(window->getWidth() * viewX);
+		int y = Math::roundToInt(window->getHeight() * (1.0f - viewY - viewHeight));
+		int w = Math::roundToInt(window->getWidth() * viewWidth);
+		int h = Math::roundToInt(window->getHeight() * viewHeight);
 
 		renderPass.begin(cmd, window->getFramebuffer(i), x, y, w, h, backgroundColor);
 

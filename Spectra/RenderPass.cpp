@@ -84,6 +84,11 @@ namespace spectra {
 			renderPassInfo.renderPass = renderPass;
 			renderPassInfo.framebuffer = framebuffer->getBuffer();
 
+			posx = Math::max(posx, 0);
+			posy = Math::max(posy, 0);
+			width = Math::min(width, framebuffer->getWidth() - posx);
+			height = Math::min(height, framebuffer->getHeight() - posy);
+
 			renderPassInfo.renderArea.offset = { posx, posy };
 
 			renderPassInfo.renderArea.extent = { width, height };

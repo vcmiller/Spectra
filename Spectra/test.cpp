@@ -19,6 +19,8 @@
 #include "Mesh.h"
 #include "MeshRenderer.h"
 #include "Camera.h"
+#include "Input.h"
+#include "Key.h"
 
 using namespace util;
 using namespace spectra;
@@ -30,11 +32,41 @@ public:
 
 	Spinner() { }
 	void onCreate() {
+		//Input::setCursorMode(CursorMode::Locked);
 	}
 
 	void update() {
-		transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
-		//transform.setPosition(Vector3(0, Math::sin(Time::time()), 2));
+		if (Input::getKey(Key::Space)) {
+			transform.rotate(Quaternion::euler(Vector3(0, Time::delta(), 0)));
+		}
+
+		if (Input::getKeyDown(Key::LeftShift)) {
+			transform.setLocalScale(Vector3(1, -1, 1));
+		}
+
+		if (Input::getKeyUp(Key::LeftShift)) {
+			transform.setLocalScale(Vector3(1, 1, 1));
+		}
+
+		if (Input::getKeyDown(Key::Escape)) {
+			Input::setCursorMode(CursorMode::Normal);
+		}
+
+		if (Input::getTypedText().length() > 0) {
+			Log::log(Input::getTypedText());
+		}
+
+		transform.translate(Vector3::forward * Input::getMouseWheelDelta() * 0.3f);
+
+		if (Input::getMouseButton(1)) {
+			transform.translate(Vector3::forward * Input::getMouseDelta().y * 0.01f);
+		}
+		
+		if (Input::getMouseButton(0)) {
+			transform.rotate(Vector3::up, -Input::getMouseDelta().x * .005f, Space::Global);
+			transform.rotate(Quaternion::euler(Vector3(Input::getMouseDelta().y * 0.005f, 0, 0)), Space::Global);
+			//transform.rotate(Vector3::right, Input::getMouseDelta().y * .02f, Space::Global);
+		}
 	}
 
 	void onDestroy() {
@@ -61,36 +93,19 @@ public:
 		bob->addComponent<MeshRenderer>()->init(mesh, material);
 		bob->addComponent<Spinner>();
 
-		bob->transform.setPosition(Vector3(-.5f, 0, 2));
-
-		GameObject *joe = new GameObject();
-		joe->addComponent<MeshRenderer>()->init(mesh, material);
-		joe->transform.setPosition(Vector3(.5f, 0, 2));
+		bob->transform.setPosition(Vector3(0, 0, 0));
 
 		GameObject *camera = new GameObject();
 		camera->addComponent<Camera>();// ->setRenderWindow(window);
 		camera->transform.setPosition(Vector3(0, 0, -1));
 
 		Camera *cam = camera->getComponent<Camera>();
-
-		GameObject *camera2 = new GameObject();
-		camera2->addComponent<Camera>();
-		camera2->transform.setPosition(Vector3(0, 0, 5));
-		camera2->transform.setRotation(Quaternion::euler(Vector3(0, Math::halfCircle, 0)));
-
-		Camera *cam2 = camera2->getComponent<Camera>();
-
-		cam->setViewport(0, 0, .5f, 1.0f);
-		cam->setBackgroundColor(Color(1, 0, 0));
-		cam2->setViewport(.5f, 0, .5f, 1.0f);
-		cam2->setBackgroundColor(Color(0, 1, 0));
+		cam->setBackgroundColor(Color(0.2f, 0.2f, 0.2f));
 
 		//cam->setProjection(45, .1f, 100.f);
 
 		add(bob);
-		add(joe);
 		add(camera);
-		add(camera2);
 	}
 
 	void depopulate() {
