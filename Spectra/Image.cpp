@@ -146,7 +146,7 @@ namespace spectra {
 			region.extent.depth = 1;
 
 			vkCmdCopyImage(cmd.getBuffer(), src->getImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dest->getImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
+			
 			cmd.end();
 			cmd.submit();
 		}

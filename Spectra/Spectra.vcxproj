@@ -171,6 +171,7 @@
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Page.cpp" />
     <ClCompile Include="WindowInputHandler.cpp" />
     <ClCompile Include="InputMap.cpp" />
     <ClCompile Include="Key.cpp" />
@@ -219,6 +220,9 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="Page.h" />
     <ClInclude Include="WindowInputHandler.h" />
     <ClInclude Include="InputMap.h" />
     <ClInclude Include="Key.h" />
