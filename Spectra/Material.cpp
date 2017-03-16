@@ -15,12 +15,16 @@ namespace spectra {
 		createDescriptorSet();
 	}
 
-	void Material::check(Camera * camera, int pass) {
-		shader->checkPipeline(camera, pass);
+	void Material::check(Camera * camera) {
+		shader->checkPipelines(camera);
 	}
 
 	Shader * Material::getShader() {
 		return shader;
+	}
+
+	int Material::getPassCount() {
+		return shader->getPassCount();
 	}
 
 	void Material::createDescriptorSet() {

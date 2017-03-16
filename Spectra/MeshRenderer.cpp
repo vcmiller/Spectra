@@ -3,6 +3,7 @@
 #include "Pipeline.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Light.h"
 
 #include <chrono>
 
@@ -20,27 +21,40 @@ namespace spectra {
 		createDescriptorSet();
 	}
 
-	void MeshRenderer::render(int pass) {
+	void MeshRenderer::render() {
 		updateMatrixBuffer();
 
 		internal::CommandBuffer *drawCmd = Camera::currentCamera()->getRenderWindow()->getCommandBuffer();
-		internal::Pipeline *pipeline = material->getShader()->getPipeline(Camera::currentCamera(), pass);
-
-		pipeline->bind(drawCmd);
-
 		VkBuffer vertexBuffers[] = { mesh->getVertexBuffer()->getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 
-		VkDescriptorSet descriptorSets[] = { Camera::currentCamera()->descriptorSet, descriptorSet, material->descriptorSet };
-
-		vkCmdBindDescriptorSets(drawCmd->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 0, 3, descriptorSets, 0, nullptr);
 		vkCmdBindVertexBuffers(drawCmd->getBuffer(), 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(drawCmd->getBuffer(), mesh->getIndexBuffer()->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(drawCmd->getBuffer(), mesh->indices.length(), 1, 0, 0, 0);
+
+		for (int pass = 0; pass < material->getPassCount(); pass++) {
+			internal::Pipeline *pipeline = material->getShader()->getPipeline(Camera::currentCamera(), pass);
+			pipeline->bind(drawCmd);
+
+			if (pass == 0) {
+				VkDescriptorSet descriptorSets[] = { Camera::currentCamera()->descriptorSet, descriptorSet, material->descriptorSet };
+				vkCmdBindDescriptorSets(drawCmd->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 0, 3, descriptorSets, 0, nullptr);
+
+				vkCmdDrawIndexed(drawCmd->getBuffer(), mesh->indices.length(), 1, 0, 0, 0);
+			} else if (pass == 1) {
+				for (int light = 0; light < Light::numLights(); light++) {
+					Light* l = Light::lightAt(light);
+
+					VkDescriptorSet descriptorSets[] = { Camera::currentCamera()->descriptorSet, descriptorSet, material->descriptorSet, l->descriptorSet };
+					vkCmdBindDescriptorSets(drawCmd->getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout(), 0, 4, descriptorSets, 0, nullptr);
+
+					vkCmdDrawIndexed(drawCmd->getBuffer(), mesh->indices.length(), 1, 0, 0, 0);
+				}
+			}
+		}
 	}
 
-	void MeshRenderer::preRender(int pass) {
-		material->check(Camera::currentCamera(), pass);
+	void MeshRenderer::preRender() {
+		material->check(Camera::currentCamera());
 	}
 
 	void MeshRenderer::createMatrixBuffer() {

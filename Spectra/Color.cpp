@@ -7,4 +7,5 @@ namespace spectra {
 		this->b = b;
 		this->a = a;
 	}
+	Color::Color() : Color(0, 0, 0, 0) {}
 }

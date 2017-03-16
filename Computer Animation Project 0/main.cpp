@@ -22,6 +22,7 @@
 #include "Input.h"
 #include "Key.h"
 #include "FMath.h"
+#include "Light.h"
 
 using namespace util;
 using namespace spectra;
@@ -39,7 +40,7 @@ public:
 	}
 
 	void update() {
-		float f = Time::delta() * FMath::halfCircle;
+		float f = Time::delta() * FMath::quarterCircle;
 		euler += Vector3(0, f, 0);
 
 		transform.setRotation(Quaternion::euler(euler));
@@ -78,6 +79,18 @@ public:
 
 		Camera *cam = camera->getComponent<Camera>();
 		cam->setBackgroundColor(Color(0.2f, 0.2f, 0.2f));
+
+		GameObject *light = new GameObject();
+		light->transform.setForward(Vector3(1, -1, 0.9f));
+		Light *l = light->addComponent<Light>();
+		l->color = Color(1.0f, 0.0f, 0.0f);
+
+
+		light = new GameObject();
+		light->transform.setForward(Vector3(-1, 1, 0.9f));
+		l = light->addComponent<Light>();
+		l->color = Color(0.0f, 1.0f, 0.0f);
+		
 
 		//cam->setProjection(45, .1f, 100.f);
 

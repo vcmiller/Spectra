@@ -24,8 +24,8 @@ namespace spectra {
 
 		void init(Mesh *mesh, Material *material);
 
-		void render(int pass);
-		void preRender(int pass);
+		void render();
+		void preRender();
 
 	private:
 

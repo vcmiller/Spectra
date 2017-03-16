@@ -10,23 +10,27 @@ namespace spectra {
 		createShaderModules(name);
 		createDescriptorSetLayouts();
 		createDescriptorPools();
+
+		passes.resize(2);
 	}
 
 	internal::Pipeline * Shader::getPipeline(Camera * camera, int pass) {
 		return &passes[pass][camera];
 	}
 
-	void Shader::checkPipeline(Camera * camera, int pass) {
-		if (pass >= passes.size()) {
-			passes.resize(pass + 1);
-			Log::log << "Size: " << passes.size() << "\n";
-		}
+	void Shader::checkPipelines(Camera * camera) {
+		
+		for (int pass = 0; pass < passes.size(); pass++) {
+			internal::Pipeline *pipeline = &passes[pass][camera];
 
-		internal::Pipeline *pipeline = &passes[pass][camera];
-
-		if (!pipeline->isInitialized() || pipeline->outOfDate()) {
-			createPipeline(pipeline, camera, pass);
+			if (!pipeline->isInitialized() || pipeline->outOfDate()) {
+				createPipeline(pipeline, camera, pass);
+			}
 		}
+	}
+
+	int Shader::getPassCount() {
+		return passes.size();
 	}
 
 	void Shader::createPipeline(internal::Pipeline *pipeline, Camera * camera, int pass) {

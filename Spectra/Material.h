@@ -23,8 +23,9 @@ namespace spectra {
 	class Material : public Object {
 	public:
 		Material(Shader *shader, Texture *texture);
-		void check(Camera *camera, int pass);
+		void check(Camera *camera);
 		Shader *getShader();
+		int getPassCount();
 
 	private:
 		friend class MeshRenderer;

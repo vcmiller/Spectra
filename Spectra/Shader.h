@@ -22,7 +22,8 @@ namespace spectra {
 		Shader(std::string name);
 
 		internal::Pipeline *getPipeline(Camera *camera, int pass);
-		void checkPipeline(Camera *camera, int pass);
+		void checkPipelines(Camera *camera);
+		int getPassCount();
 
 	private:
 		friend class internal::Pipeline;

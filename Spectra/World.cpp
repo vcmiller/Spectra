@@ -57,15 +57,15 @@ namespace spectra {
 		newGameObjects.clear();
 	}
 
-	void World::preRender(int pass) {
+	void World::preRender() {
 		for (Component *cmp : renderComponents) {
-			cmp->preRender(pass);
+			cmp->preRender();
 		}
 	}
 
-	void World::render(int pass) {
+	void World::render() {
 		for (Component *cmp : renderComponents) {
-			cmp->render(pass);
+			cmp->render();
 		}
 	}
 

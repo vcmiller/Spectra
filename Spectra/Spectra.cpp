@@ -12,6 +12,7 @@
 #include "MeshRenderer.h"
 #include "Camera.h"
 #include "Window.h"
+#include "Light.h"
 
 namespace spectra {
 	using namespace internal;
@@ -55,6 +56,7 @@ namespace spectra {
 		Window::main->complete(width, height);
 
 		Camera::init();
+		Light::init();
 
 		if (start) {
 			World::load(start, false);
@@ -67,6 +69,7 @@ namespace spectra {
 			clock.reset();
 			Window::pollEvents();
 			World::update();
+			Light::updateAll();
 			//bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
 			for (Window *window : Window::allWindows) {
 				if (window->repaintOnRender) {
@@ -90,6 +93,7 @@ namespace spectra {
 		World::clear();
 
 		Camera::cleanup();
+		Light::cleanup();
 
 		internal::Clock::stop();
 

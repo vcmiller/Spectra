@@ -3,6 +3,7 @@
 #include "Vulkan.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Light.h"
 
 namespace spectra {
 	namespace internal {
@@ -139,10 +140,10 @@ namespace spectra {
 			dynamicState.pDynamicStates = dynamicStates;
 			
 
-			VkDescriptorSetLayout setLayouts[] = { camera->descriptorLayout, shader->matricesLayout, shader->materialLayout };
+			VkDescriptorSetLayout setLayouts[] = { camera->descriptorLayout, shader->matricesLayout, shader->materialLayout, Light::descriptorLayout };
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = 3;
+			pipelineLayoutInfo.setLayoutCount = 4;
 			pipelineLayoutInfo.pSetLayouts = setLayouts;
 			pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 			pipelineLayoutInfo.pPushConstantRanges = 0; // Optional
