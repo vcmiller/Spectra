@@ -45,7 +45,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -183,7 +183,7 @@
     <ClCompile Include="jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Math.cpp" />
+    <ClCompile Include="FMath.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Pipeline.cpp" />
@@ -243,7 +243,7 @@
     <ClInclude Include="jsoncpp\json.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="Math.h" />
+    <ClInclude Include="FMath.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectSet.h" />

@@ -2,6 +2,7 @@
 #include "Vulkan.h"
 #include "LogicalDevice.h"
 #include "Window.h"
+#include "FMath.h"
 
 namespace spectra {
 	Camera::Camera() {}
@@ -223,10 +224,10 @@ namespace spectra {
 	}
 
 	void Camera::begin(internal::CommandBuffer *cmd, int i) {
-		int x = Math::roundToInt(window->getWidth() * viewX);
-		int y = Math::roundToInt(window->getHeight() * (1.0f - viewY - viewHeight));
-		int w = Math::roundToInt(window->getWidth() * viewWidth);
-		int h = Math::roundToInt(window->getHeight() * viewHeight);
+		int x = FMath::roundToInt(window->getWidth() * viewX);
+		int y = FMath::roundToInt(window->getHeight() * (1.0f - viewY - viewHeight));
+		int w = FMath::roundToInt(window->getWidth() * viewWidth);
+		int h = FMath::roundToInt(window->getHeight() * viewHeight);
 
 		renderPass.begin(cmd, window->getFramebuffer(i), x, y, w, h, backgroundColor);
 

@@ -1,7 +1,7 @@
 #include "Vector.h"
 #include <iostream>
 #include "Quaternion.h"
-#include "Math.h"
+#include "FMath.h"
 
 namespace spectra {
 	// ========================== Vector2 ========================== 
@@ -50,7 +50,7 @@ namespace spectra {
 	}
 
 	Vector3 Vector3::rotate(const Vector3 &vector, const Vector3 &axis, float angle) {
-		return vector * Math::cos(angle) + cross(axis, vector) * Math::sin(angle) + axis * dot(vector, axis) * (1 - Math::cos(angle));
+		return vector * FMath::cos(angle) + cross(axis, vector) * FMath::sin(angle) + axis * dot(vector, axis) * (1 - FMath::cos(angle));
 	}
 
 	Vector3 Vector3::slerp(const Vector3 &v1, const Vector3 &v2, float amount) {
@@ -75,7 +75,7 @@ namespace spectra {
 			float l = v1.magnitude();
 			float l2 = v2.magnitude();
 
-			result = result / l * Math::moveTowards(l, l2, maxDeltaLength);
+			result = result / l * FMath::moveTowards(l, l2, maxDeltaLength);
 		}
 
 		return result;

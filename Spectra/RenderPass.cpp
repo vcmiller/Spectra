@@ -1,6 +1,7 @@
 #include "RenderPass.h"
 #include "Vulkan.h"
 #include "Window.h"
+#include "FMath.h"
 
 #include <array>
 
@@ -84,10 +85,10 @@ namespace spectra {
 			renderPassInfo.renderPass = renderPass;
 			renderPassInfo.framebuffer = framebuffer->getBuffer();
 
-			posx = Math::max(posx, 0);
-			posy = Math::max(posy, 0);
-			width = Math::min(width, framebuffer->getWidth() - posx);
-			height = Math::min(height, framebuffer->getHeight() - posy);
+			posx = FMath::max(posx, 0);
+			posy = FMath::max(posy, 0);
+			width = FMath::min(width, framebuffer->getWidth() - posx);
+			height = FMath::min(height, framebuffer->getHeight() - posy);
 
 			renderPassInfo.renderArea.offset = { posx, posy };
 

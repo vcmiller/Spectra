@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "Math.h"
+#include "FMath.h"
 #include "Vulkan.h"
 #include "PhysicalDevice.h"
 
@@ -433,8 +433,8 @@ namespace spectra {
 			} else {
 				VkExtent2D actualExtent = { width, height };
 
-				actualExtent.width = Math::max(capabilities.minImageExtent.width, Math::min((int)capabilities.maxImageExtent.width, (int)actualExtent.width));
-				actualExtent.height = Math::max(capabilities.minImageExtent.height, Math::min((int)capabilities.maxImageExtent.height, (int)actualExtent.height));
+				actualExtent.width = FMath::max(capabilities.minImageExtent.width, FMath::min((int)capabilities.maxImageExtent.width, (int)actualExtent.width));
+				actualExtent.height = FMath::max(capabilities.minImageExtent.height, FMath::min((int)capabilities.maxImageExtent.height, (int)actualExtent.height));
 
 				return actualExtent;
 			}

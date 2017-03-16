@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Math.h"
 #include "Time.h"
+#include "FMath.h"
 
 namespace spectra {
 	Quaternion::Quaternion(float w, float x, float y, float z) {
@@ -51,11 +52,11 @@ namespace spectra {
 
 
 	float Quaternion::angle(const Quaternion &q1, const Quaternion &q2) {
-		float f = Math::acos((q2.quat * glm::inverse(q1.quat)).w) * 2;
+		float f = FMath::acos((q2.quat * glm::inverse(q1.quat)).w) * 2;
 
-		if (f > Math::halfCircle) {
-			f -= Math::fullCircle;
-			f = Math::abs(f);
+		if (f > FMath::halfCircle) {
+			f -= FMath::fullCircle;
+			f = FMath::abs(f);
 		}
 
 		return f;
