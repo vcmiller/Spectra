@@ -9,7 +9,7 @@ namespace spectra {
 
 		Pipeline::Pipeline() {}
 
-		void Pipeline::init(Camera *camera, Shader *shader, RenderPass *renderPass) {
+		void Pipeline::init(Camera *camera, Shader *shader, RenderPass *renderPass, int pass) {
 			this->renderPassVersion = camera->getRenderPassVersion();
 			this->camera = camera;
 
@@ -30,7 +30,7 @@ namespace spectra {
 			VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
 			fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			fragShaderStageInfo.module = shader->fragmentModule;
+			fragShaderStageInfo.module = shader->fragmentModules[pass];
 			fragShaderStageInfo.pName = "main";
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
@@ -98,9 +98,9 @@ namespace spectra {
 
 			VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 			colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-			colorBlendAttachment.blendEnable = VK_FALSE;
+			colorBlendAttachment.blendEnable = VK_TRUE;
 			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+			colorBlendAttachment.dstColorBlendFactor = pass == 0 ? VK_BLEND_FACTOR_ZERO : VK_BLEND_FACTOR_ONE; // Optional
 			colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
 			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
 			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
@@ -156,7 +156,7 @@ namespace spectra {
 			depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 			depthStencil.depthTestEnable = VK_TRUE;
 			depthStencil.depthWriteEnable = VK_TRUE;
-			depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+			depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 			depthStencil.depthBoundsTestEnable = VK_FALSE;
 			depthStencil.minDepthBounds = 0.0f; // Optional
 			depthStencil.maxDepthBounds = 1.0f; // Optional

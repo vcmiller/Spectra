@@ -12,8 +12,10 @@ layout(set = 1, binding = 1) uniform ObjectMatrix {
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec2 inTexCoord;
+layout(location = 2) in vec3 inNormal;
 
 layout(location = 0) out vec2 fragTexCoord;
+layout(location = 1) out vec3 fragNormal;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -25,4 +27,8 @@ void main() {
 
     gl_Position = cam.proj * viewPos;
     fragTexCoord = inTexCoord;
+    
+    vec4 outNormal = obj.model * vec4(inNormal, 0);
+    
+    fragNormal = outNormal.xyz;
 }

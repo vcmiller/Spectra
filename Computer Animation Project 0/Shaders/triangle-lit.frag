@@ -9,6 +9,8 @@ layout(location = 1) in vec3 fragNormal;
 layout(location = 0) out vec4 outColor;
 
 void main() {
+    vec3 lightDirWorld = normalize(vec3(1, -1, 1));
+    float diffuse = clamp(dot(normalize(fragNormal), -lightDirWorld), 0, 1);
 
-    outColor = texture(texSampler, fragTexCoord) * 0.3f;
+    outColor = texture(texSampler, fragTexCoord) * diffuse;
 }

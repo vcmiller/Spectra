@@ -12,37 +12,49 @@ namespace spectra {
 		createDescriptorPools();
 	}
 
-	internal::Pipeline * Shader::getPipeline(Camera * camera) {
-		return &pipelines[camera];
+	internal::Pipeline * Shader::getPipeline(Camera * camera, int pass) {
+		return &passes[pass][camera];
 	}
 
-	void Shader::checkPipeline(Camera * camera) {
+	void Shader::checkPipeline(Camera * camera, int pass) {
+		if (pass >= passes.size()) {
+			passes.resize(pass + 1);
+			Log::log << "Size: " << passes.size() << "\n";
+		}
 
-		internal::Pipeline &pipeline = pipelines[camera];
+		internal::Pipeline *pipeline = &passes[pass][camera];
 
-		if (!pipeline.isInitialized() || pipeline.outOfDate()) {
-			createPipeline(pipeline, camera);
+		if (!pipeline->isInitialized() || pipeline->outOfDate()) {
+			createPipeline(pipeline, camera, pass);
 		}
 	}
 
-	void Shader::createPipeline(internal::Pipeline &pipeline, Camera * camera) {
-		pipeline.init(camera, this, camera->getRenderPass());
+	void Shader::createPipeline(internal::Pipeline *pipeline, Camera * camera, int pass) {
+		pipeline->init(camera, this, camera->getRenderPass(), pass);
 	}
 
 	void Shader::createShaderModules(std::string name) {
 		auto vertShaderCode = readFile(name + "-vert.spv");
-		auto fragShaderCode = readFile(name + "-frag.spv");
+		auto litFragShaderCode = readFile(name + "-lit-frag.spv");
+		auto unlitFragShaderCode = readFile(name + "-frag.spv");
 
 		internal::LogicalDevice *device = internal::Vulkan::getLogicalDevice();
 
 		vertexModule.cleanup();
-		fragmentModule.cleanup();
+
+		for (int i = 0; i < fragmentModules.size(); i++) {
+			fragmentModules[i].cleanup();
+		}
 
 		vertexModule = internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule);
-		fragmentModule = internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule);
+		
+		fragmentModules.clear();
+		fragmentModules.push_back(internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule));
+		fragmentModules.push_back(internal::VReference<VkShaderModule>(device->getDevice(), vkDestroyShaderModule));
 
 		vertexModule = createShaderModule(vertShaderCode);
-		fragmentModule = createShaderModule(fragShaderCode);
+		fragmentModules[0] = createShaderModule(unlitFragShaderCode);
+		fragmentModules[1] = createShaderModule(litFragShaderCode);
 	}
 
 	void Shader::createDescriptorSetLayouts() {

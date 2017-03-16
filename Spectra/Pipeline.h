@@ -14,7 +14,7 @@ namespace spectra {
 		public:
 			Pipeline();
 
-			void init(Camera *camera, Shader *shader, RenderPass *renderPass);
+			void init(Camera *camera, Shader *shader, RenderPass *renderPass, int pass);
 			void bind(CommandBuffer *commandBuffer);
 
 			VkPipelineLayout getLayout();

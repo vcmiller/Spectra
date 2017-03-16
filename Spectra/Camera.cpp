@@ -87,7 +87,8 @@ namespace spectra {
 
 		current = this;
 
-		World::preRender();
+		World::preRender(0);
+		World::preRender(1);
 	}
 
 	void Camera::capture(internal::CommandBuffer *cmd) {
@@ -96,7 +97,8 @@ namespace spectra {
 		int i = window->getCurrentImage();
 
 		begin(cmd, i);
-		World::render();
+		World::render(0);
+		World::render(1);
 		end(cmd);
 
 		current = nullptr;

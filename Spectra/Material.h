@@ -23,7 +23,7 @@ namespace spectra {
 	class Material : public Object {
 	public:
 		Material(Shader *shader, Texture *texture);
-		void check(Camera *camera);
+		void check(Camera *camera, int pass);
 		Shader *getShader();
 
 	private:

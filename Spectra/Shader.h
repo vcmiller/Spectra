@@ -21,8 +21,8 @@ namespace spectra {
 	public:
 		Shader(std::string name);
 
-		internal::Pipeline *getPipeline(Camera *camera);
-		void checkPipeline(Camera *camera);
+		internal::Pipeline *getPipeline(Camera *camera, int pass);
+		void checkPipeline(Camera *camera, int pass);
 
 	private:
 		friend class internal::Pipeline;
@@ -32,18 +32,19 @@ namespace spectra {
 		void createShaderModules(std::string name);
 		void createDescriptorSetLayouts();
 		void createDescriptorPools();
-		void createPipeline(internal::Pipeline &pipeline, Camera *camera);
+		void createPipeline(internal::Pipeline *pipeline, Camera *camera, int pass);
 
 		static VkShaderModule createShaderModule(const std::vector<char>& code);
 		static std::vector<char> readFile(const std::string & filename);
 
 		internal::VReference<VkShaderModule> vertexModule;
-		internal::VReference<VkShaderModule> fragmentModule;
+		std::vector<internal::VReference<VkShaderModule>> fragmentModules;
 		internal::VReference<VkDescriptorSetLayout> materialLayout;
 		internal::VReference<VkDescriptorSetLayout> matricesLayout;
 		internal::VReference<VkDescriptorPool> materialPool;
 		internal::VReference<VkDescriptorPool> matricesPool;
 
-		std::map<Camera *, internal::Pipeline> pipelines;
+		
+		std::vector<std::map<Camera *, internal::Pipeline>> passes;
 	};
 }

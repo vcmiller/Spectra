@@ -40,11 +40,11 @@ public:
 
 	void update() {
 		float f = Time::delta() * FMath::halfCircle;
-		euler += Vector3(f, f, f);
+		euler += Vector3(0, f, 0);
 
 		transform.setRotation(Quaternion::euler(euler));
 
-		transform.setPosition(Vector3(0, FMath::sin(4 * Time::time()), 0));
+		//transform.setPosition(Vector3(0, FMath::sin(4 * Time::time()), 0));
 	}
 
 	void onDestroy() {}
@@ -69,7 +69,7 @@ public:
 		GameObject *bob = new GameObject();
 		bob->addComponent<MeshRenderer>()->init(mesh, material);
 		bob->addComponent<Spinner>();
-
+		bob->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
 		bob->transform.setPosition(Vector3(0, 0, 0));
 
 		GameObject *camera = new GameObject();
