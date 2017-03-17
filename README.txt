@@ -1,7 +1,16 @@
 Vincent Miller
 
+Video: https://www.youtube.com/watch?v=g09P0PklQjw
+
+Note: I used Vulkan for this project, which may not run on some of the zoo lab computers.
+Once I realized it might not run on all of them, I made a Unity version, but wanted to submit
+my Vulkan version since it's more interesting. If the Vulkan version doesn't work, the Unity
+version can be found in the Project0Unity folder, and opened by simply opening "Scene.unity".
+
+------------------------------------------------------------------------------------------
+
 This project was done using a custom engine programmed in C++, using Vulkan for rendering.
-Vulkan will run on the zoo lab computers, as long as it is built in RELEASE mode (64 bit).
+Vulkan should run on the zoo lab computers, as long as it is built in RELEASE mode (64 bit).
 
 Note: Due to using a custom engine, I had to include all of the engine files and libraries
 in the submission, which will make it much larger than a Unity project.
