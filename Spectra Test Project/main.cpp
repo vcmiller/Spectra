@@ -64,6 +64,18 @@ public:
 	}
 };
 
+class Mover : public Component {
+	void update() {
+		if (Input::getKey(Key::W)) {
+			transform.translate(Vector3::up * Time::delta());
+		}
+
+		if (Input::getKey(Key::S)) {
+			transform.translate(Vector3::down * Time::delta());
+		}
+	}
+};
+
 // Scene class, which is responsible for loading and cleaning up assets, and creating objects.
 class TestScene : public Scene {
 public:
@@ -79,40 +91,48 @@ public:
 		shader = new Shader("Shaders/triangle");
 		texture = new Texture("Textures/Ornate.jpg");
 		material = new Material(shader, texture);
-		mesh = new Mesh("Models/Suzanne.obj");
+		mesh = new Mesh("Models/Quad.obj");
 
 		// Create the spinning monkey object.
-		GameObject *bob = new GameObject();
-		bob->addComponent<MeshRenderer>()->init(mesh, material);
-		bob->addComponent<Spinner>();
-		bob->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
-		bob->transform.setPosition(Vector3(0, 0, 0));
+		//GameObject *bob = new GameObject();
+		//bob->addComponent<MeshRenderer>()->init(mesh, material);
+		//bob->addComponent<Spinner>();
+		//bob->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
+		//bob->transform.setPosition(Vector3(0, 0, 0));
+
+		GameObject *floor = new GameObject();
+		floor->addComponent<MeshRenderer>()->init(mesh, material);
+		floor->transform.setForward(Vector3::down);
+		floor->transform.setLocalScale(Vector3(4, 4, 4));
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
 		camera->addComponent<Camera>();// ->setRenderWindow(window);
-		camera->transform.setPosition(Vector3(0, 0, -5));
+		camera->transform.setPosition(Vector3(0, 1.5f, -8));
 
 		// Set background coor for the Camera.
 		Camera *cam = camera->getComponent<Camera>();
 		cam->setBackgroundColor(Color(0.2f, 0.2f, 0.2f));
 
 		// Create a red light pointing to the right.
-		GameObject *light1 = new GameObject();
-		light1->transform.setForward(Vector3(1, -1, 0.9f));
-		Light *l1 = light1->addComponent<Light>();
-		l1->color = Color(1.0f, 0.0f, 0.0f);
+		//GameObject *light1 = new GameObject();
+		//light1->transform.setForward(Vector3(1, -1, 0.9f));
+		//Light *l1 = light1->addComponent<Light>();
+		//l1->color = Color(1.0f, 0.0f, 0.0f);
 
 		// Create a green light pointing to the left.
 		GameObject *light2 = new GameObject();
-		light2->transform.setForward(Vector3(-1, 1, 0.9f));
+		light2->transform.setPosition(Vector3(0, 1, 0));
+		light2->addComponent<Mover>();
 		Light *l2 = light2->addComponent<Light>();
 		l2->color = Color(0.0f, 1.0f, 0.0f);
+		l2->directional = false;
+		l2->range = 5.0f;
 		
 		// Track these objects so they will be destroyed when the scene is depopulated.
-		add(bob);
+		//add(bob);
 		add(camera);
-		add(light1);
+		//add(light1);
 		add(light2);
 	}
 
