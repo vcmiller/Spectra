@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spectra", "Spectra\Spectra.vcxproj", "{A7989A46-9F4D-4B6C-B4C0-80EBCB430EAF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Computer Animation Project 0", "Computer Animation Project 0\Computer Animation Project 0.vcxproj", "{7DDC7ACD-5BE5-4F93-BBA7-8D1B69421A8D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Spectra Test Project", "Spectra Test Project\Spectra Test Project.vcxproj", "{7DDC7ACD-5BE5-4F93-BBA7-8D1B69421A8D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A7989A46-9F4D-4B6C-B4C0-80EBCB430EAF} = {A7989A46-9F4D-4B6C-B4C0-80EBCB430EAF}
 	EndProjectSection
