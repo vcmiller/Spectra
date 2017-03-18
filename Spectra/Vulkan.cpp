@@ -3,12 +3,6 @@
 #include "Window.h"
 #include "LogicalDevice.h"
 
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_LUNARG_standard_validation",
 };
@@ -20,8 +14,12 @@ const std::vector<const char*> deviceExtensions = {
 namespace spectra {
 	namespace internal {
 
+		bool Vulkan::enableValidation;
+
 		void Vulkan::init(Config* config) {
 			Vulkan::config = config;
+
+			enableValidation = (*config)["enable_validation"].boolValue();
 
 			createInstance();
 			setupDebugCallback();
@@ -56,7 +54,7 @@ namespace spectra {
 
 			createInfo.enabledLayerCount = 0;
 
-			if (enableValidationLayers) {
+			if (enableValidation) {
 				if (checkValidationLayerSupport(validationLayers)) {
 					createInfo.enabledLayerCount = validationLayers.size();
 					createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -73,7 +71,7 @@ namespace spectra {
 		}
 
 		void Vulkan::setupDebugCallback() {
-			if (!enableValidationLayers) return;
+			if (!enableValidation) return;
 
 			callback = VReference<VkDebugReportCallbackEXT>(instance, DestroyDebugReportCallbackEXT);
 
@@ -123,7 +121,7 @@ namespace spectra {
 				extensions.push_back(glfwExtensions[i]);
 			}
 
-			if (enableValidationLayers) {
+			if (enableValidation) {
 				extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			}
 
@@ -188,7 +186,7 @@ namespace spectra {
 		}
 
 		bool Vulkan::getEnableValidationLayers() {
-			return enableValidationLayers;
+			return enableValidation;
 		}
 
 		const PhysicalDevice * Vulkan::getPhysicalDevice() {

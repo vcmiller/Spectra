@@ -52,6 +52,7 @@ namespace spectra {
 			static LogicalDevice logicalDevice;
 
 			static Config* config;
+			static bool enableValidation;
 		};
 	}
 }

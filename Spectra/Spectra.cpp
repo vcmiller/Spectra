@@ -30,13 +30,23 @@ namespace spectra {
 			config["window_width"] = 800;
 			config["window_height"] = 600;
 			config["framerate"] = 60;
+			config["enable_validation"] = false;
 
 			config.write();
 		}
 
 		targetFPS = config["framerate"].intValue();
-		float spf = 1.0f / targetFPS;
-		ulong uspf = 1000000 / targetFPS;
+
+		float spf;
+		ulong uspf;
+		
+		if (targetFPS > 0) {
+			spf = 1.0f / targetFPS;
+			uspf = 1000000 / targetFPS;
+		} else {
+			spf = 0;
+			uspf = 0;
+		}
 
 		running = true;
 		
@@ -70,7 +80,7 @@ namespace spectra {
 			Window::pollEvents();
 			World::update();
 			Light::updateAll();
-			//bob->transform.translate(Vector3(0, 0, Time::delta() * 0.2f));
+			
 			for (Window *window : Window::allWindows) {
 				if (window->repaintOnRender) {
 					window->repaint();
@@ -79,11 +89,13 @@ namespace spectra {
 
 			ulong time = clock.elapsed();
 
-			if (time < uspf) {
-				//clock.sleep(uspf - time);
-				//Log::log << "Time: " << int(time / 1000) << "ms\n";
-			} else {
-				Log::log << "Can't keep up! Frame time " << int(time / 1000) << " milliseconds.\n";
+			if (targetFPS > 0) {
+				if (time < uspf) {
+					clock.sleep(uspf - time);
+					//Log::log << "Time: " << int(time / 1000) << "ms\n";
+				} else {
+					Log::log << "Can't keep up! Frame time " << int(time / 1000) << " milliseconds.\n";
+				}
 			}
 
 			Time::tick();
