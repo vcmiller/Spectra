@@ -5,12 +5,8 @@
 #include <exception>
 
 namespace spectra {
-	Config::Config(Json::Value *node) : nodePtr(node) { 
-		filename = "";
-		loaded = false;
-	}
 
-	Config::Config(std::string file) : nodePtr(&nodeVal) {
+	Config::Config(std::string file) {
 		filename = file;
 		std::string text;
 		std::ifstream strm(file);
@@ -21,158 +17,84 @@ namespace spectra {
 			text.assign((std::istreambuf_iterator<char>(strm)), std::istreambuf_iterator<char>());
 			strm.close();
 			Json::Reader reader;
-			loaded = reader.parse(text, nodeVal);
 
-			if (!loaded) {
-				Log::log(reader.getFormattedErrorMessages());
-				nodeVal = Json::objectValue;
+			Json::Value node;
+
+			loaded = reader.parse(text, node);
+
+			if (loaded) {
+				read(node);
 			}
 		} else {
 			loaded = false;
-			nodeVal = Json::objectValue;
 		}
 	}
 
-	Config::Config() : nodePtr(&nodeVal) { 
+	Config::Config() { 
 		filename = "";
 		loaded = false;
 	}
 
-	Config::Config(const Config& cfg) {
-		if (cfg.nodePtr == &cfg.nodeVal) {
-			nodePtr = &nodeVal;
-			nodeVal = cfg.nodeVal;
-		} else {
-			nodePtr = cfg.nodePtr;
-		}
 
-		filename = cfg.filename;
-		loaded = cfg.loaded;
-	}
+	void Config::read(const Json::Value &node) {
+		
+		for (std::string key : node.getMemberNames()) {
+			Json::Value val = node[key];
 
-	void Config::operator=(const Config & cfg) {
-		if (cfg.nodePtr == &cfg.nodeVal) {
-			nodePtr = &nodeVal;
-			nodeVal = cfg.nodeVal;
-		} else {
-			nodePtr = cfg.nodePtr;
-		}
-
-		filename = cfg.filename;
-		loaded = cfg.loaded;
-	}
-
-	Config Config::operator[](int index) {
-		if (nodePtr->isArray()) {
-			return Config(&(*nodePtr)[index]);
-		} else {
-			throw std::logic_error("Attempt to read index from non-array value.");
+			if (val.isInt()) {
+				ints[key] = val.asInt();
+			} else if (val.isInt64()) {
+				longs[key] = val.asInt64();
+			} else if (val.isDouble()) {
+				floats[key] = val.asDouble();
+			} else if (val.isBool()) {
+				bools[key] = val.asBool();
+			} else if (val.isObject()) {
+				configs[key] = new Config();
+				configs[key]->parent = this;
+				configs[key]->loaded = true;
+				configs[key]->read(val);
+			} else if (val.isArray()) {
+				arrays[key] = new ConfigArray(val);
+			}
 		}
 	}
 
-	Config Config::operator[](std::string key) {
-		if (nodePtr->isObject()) {
-			return Config(&(*nodePtr)[key]);
-		} else {
-			throw std::logic_error("Attempt to read key " + key + " from non-object value.");
+	void Config::write(Json::Value &node) {
+		writeMap(ints, node);
+		writeMap(longs, node);
+		writeMap(floats, node);
+		writeMap(bools, node);
+		writeMap(strings, node);
+
+		for (auto sub : configs) {
+			Json::Value v;
+			sub.second->write(v);
+			node[sub.first] = v;
 		}
-	}
 
-	int Config::length() {
-		if (nodePtr->isArray()) {
-			return nodePtr->size();
-		} else {
-			throw std::logic_error("Attempt to read length from non-array value.");
+		for (auto arr : arrays) {
+			node[arr.first] = arr.second->arr;
 		}
-	}
-
-	int Config::intValue() {
-		if (nodePtr->isInt()) {
-			return nodePtr->asInt();
-		} else {
-			throw std::logic_error("Attempt to read int from non-int value.");
-		}
-	}
-
-	long long Config::int64Value() {
-		if (nodePtr->isInt64()) {
-			return nodePtr->asInt64();
-		} else {
-			throw std::logic_error("Attempt to read int64 from non-int64 value.");
-		}
-	}
-
-	float Config::floatValue() {
-		if (nodePtr->isDouble()) {
-			return nodePtr->asDouble();
-		} else {
-			throw std::runtime_error("Attempt to read float from non-float value.");
-		}
-	}
-
-	bool Config::boolValue() {
-		if (nodePtr->isBool()) {
-			return nodePtr->asBool();
-		} else {
-			throw std::logic_error("Attempt to read bool from non-bool value.");
-		}
-	}
-
-	std::string Config::stringValue() {
-		if (nodePtr->isString()) {
-			return nodePtr->asString();
-		} else {
-			throw std::logic_error("Attempt to read string from non-string value.");
-		}
-	}
-
-	void Config::operator=(int value) {
-		*nodePtr = value;
-	}
-
-	void Config::operator=(long long value) {
-		*nodePtr = value;
-	}
-
-	void Config::operator=(float value) {
-		*nodePtr = value;
-	}
-
-	void Config::operator=(bool value) {
-		*nodePtr = value;
-	}
-
-	void Config::operator=(std::string value) {
-		*nodePtr = value;
-	}
-
-	void Config::setArray() {
-		*nodePtr = Json::arrayValue;
-	}
-
-	void Config::setObject() {
-		*nodePtr = Json::objectValue;
 	}
 
 	bool Config::isLoaded() {
 		return loaded;
 	}
 
-	void Config::write(std::string filename) {
-		this->filename = filename;
-		write();
-	}
-
 	void Config::write() {
 		if (filename != "") {
+			Json::Value node;
+			write(node);
+
 			Json::StyledStreamWriter writer;
 
 			std::ofstream strm(filename);
-			writer.write(strm, *nodePtr);
+			writer.write(strm, node);
 
 			strm.close();
 		} else {
-			throw std::runtime_error("Not loaded from file, use write(string) instead.");
+			throw std::runtime_error("Not loaded from file.");
 		}
 	}
 }

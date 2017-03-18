@@ -2,49 +2,57 @@
 
 #include "jsoncpp/json.h"
 #include <string>
+#include "ConfigArray.h"
 
 namespace spectra {
 	class Config {
 	public:
 		Config(std::string file);
 		Config();
-		Config(const Config& cfg);
+		~Config();
 
-		void operator=(const Config& cfg);
+		int getInt(std::string key, int def = 0);
+		long long getLong(std::string key, long long def = 0);
+		float getFloat(std::string key, float def = 0.0f);
+		bool getBool(std::string key, float def = false);
+		std::string getString(std::string key, std::string def = "");
 
-		Config operator[] (std::string key);
+		Config& getConfig(std::string key);
+		ConfigArray& getArray(std::string key);
 
-		Config operator[] (int index);
+		void setInt(std::string key, int val);
+		void setLong(std::string key, long long val);
+		void setFloat(std::string key, float val);
+		void setBool(std::string key, bool val);
+		void setString(std::string key, std::string val);
 
-		int length();
-
-		int intValue();
-		long long int64Value();
-		float floatValue();
-		bool boolValue();
-		std::string stringValue();
-
-		void operator=(int);
-		void operator=(long long);
-		void operator=(float);
-		void operator=(bool);
-		void operator=(std::string);
-
-		void setArray();
-		void setObject();
+		
 
 		bool isLoaded();
 
 		void write();
-		void write(std::string filename);
 
 	private:
-		Json::Value nodeVal;
-		Json::Value *nodePtr;
+		std::map<std::string, int> ints;
+		std::map<std::string, long long> longs;
+		std::map<std::string, float> floats;
+		std::map<std::string, bool> bools;
+		std::map<std::string, std::string> strings;
+		std::map<std::string, Config*> configs;
+		std::map<std::string, ConfigArray*> arrays;
+
 		bool loaded;
+		Config* parent;
 
 		std::string filename;
 
-		Config(Json::Value *node);
+		template <typename T> void writeMap(std::map<std::string, T> &map, Json::Value &node) {
+			for (auto pair : map) {
+				node[pair.first] = pair.second;
+			}
+		}
+
+		void read(const Json::Value &node);
+		void write(Json::Value &node);
 	};
 }

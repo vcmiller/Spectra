@@ -215,6 +215,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="ConfigArray.h" />
     <ClInclude Include="CursorMode.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GameObject.h" />
