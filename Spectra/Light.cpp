@@ -75,10 +75,10 @@ namespace spectra {
 		LightInfo ubo = {};
 
 		if (directional) {
-			Vector3 pos = transform.getPosition();
+			Vector3 pos = transform.getForward();
 			ubo.position = glm::vec4(pos.x, pos.y, pos.z, 0.0f);
 		} else {
-			Vector3 pos = transform.getForward();
+			Vector3 pos = transform.getPosition();
 			ubo.position = glm::vec4(pos.x, pos.y, pos.z, 1.0f);
 		}
 		
