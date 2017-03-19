@@ -166,6 +166,8 @@
     <ClCompile Include="CommandPool.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="ConfigArray.cpp" />
+    <ClCompile Include="ConfigValue.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Image.cpp" />
@@ -216,6 +218,7 @@
     <ClInclude Include="ComponentBase.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ConfigArray.h" />
+    <ClInclude Include="ConfigValue.h" />
     <ClInclude Include="CursorMode.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GameObject.h" />

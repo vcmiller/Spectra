@@ -2,10 +2,13 @@
 
 #include "jsoncpp/json.h"
 #include <string>
-#include "ConfigArray.h"
+#include "ConfigValue.h"
+#include "Map.h"
 
 namespace spectra {
+	class ConfigArray;
 	class Config {
+		friend struct internal::ConfigValue;
 	public:
 		Config(std::string file);
 		Config();
@@ -14,7 +17,7 @@ namespace spectra {
 		int getInt(std::string key, int def = 0);
 		long long getLong(std::string key, long long def = 0);
 		float getFloat(std::string key, float def = 0.0f);
-		bool getBool(std::string key, float def = false);
+		bool getBool(std::string key, bool def = false);
 		std::string getString(std::string key, std::string def = "");
 
 		Config& getConfig(std::string key);
@@ -26,31 +29,17 @@ namespace spectra {
 		void setBool(std::string key, bool val);
 		void setString(std::string key, std::string val);
 
-		
-
 		bool isLoaded();
 
 		void write();
 
 	private:
-		std::map<std::string, int> ints;
-		std::map<std::string, long long> longs;
-		std::map<std::string, float> floats;
-		std::map<std::string, bool> bools;
-		std::map<std::string, std::string> strings;
-		std::map<std::string, Config*> configs;
-		std::map<std::string, ConfigArray*> arrays;
+
+		Map<std::string, internal::ConfigValue> values;
 
 		bool loaded;
-		Config* parent;
 
 		std::string filename;
-
-		template <typename T> void writeMap(std::map<std::string, T> &map, Json::Value &node) {
-			for (auto pair : map) {
-				node[pair.first] = pair.second;
-			}
-		}
 
 		void read(const Json::Value &node);
 		void write(Json::Value &node);

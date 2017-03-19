@@ -1,6 +1,9 @@
 {
+	"" : null,
+	"enable_validation" : false,
 	"framerate" : 60,
 	"window_height" : 600,
-  "window_width": 800,
-  "enable_validation": false
+	"window_resizeable" : true,
+	"window_title" : "Spectra",
+	"window_width" : 800
 }

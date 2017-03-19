@@ -2,6 +2,7 @@
 
 #include "List.h"
 #include <exception>
+#include <vector>
 
 namespace spectra {
 	template <typename K, typename V> class Map {
@@ -11,8 +12,8 @@ namespace spectra {
 		Map(const Map<K, V> &other) : data(other.data) { }
 
 		const V &get(const K &key) const {
-			for (int i = 0; i < data.length(); i++) {
-				const Pair &pair = data.get(i);
+			for (int i = 0; i < data.size(); i++) {
+				const Pair &pair = data[i];
 				if (pair.key == key) {
 					return pair.value;
 				}
@@ -22,19 +23,19 @@ namespace spectra {
 		}
 
 		V &operator[] (const K &key) {
-			for (int i = 0; i < data.length(); i++) {
+			for (int i = 0; i < data.size(); i++) {
 				Pair &pair = data[i];
 				if (pair.key == key) {
 					return pair.value;
 				}
 			}
 
-			data.add(Pair(key));
-			return data[data.length() - 1].value;
+			data.push_back(Pair(key));
+			return data[data.size() - 1].value;
 		}
 
 		bool contains(const K &key) {
-			for (int i = 0; i < data.length(); i++) {
+			for (int i = 0; i < data.size(); i++) {
 				Pair &pair = data[i];
 				if (pair.key == key) {
 					return true;
@@ -55,8 +56,15 @@ namespace spectra {
 			V value;
 		};
 
+		Pair* begin() {
+			return &data[0];
+		}
+
+		Pair* end() {
+			return &data[data.size()];
+		}
 
 	private:
-		List<Pair> data;
+		std::vector<Pair> data;
 	};
 }

@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "Log.h"
+#include "ConfigArray.h"
 
 #include <fstream>
 #include <exception>
@@ -35,46 +36,112 @@ namespace spectra {
 		loaded = false;
 	}
 
+	Config::~Config() {
+		for (auto v : values) {
+			if (v.value.type == internal::ConfigValueType::t_config) {
+				delete v.value.value.configVal;
+			} else if (v.value.type == internal::ConfigValueType::t_array) {
+				delete v.value.value.arrayVal;
+			}
+		}
+	}
+
+	int Config::getInt(std::string key, int def) {
+		if (!values.contains(key)) {
+			values[key].set(def);
+		}
+
+		return values[key].value.intVal;
+	}
+
+	long long Config::getLong(std::string key, long long def) {
+		if (!values.contains(key)) {
+			values[key].set(def);
+		}
+
+		return values[key].value.longVal;
+	}
+
+	float Config::getFloat(std::string key, float def) {
+		if (!values.contains(key)) {
+			values[key].set(def);
+		}
+
+		return values[key].value.floatVal;
+	}
+
+	bool Config::getBool(std::string key, bool def) {
+		if(!values.contains(key)) {
+			values[key].set(def);
+		}
+
+		return values[key].value.boolVal;
+	}
+
+	std::string Config::getString(std::string key, std::string def) {
+		if (!values.contains(key)) {
+			values[key].set(def);
+		}
+
+		return values[key].value.stringVal;
+	}
+
+	Config & Config::getConfig(std::string key) {
+		if (!values.contains(key)) {
+			Config *cfg = new Config();
+			values[key].type = internal::ConfigValueType::t_config;
+			values[key].value.configVal = cfg;
+		}
+
+		return *values[key].value.configVal;
+	}
+
+	ConfigArray & Config::getArray(std::string key) {
+		if (!values.contains(key)) {
+			ConfigArray *arr = new ConfigArray();
+			values[key].type = internal::ConfigValueType::t_array;
+			values[key].value.arrayVal = arr;
+		}
+
+		return *values[key].value.arrayVal;
+	}
+
+	void Config::setInt(std::string key, int val) {
+		values[key].set(val);
+	}
+
+	void Config::setLong(std::string key, long long val) {
+		values[key].set(val);
+	}
+
+	void Config::setFloat(std::string key, float val) {
+		values[key].set(val);
+	}
+
+	void Config::setBool(std::string key, bool val) {
+		values[key].set(val);
+	}
+
+	void Config::setString(std::string key, std::string val) {
+		values[key].set(val);
+	}
 
 	void Config::read(const Json::Value &node) {
 		
 		for (std::string key : node.getMemberNames()) {
 			Json::Value val = node[key];
 
-			if (val.isInt()) {
-				ints[key] = val.asInt();
-			} else if (val.isInt64()) {
-				longs[key] = val.asInt64();
-			} else if (val.isDouble()) {
-				floats[key] = val.asDouble();
-			} else if (val.isBool()) {
-				bools[key] = val.asBool();
-			} else if (val.isObject()) {
-				configs[key] = new Config();
-				configs[key]->parent = this;
-				configs[key]->loaded = true;
-				configs[key]->read(val);
-			} else if (val.isArray()) {
-				arrays[key] = new ConfigArray(val);
-			}
+			values[key].read(val);
 		}
 	}
 
 	void Config::write(Json::Value &node) {
-		writeMap(ints, node);
-		writeMap(longs, node);
-		writeMap(floats, node);
-		writeMap(bools, node);
-		writeMap(strings, node);
+		node = Json::objectValue;
 
-		for (auto sub : configs) {
-			Json::Value v;
-			sub.second->write(v);
-			node[sub.first] = v;
-		}
+		for (auto v : values) {
+			Json::Value &val = node[v.key];
 
-		for (auto arr : arrays) {
-			node[arr.first] = arr.second->arr;
+			v.value.write(val);
 		}
 	}
 

@@ -17,25 +17,16 @@
 namespace spectra {
 	using namespace internal;
 
-	Config Spectra::config;
+	Config *Spectra::config;
 	bool Spectra::running;
 	int Spectra::targetFPS;
 
 	Spectra::Spectra() {}
 
 	void Spectra::run(Scene *start) {
-		config = Config("spectra.json");
+		config = new Config("spectra.json");
 
-		if (!config.isLoaded()) {
-			config["window_width"] = 800;
-			config["window_height"] = 600;
-			config["framerate"] = 60;
-			config["enable_validation"] = false;
-
-			config.write();
-		}
-
-		targetFPS = config["framerate"].intValue();
+		targetFPS = config->getInt("framerate", 60);
 
 		float spf;
 		ulong uspf;
@@ -55,15 +46,20 @@ namespace spectra {
 			Log::log("Failed to initialize timing.");
 		}
 
-		int width = config["window_width"].intValue();
-		int height = config["window_height"].intValue();
+		int width = config->getInt("window_width", 800);
+		int height = config->getInt("window_height", 600);
+
+		std::string title = config->getString("window_title", "Spectra");
+		bool resizeable = config->getBool("window_resizeable", true);
 
 		internal::Clock clock;
 		Window::init();
-		Vulkan::init(&config);
-		Window::main = new Window(width, height, "Spectra", true, false);
+		Vulkan::init(config);
+		Window::main = new Window(width, height, title, resizeable, false);
 		Vulkan::createLogicalDevice(Window::main);
 		Window::main->complete(width, height);
+
+		config->write();
 
 		Camera::init();
 		Light::init();
@@ -111,6 +107,8 @@ namespace spectra {
 
 		Window::main = nullptr;
 		Window::closeAll();
+
+		delete config;
 	}
 
 	void Spectra::quit() {

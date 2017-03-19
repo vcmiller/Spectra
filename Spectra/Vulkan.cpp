@@ -19,7 +19,7 @@ namespace spectra {
 		void Vulkan::init(Config* config) {
 			Vulkan::config = config;
 
-			enableValidation = (*config)["enable_validation"].boolValue();
+			enableValidation = config->getBool("enable_validation", false);
 
 			createInstance();
 			setupDebugCallback();

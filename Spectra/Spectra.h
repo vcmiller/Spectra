@@ -14,7 +14,7 @@ namespace spectra {
 	private:
 		Spectra();
 
-		static Config config;
+		static Config *config;
 		static bool running;
 		static int targetFPS;
 	};
