@@ -46,16 +46,21 @@ namespace spectra {
 			Log::log("Failed to initialize timing.");
 		}
 
-		int width = config->getInt("window_width", 800);
-		int height = config->getInt("window_height", 600);
+		Config &windowConfig = config->getConfig("window");
 
-		std::string title = config->getString("window_title", "Spectra");
-		bool resizeable = config->getBool("window_resizeable", true);
+		int width = windowConfig.getConfig("size").getInt("width", 800);
+		int height = windowConfig.getConfig("size").getInt("height", 600);
+		int fullscreen = windowConfig.getBool("fullscreen", false);
+
+		std::string title = windowConfig.getString("title", "Spectra");
+		bool resizeable = windowConfig.getBool("resizeable", true);
 
 		internal::Clock clock;
 		Window::init();
 		Vulkan::init(config);
-		Window::main = new Window(width, height, title, resizeable, false);
+
+		Window::main = new Window(width, height, title, resizeable, fullscreen, false, true);
+
 		Vulkan::createLogicalDevice(Window::main);
 		Window::main->complete(width, height);
 

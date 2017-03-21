@@ -22,7 +22,7 @@ namespace spectra {
 	namespace internal {
 		class Window {
 		public:
-			Window(int width, int height, std::string name, bool resizeable = false, bool complete = true, bool repaintOnRender = true);
+			Window(int width, int height, std::string name, bool resizeable = false, bool fullscreen = false, bool complete = true, bool repaintOnRender = true);
 			~Window();
 
 			static void init();

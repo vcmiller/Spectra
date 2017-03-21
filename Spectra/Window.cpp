@@ -5,13 +5,13 @@
 
 namespace spectra {
 	namespace internal {
-		Window::Window(int width, int height, std::string name, bool resizeable, bool complete, bool repaintOnRender) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
+		Window::Window(int width, int height, std::string name, bool resizeable, bool fullscreen, bool complete, bool repaintOnRender) : surface(Vulkan::getInstance(), vkDestroySurfaceKHR) {
 			this->repaintOnRender = repaintOnRender;
 
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			glfwWindowHint(GLFW_RESIZABLE, resizeable);
 
-			window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+			window = glfwCreateWindow(width, height, name.c_str(), fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
 
 			glfwSetWindowUserPointer(window, this);
 			glfwSetWindowSizeCallback(window, Window::resized);
@@ -387,19 +387,21 @@ namespace spectra {
 		}
 
 		void Window::onResized(int width, int height) {
-
-			LogicalDevice *device = Vulkan::getLogicalDevice();
-
-			vkDeviceWaitIdle(device->getDevice());
-
-			createSwapChain(false, width, height);
-			createImageViews();
-			createDepthImage();
-			createRenderPass();
-			createFramebuffers();
 			
-			for (Camera *cam : cameras) {
-				cam->windowResized();
+			if (width > 0 && height > 0) {
+				LogicalDevice *device = Vulkan::getLogicalDevice();
+
+				vkDeviceWaitIdle(device->getDevice());
+
+				createSwapChain(false, width, height);
+				createImageViews();
+				createDepthImage();
+				createRenderPass();
+				createFramebuffers();
+
+				for (Camera *cam : cameras) {
+					cam->windowResized();
+				}
 			}
 		}
 
