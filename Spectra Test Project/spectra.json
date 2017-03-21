@@ -1,8 +1,11 @@
 {
 	"enable_validation" : 0,
 	"framerate" : 60,
-	"window_height" : 600,
-	"window_resizeable" : 1,
-	"window_title" : "Spectra Test",
-	"window_width" : 800
+	"window" : {
+		"fullscreen" : 1,
+		"height" : 1080,
+		"resizeable" : 0,
+		"title" : "Spectra",
+		"width" : 1920
+	}
 }
