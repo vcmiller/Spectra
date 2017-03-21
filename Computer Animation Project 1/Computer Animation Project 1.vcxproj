@@ -22,11 +22,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7ddc7acd-5be5-4f93-bba7-8d1b69421a8d}</ProjectGuid>
+    <ProjectGuid>{a0b67d22-537d-49cb-93a9-be13bb214d77}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Computer_Animation_Project_0</RootNamespace>
+    <RootNamespace>Computer_Animation_Project_1</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Spectra Test Project</ProjectName>
+    <ProjectName>Computer Animation Project 1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
