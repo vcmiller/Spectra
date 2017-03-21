@@ -122,6 +122,28 @@ namespace spectra {
 		values.resize(length);
 	}
 
+	void ConfigArray::write(std::ostream & strm, int tab) {
+		std::string tabstr = "";
+
+		for (int i = 0; i < tab; i++) {
+			tabstr += "\t";
+		}
+
+		strm << "[\n";
+		for (int i = 0; i < values.size(); i++) {
+			auto val = values[i];
+			strm << tabstr << "\t";
+			val.write(strm, tab + 1);
+
+			if (i < values.size() - 1) {
+				strm << ",";
+			}
+
+			strm << "\n";
+		}
+		strm << tabstr << "]";
+	}
+
 	void ConfigArray::read(const Json::Value &node) {
 		values.resize(node.size());
 		for (int i = 0; i < node.size(); i++) {

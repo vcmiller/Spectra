@@ -7,7 +7,7 @@
 namespace spectra {
 	template <typename K, typename V> class Map {
 	public:
-		Map(int initialCapacity = 32) : data(32) { }
+		Map(int initialCapacity = 32) { }
 
 		Map(const Map<K, V> &other) : data(other.data) { }
 
@@ -62,6 +62,10 @@ namespace spectra {
 
 		Pair* end() {
 			return &data[data.size()];
+		}
+
+		int size() {
+			return data.size();
 		}
 
 	private:

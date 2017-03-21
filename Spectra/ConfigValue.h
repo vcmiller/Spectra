@@ -43,6 +43,8 @@ namespace spectra {
 			ConfigValue();
 			ConfigValue(const ConfigValue &v);
 			~ConfigValue();
+
+			void write(std::ostream &strm, int tab);
 		};
 	}
 	

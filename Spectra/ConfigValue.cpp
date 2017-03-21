@@ -102,6 +102,24 @@ namespace spectra {
 
 		ConfigValue::~ConfigValue() {}
 
+		void ConfigValue::write(std::ostream & strm, int tab) {
+			if (type == ConfigValueType::t_int) {
+				strm << value.intVal;
+			} else if (type == ConfigValueType::t_long) {
+				strm << value.longVal;
+			} else if (type == ConfigValueType::t_float) {
+				strm << value.floatVal;
+			} else if (type == ConfigValueType::t_bool) {
+				strm << value.boolVal ? "true" : "false";
+			} else if (type == ConfigValueType::t_string) {
+				strm << "\"" << value.stringVal << "\"";
+			} else if (type == ConfigValueType::t_config) {
+				value.configVal->write(strm, tab);
+			} else if (type == ConfigValueType::t_array) {
+				value.arrayVal->write(strm, tab);
+			}
+		}
+
 
 		ConfigValue::ConfigValueUnion::ConfigValueUnion() {}
 		ConfigValue::ConfigValueUnion::~ConfigValueUnion() {}

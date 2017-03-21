@@ -29,6 +29,7 @@ namespace spectra {
 
 		int getLength();
 		void setLength(int length);
+		void write(std::ostream &strm, int tab);
 
 	private:
 		std::vector<internal::ConfigValue> values;

@@ -25,6 +25,8 @@ namespace spectra {
 
 			if (loaded) {
 				read(node);
+			} else {
+				Log::log("Failed to load config!");
 			}
 		} else {
 			loaded = false;
@@ -151,17 +153,44 @@ namespace spectra {
 
 	void Config::write() {
 		if (filename != "") {
-			Json::Value node;
-			write(node);
-
-			Json::StyledStreamWriter writer;
-
 			std::ofstream strm(filename);
-			writer.write(strm, node);
+			write(strm, 0);
 
 			strm.close();
 		} else {
 			throw std::runtime_error("Not loaded from file.");
 		}
+	}
+
+	void Config::write(std::ostream & strm, int tab) {
+		std::string tabstr = "";
+
+		for (int i = 0; i < tab; i++) {
+			tabstr += "\t";
+		}
+
+		strm << "{\n";
+
+		int pos = 0;
+		for (auto val : values) {
+			if (val.key != "") {
+				strm << tabstr << "\t\"" << val.key << "\" : ";
+
+				if (val.value.type == internal::ConfigValueType::t_array || val.value.type == internal::ConfigValueType::t_config) {
+					//strm << "\n" << tabstr << "\t";
+				}
+
+				val.value.write(strm, tab + 1);
+
+				if (pos < values.size() - 1) {
+					strm << ",";
+				}
+
+				strm << "\n";
+			}
+
+			pos++;
+		}
+		strm << tabstr << "}";
 	}
 }

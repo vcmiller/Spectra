@@ -32,6 +32,7 @@ namespace spectra {
 		bool isLoaded();
 
 		void write();
+		void write(std::ostream &strm, int tab);
 
 	private:
 
