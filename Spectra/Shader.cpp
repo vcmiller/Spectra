@@ -111,17 +111,17 @@ namespace spectra {
 
 		VkDescriptorPoolSize matricesPoolSize = {};
 		matricesPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		matricesPoolSize.descriptorCount = 5;
+		matricesPoolSize.descriptorCount = 40;
 
 		VkDescriptorPoolSize materialPoolSize = {};
 		materialPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		materialPoolSize.descriptorCount = 5;
+		materialPoolSize.descriptorCount = 40;
 
 		VkDescriptorPoolCreateInfo matricesPoolInfo = {};
 		matricesPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		matricesPoolInfo.poolSizeCount = 1;
 		matricesPoolInfo.pPoolSizes = &matricesPoolSize;
-		matricesPoolInfo.maxSets = 5;
+		matricesPoolInfo.maxSets = 40;
 		matricesPoolInfo.pNext = nullptr;
 		matricesPoolInfo.flags = 0;
 
@@ -129,7 +129,7 @@ namespace spectra {
 		materialPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		materialPoolInfo.poolSizeCount = 1;
 		materialPoolInfo.pPoolSizes = &materialPoolSize;
-		materialPoolInfo.maxSets = 5;
+		materialPoolInfo.maxSets = 40;
 		materialPoolInfo.pNext = nullptr;
 		materialPoolInfo.flags = 0;
 

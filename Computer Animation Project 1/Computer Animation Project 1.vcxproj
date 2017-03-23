@@ -19,10 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CatmullRomInterpolator.cpp" />
+    <ClCompile Include="CubicSegment.cpp" />
+    <ClCompile Include="CubicSegmentVector.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyQuaternion.cpp" />
+    <ClCompile Include="PathInterpolator.cpp" />
     <ClCompile Include="Spline.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CatmullRomInterpolator.h" />
+    <ClInclude Include="CubicSegment.h" />
+    <ClInclude Include="CubicSegmentVector.h" />
+    <ClInclude Include="MyQuaternion.h" />
+    <ClInclude Include="PathInterpolator.h" />
     <ClInclude Include="Spline.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -39,40 +39,45 @@
 #include "FMath.h"
 #include "Light.h"
 #include "Spline.h"
+#include "CatmullRomInterpolator.h"
 
 using namespace spectra;
 using namespace std;
 
 
-// Component class that simply rotates an object on all three euler axes every frame.
-class Spinner : public Component {
-public:
-	// Current rotation as euler angles.
-	Vector3 euler;
+class CameraControl : public Component {
+	void update() override {
+		float x = 0, y = 0, z = 0;
 
-	// Called when component is added (same as Awake() in Unity)
-	void onCreate() {
-		//Input::setCursorMode(CursorMode::Locked);
-		euler = Vector3(0, 0, 0);
-	}
+		if (Input::getKey(Key::A)) {
+			x -= 1.0f;
+		}
 
-	// Called every frame.
-	void update() {
-		float f = Time::delta() * FMath::quarterCircle; // Amount to rotate by, in radians.
-		euler += Vector3(f, f, f);
-
-		transform.setRotation(Quaternion::euler(euler));
-	}
-};
-
-class Mover : public Component {
-	void update() {
-		if (Input::getKey(Key::W)) {
-			transform.translate(Vector3::up * Time::delta());
+		if (Input::getKey(Key::D)) {
+			x += 1.0f;
 		}
 
 		if (Input::getKey(Key::S)) {
-			transform.translate(Vector3::down * Time::delta());
+			z -= 1.0f;
+		}
+
+		if (Input::getKey(Key::W)) {
+			z += 1.0f;
+		}
+
+		if (Input::getKey(Key::Q)) {
+			y -= 1.0f;
+		}
+
+		if (Input::getKey(Key::E)) {
+			y += 1.0f;
+		}
+
+		transform.translate(Vector3(x, y, z) * Time::delta() * 4, Space::Local);
+
+		if (Input::getMouseButton(1)) {
+			Vector2 md = Input::getMouseDelta();
+			transform.rotate(Vector3(-md.y, md.x, 0) * 0.1f * FMath::toRadians, Space::Local);
 		}
 	}
 };
@@ -86,14 +91,60 @@ public:
 	Material *material;
 	Mesh *mesh;
 
+	Texture *arrowTexture;
+	Material *arrowMaterial;
+
+	Texture *arrowTexture2;
+	Material *arrowMaterial2;
+
+	Mesh *arrowMesh;
+
 	void populate() {
-		Spline * spline = new Spline("Splines/spline1.txt");
+		Spline * spline = new Spline("Splines/spline2.txt");
+
+		CatmullRomInterpolator interp(spline);
 
 		// Load assets
 		shader = new Shader("Shaders/triangle");
 		texture = new Texture("Textures/Ornate.jpg");
 		material = new Material(shader, texture);
 		mesh = new Mesh("Models/Quad.obj");
+
+		arrowTexture = new Texture("Textures/PointerBlue.png");
+		arrowMaterial = new Material(shader, arrowTexture);
+
+		arrowTexture2 = new Texture("Textures/PointerGreen.png");
+		arrowMaterial2 = new Material(shader, arrowTexture2);
+
+		arrowMesh = new Mesh("Models/Pointer.obj");
+		//CatmullRomInterpolator interp(spline);
+
+		for (int i = 0; i < spline->getNumPoints(); i++) {
+			GameObject *arrow = new GameObject();
+			arrow->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial);
+			arrow->transform.setPosition(spline->getPosition(i));
+			arrow->transform.setForward(interp.getTangent(i));
+			add(arrow);
+
+			if (i < spline->getNumPoints() - 1) {
+				for (int j = 0; j < 8; j++) {
+					GameObject *arrow2 = new GameObject();
+					arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
+
+					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.125f * j);
+
+					Vector3 v = interp.getLocationU(u);
+
+					arrow2->transform.setPosition(v);
+					//arrow2->transform.setForward(Vector3::forward);
+					add(arrow2);
+				}
+			}
+			
+		}
+
+
+		
 
 		// Create the spinning monkey object.
 		//GameObject *bob = new GameObject();
@@ -102,34 +153,16 @@ public:
 		//bob->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
 		//bob->transform.setPosition(Vector3(0, 0, 0));
 
-		GameObject *floor = new GameObject();
-		floor->addComponent<MeshRenderer>()->init(mesh, material);
-		floor->transform.setForward(Vector3::down);
-		floor->transform.setLocalScale(Vector3(4, 4, 4));
-
 		// Create a camera.
 		GameObject *camera = new GameObject();
 		camera->addComponent<Camera>();// ->setRenderWindow(window);
 		camera->transform.setPosition(Vector3(0, 1.5f, -8));
-
-		// Set background coor for the Camera.
-		Camera *cam = camera->getComponent<Camera>();
-		cam->setBackgroundColor(Color(0.2f, 0.2f, 0.2f));
-
-		// Create a red light pointing to the right.
-		//GameObject *light1 = new GameObject();
-		//light1->transform.setForward(Vector3(1, -1, 0.9f));
-		//Light *l1 = light1->addComponent<Light>();
-		//l1->color = Color(1.0f, 0.0f, 0.0f);
+		camera->addComponent<CameraControl>();
 
 		// Create a green light pointing to the left.
 		GameObject *light2 = new GameObject();
-		light2->transform.setPosition(Vector3(0, 1, 0));
-		light2->addComponent<Mover>();
+		light2->transform.setForward(Vector3(0.8f, -0.2f, 0.2f));
 		Light *l2 = light2->addComponent<Light>();
-		l2->color = Color(0.0f, 1.0f, 0.0f);
-		l2->directional = false;
-		l2->range = 5.0f;
 		
 		// Track these objects so they will be destroyed when the scene is depopulated.
 		//add(bob);
@@ -147,6 +180,13 @@ public:
 		delete mesh;
 		delete material;
 		delete texture;
+
+		delete arrowMesh;
+		delete arrowMaterial;
+		delete arrowMaterial2;
+		delete arrowTexture;
+		delete arrowTexture2;
+
 		delete shader;
 	}
 };

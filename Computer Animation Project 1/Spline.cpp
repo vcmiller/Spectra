@@ -5,6 +5,22 @@ Spline::Spline(std::string file) {
 	read(file);
 }
 
+float Spline::getTime() {
+	return time;
+}
+
+int Spline::getNumPoints() {
+	return numPoints;
+}
+
+Vector3 Spline::getPosition(int p) {
+	return points[p].position;
+}
+
+Vector3 Spline::getRotation(int p) {
+	return points[p].euler;
+}
+
 void Spline::read(std::string file) {
 	std::ifstream strm(file);
 	if (strm.is_open()) {
@@ -16,12 +32,6 @@ void Spline::read(std::string file) {
 			p.position = readVector(strm);
 			p.euler = readVector(strm);
 			points.add(p);
-		}
-
-		Log::log << "numPoints: " << numPoints << "\n";
-		Log::log << "time: " << time << "\n";
-		for (Point p : points) {
-			Log::log << "{\n\tposition: " << p.position << "\n" << "\trotation: " << p.euler << "\n},\n";
 		}
 	} else {
 		Log::log("Could not open file!");
@@ -61,7 +71,7 @@ int Spline::readInt(std::ifstream & strm) {
 		Log::log("Error: Couldn't read int!");
 		return -1;
 	}
-
+	
 	return i;
 }
 

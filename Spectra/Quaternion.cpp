@@ -27,6 +27,12 @@ namespace spectra {
 		return result;
 	}
 
+	Quaternion Quaternion::normalized() const {
+		Quaternion result;
+		result.quat = glm::normalize(quat);
+		return result;
+	}
+
 	Quaternion Quaternion::operator*(const Quaternion &rhs) const {
 		Quaternion result;
 		result.quat = quat * rhs.quat;
@@ -104,8 +110,12 @@ namespace spectra {
 	}
 
 	Quaternion Quaternion::fromToRotation(const Vector3 & v1, const Vector3 & v2) {
-		Quaternion result;
-		result.quat = glm::rotation(v1.vec, v2.vec);
-		return result;
+		Vector3 v1c = v1.normalized();
+		Vector3 v2c = v2.normalized();
+
+		Vector3 axis = Vector3::cross(v1c, v2c).normalized();
+		float angle = Vector3::angle(v1c, v2c);
+
+		return angleAxis(angle, axis);
 	}
 }

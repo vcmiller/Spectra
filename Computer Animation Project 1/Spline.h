@@ -17,6 +17,11 @@ public:
 		Vector3 euler;
 	};
 
+	float getTime();
+	int getNumPoints();
+	Vector3 getPosition(int p);
+	Vector3 getRotation(int p);
+
 private:
 	List<Point> points;
 	void read(std::string file);

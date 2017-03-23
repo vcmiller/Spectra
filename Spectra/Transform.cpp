@@ -147,30 +147,30 @@ namespace spectra {
 	}
 
 	Vector3 Transform::getForward() const {
-		return getRotation() * Vector3::forward;
+		return (getRotation() * Vector3::forward).normalized();
 	}
 
 	Vector3 Transform::getUp() const {
-		return getRotation() * Vector3::up;
+		return (getRotation() * Vector3::up).normalized();
 	}
 
 	Vector3 Transform::getRight() const {
-		return getRotation() * Vector3::right;
+		return (getRotation() * Vector3::right).normalized();
 	}
 
 	void Transform::setForward(Vector3 vec) {
 		Vector3 cur = getForward();
-		rotation *= Quaternion::fromToRotation(cur, vec);
+		rotation = Quaternion::fromToRotation(cur, vec) * rotation;
 	}
 
 	void Transform::setUp(Vector3 vec) {
 		Vector3 cur = getUp();
-		rotation *= Quaternion::fromToRotation(cur, vec);
+		rotation = Quaternion::fromToRotation(cur, vec) * rotation;
 	}
 
 	void Transform::setRight(Vector3 vec) {
 		Vector3 cur = getRight();
-		rotation *= Quaternion::fromToRotation(cur, vec);
+		rotation = Quaternion::fromToRotation(cur, vec) * rotation;
 	}
 
 	Matrix4 Transform::localToWorldMatrix() const {
@@ -192,6 +192,8 @@ namespace spectra {
 	}
 
 	Matrix4 Transform::parentToLocalMatrix() const {
+		Quaternion rotation = this->rotation.normalized();
+
 		Vector4 right(rotation * Vector3::right / scale.x, 0);
 		Vector4 up(rotation * Vector3::up / scale.y, 0);
 		Vector4 forward(rotation * Vector3::forward / scale.z, 0);
@@ -199,6 +201,8 @@ namespace spectra {
 	}
 
 	Matrix4 Transform::localToParentMatrix() const {
+		Quaternion rotation = this->rotation.normalized();
+
 		Vector4 right(rotation * Vector3::right * scale.x, 0);
 		Vector4 up(rotation * Vector3::up * scale.y, 0);
 		Vector4 forward(rotation * Vector3::forward * scale.z, 0);

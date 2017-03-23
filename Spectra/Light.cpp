@@ -7,7 +7,7 @@ namespace spectra {
 		color = Color(1, 1, 1, 1);
 		intensity = 1.0f;
 		range = 10.0f;
-		directional = false;
+		directional = true;
 
 		allLights.add(this);
 

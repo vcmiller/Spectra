@@ -26,6 +26,9 @@ namespace spectra {
 		// Compute inverse quaternion.
 		Quaternion inverse() const;
 
+		// Compute normalized quaternion.
+		Quaternion normalized() const;
+
 		// Combine the rotations of two quaternions.
 		Quaternion operator*(const Quaternion &rhs) const;
 
