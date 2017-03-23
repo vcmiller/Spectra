@@ -38,6 +38,7 @@
 #include "Key.h"
 #include "FMath.h"
 #include "Light.h"
+#include "Spline.h"
 
 using namespace spectra;
 using namespace std;
@@ -86,6 +87,7 @@ public:
 	Mesh *mesh;
 
 	void populate() {
+		Spline * spline = new Spline("Splines/spline1.txt");
 
 		// Load assets
 		shader = new Shader("Shaders/triangle");

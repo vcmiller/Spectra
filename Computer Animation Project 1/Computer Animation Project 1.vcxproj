@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Spline.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Spline.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{a0b67d22-537d-49cb-93a9-be13bb214d77}</ProjectGuid>
