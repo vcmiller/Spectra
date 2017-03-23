@@ -102,7 +102,7 @@ public:
 	void populate() {
 		Spline * spline = new Spline("Splines/spline2.txt");
 
-		CatmullRomInterpolator interp(spline);
+		CatmullRomInterpolator *interp = new CatmullRomInterpolator(spline);
 
 		// Load assets
 		shader = new Shader("Shaders/triangle");
@@ -123,7 +123,7 @@ public:
 			GameObject *arrow = new GameObject();
 			arrow->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial);
 			arrow->transform.setPosition(spline->getPosition(i));
-			arrow->transform.setForward(interp.getTangent(i));
+			arrow->transform.setForward(interp->getTangent(i));
 			add(arrow);
 
 			if (i < spline->getNumPoints() - 1) {
@@ -133,7 +133,7 @@ public:
 
 					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.125f * j);
 
-					Vector3 v = interp.getLocationU(u);
+					Vector3 v = interp->getLocationU(interp->arcToU(u));
 
 					arrow2->transform.setPosition(v);
 					//arrow2->transform.setForward(Vector3::forward);

@@ -8,7 +8,7 @@ public:
 
 
 	virtual Vector3 getLocation(float time) override;
-	Vector3 getLocationU(float u);
+	virtual Vector3 getLocationU(float u) override;
 
 	Vector3 getTangent(int index);
 

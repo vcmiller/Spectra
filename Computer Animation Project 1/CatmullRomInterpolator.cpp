@@ -29,6 +29,9 @@ CatmullRomInterpolator::CatmullRomInterpolator(Spline * spline) : PathInterpolat
 
 		segments.add(CubicSegmentVector(i * uPer, (i + 1) * uPer, spline->getPosition(i), spline->getPosition(i + 1), tStart, tEnd));
 	}
+
+
+	sampleCurve();
 }
 
 Vector3 CatmullRomInterpolator::calcInternalTangent(int point) {
@@ -55,6 +58,7 @@ Vector3 CatmullRomInterpolator::getLocation(float time) {
 }
 
 Vector3 CatmullRomInterpolator::getLocationU(float u) {
+
 	if (u < 0) {
 		return spline->getPosition(0);
 	} else if (u >= 1.0f) {

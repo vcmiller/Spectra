@@ -33,7 +33,7 @@
 #
 # Control point 2
 #   Three floats denoting X, Y, Z position.
-5.0, 0.0, 0.0
+1.0, 0.0, 0.0
 #   Three floats denoting XRot, YRot, ZRot Euler angles for orientation.
 0.0, 0.0, 0.0
 #
