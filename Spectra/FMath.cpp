@@ -143,6 +143,10 @@ namespace spectra {
 		return std::abs(i);
 	}
 
+	float FMath::fmod(float a, float b) {
+		return std::fmodf(a, b);
+	}
+
 	float FMath::clamp(float a, float b, float v) {
 		if (v > b) {
 			return b;

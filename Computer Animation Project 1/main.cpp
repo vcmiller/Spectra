@@ -133,7 +133,7 @@ public:
 
 					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.125f * j);
 
-					Vector3 v = interp->getLocationU(interp->arcToU(u));
+					Vector3 v = interp->getLocation(interp->arcToU(u));
 
 					arrow2->transform.setPosition(v);
 					//arrow2->transform.setForward(Vector3::forward);

@@ -13,8 +13,7 @@ class PathInterpolator {
 public:
 	PathInterpolator(Spline *spline);
 
-	virtual Vector3 getLocation(float time) = 0;
-	virtual Vector3 getLocationU(float u) = 0;
+	virtual Vector3 getLocation(float u) = 0;
 	
 	float getTimeLimit();
 

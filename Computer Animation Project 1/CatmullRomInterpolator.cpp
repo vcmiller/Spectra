@@ -42,22 +42,7 @@ Vector3 CatmullRomInterpolator::calcInternalTangent(int point) {
 	return (spline->getPosition(point + 1) - spline->getPosition(point - 1)) * 2.0f;
 }
 
-Vector3 CatmullRomInterpolator::getLocation(float time) {
-	if (time < 0) {
-		return spline->getPosition(0);
-	} else if (time >= spline->getTime()) {
-		return spline->getPosition(spline->getNumPoints() - 1);
-	}
-
-	float uPer = 1.0f / (spline->getNumPoints() - 1);
-	float u = time / spline->getTime();
-
-	int index = FMath::floorToInt(u / uPer);
-
-	return segments[index].getPoint(u);
-}
-
-Vector3 CatmullRomInterpolator::getLocationU(float u) {
+Vector3 CatmullRomInterpolator::getLocation(float u) {
 
 	if (u < 0) {
 		return spline->getPosition(0);

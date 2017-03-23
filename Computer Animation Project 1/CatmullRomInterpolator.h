@@ -7,8 +7,7 @@ public:
 	CatmullRomInterpolator(Spline *spline);
 
 
-	virtual Vector3 getLocation(float time) override;
-	virtual Vector3 getLocationU(float u) override;
+	virtual Vector3 getLocation(float u) override;
 
 	Vector3 getTangent(int index);
 

@@ -46,8 +46,8 @@ void PathInterpolator::sampleCurve() {
 
 	for (int i = 1; i < NUM_SAMPLES; i++) {
 		float u = i * uPer;
-		Vector3 posPrev = getLocationU(u - uPer);
-		Vector3 pos = getLocationU(u);
+		Vector3 posPrev = getLocation(u - uPer);
+		Vector3 pos = getLocation(u);
 		float delta = (pos - posPrev).magnitude();
 
 		arcTotal += delta;

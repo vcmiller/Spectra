@@ -33,6 +33,7 @@
     <ClInclude Include="CubicSegmentVector.h" />
     <ClInclude Include="MyQuaternion.h" />
     <ClInclude Include="PathInterpolator.h" />
+    <ClInclude Include="RotationInterpolator.h" />
     <ClInclude Include="Spline.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

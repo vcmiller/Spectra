@@ -128,6 +128,9 @@ namespace spectra {
 		// Return absolute value of i.
 		static int abs(int i);
 
+		// Return float mod result of a % b.
+		static float fmod(float a, float b);
+
 		// Return v clamped between a and b.
 		static float clamp(float a, float b, float v);
 
