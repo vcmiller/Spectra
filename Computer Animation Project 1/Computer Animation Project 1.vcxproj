@@ -25,7 +25,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyQuaternion.cpp" />
     <ClCompile Include="PathInterpolator.cpp" />
+    <ClCompile Include="RotationInterpolator.cpp" />
     <ClCompile Include="Spline.cpp" />
+    <ClCompile Include="SplineMovementComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatmullRomInterpolator.h" />
@@ -35,6 +37,7 @@
     <ClInclude Include="PathInterpolator.h" />
     <ClInclude Include="RotationInterpolator.h" />
     <ClInclude Include="Spline.h" />
+    <ClInclude Include="SplineMovementComponent.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{a0b67d22-537d-49cb-93a9-be13bb214d77}</ProjectGuid>

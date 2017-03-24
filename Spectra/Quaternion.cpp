@@ -81,9 +81,9 @@ namespace spectra {
 	Quaternion Quaternion::euler(const Vector3 &euler) {
 		Quaternion result;
 
-		result.quat = glm::rotate(result.quat, euler.z, glm::vec3(0, 0, 1));
-		result.quat = glm::rotate(result.quat, euler.x, glm::vec3(1, 0, 0));
 		result.quat = glm::rotate(result.quat, euler.y, glm::vec3(0, 1, 0));
+		result.quat = glm::rotate(result.quat, euler.x, glm::vec3(1, 0, 0));
+		result.quat = glm::rotate(result.quat, euler.z, glm::vec3(0, 0, 1));
 		return result;
 	}
 

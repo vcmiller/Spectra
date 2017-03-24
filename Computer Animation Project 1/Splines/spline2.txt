@@ -29,23 +29,23 @@
 #   Three floats denoting X, Y, Z position.
 0.0, 0.0, 0.0
 #   Three floats denoting XRot, YRot, ZRot Euler angles for orientation.
-0.0, 0.0, 0.0
+90.0, 0.0, 0.0
 #
 # Control point 2
 #   Three floats denoting X, Y, Z position.
 1.0, 0.0, 0.0
 #   Three floats denoting XRot, YRot, ZRot Euler angles for orientation.
-0.0, 0.0, 0.0
+180.0, -90.0, 0.0
 #
 # Control point 3
 #   Three floats denoting X, Y, Z position.
 5.0, 5.0, 5.0
 #   Three floats denoting XRot, YRot, ZRot Euler angles for orientation.
-0.0, 0.0, 0.0
+0.0, 90.0, 270.0
 #
 # Control point 4
 #   Three floats denoting X, Y, Z position.
 10.0, 5.0, 10.0
 #   Three floats denoting XRot, YRot, ZRot Euler angles for orientation.
-0.0, 0.0, 0.0
+0.0, 90.0, 0.0
 

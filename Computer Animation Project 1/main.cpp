@@ -1,12 +1,12 @@
 /* 
- * Module      : Project 0
+ * Module      : Project 1
  * Author      : Vincent Miller
  * Email       : vcmiller@wpi.edu
  * Course      : CS4732
  *
- * Description : Main function for animation demo. Loads an object from an OBJ file and displays it rotating on the screen.
+ * Description : Main function for animation demo. Loads spline curve and other assets and animates model.
  *
- * Date        : 2017/17/03
+ * Date        : 2017/23/03
  *
  * (c) Copyright 2013, Worcester Polytechnic Institute.
  */
@@ -40,12 +40,15 @@
 #include "Light.h"
 #include "Spline.h"
 #include "CatmullRomInterpolator.h"
+#include "SplineMovementComponent.h"
 
 using namespace spectra;
 using namespace std;
 
-
+// Component class to provide camera control.
 class CameraControl : public Component {
+	Vector3 euler;
+
 	void update() override {
 		float x = 0, y = 0, z = 0;
 
@@ -77,10 +80,18 @@ class CameraControl : public Component {
 
 		if (Input::getMouseButton(1)) {
 			Vector2 md = Input::getMouseDelta();
-			transform.rotate(Vector3(-md.y, md.x, 0) * 0.1f * FMath::toRadians, Space::Local);
+
+			euler.x += -md.y;
+			euler.y += md.x;
+			transform.setRotation(Quaternion::euler(euler * 0.1 * FMath::toRadians));
 		}
 	}
 };
+
+// Maps time to distance with ease in / ease out.
+float timeFunc(float f) {
+	return -2.0f * f * f * f + 3.0f * f * f;
+}
 
 // Scene class, which is responsible for loading and cleaning up assets, and creating objects.
 class TestScene : public Scene {
@@ -100,15 +111,17 @@ public:
 	Mesh *arrowMesh;
 
 	void populate() {
-		Spline * spline = new Spline("Splines/spline2.txt");
+		// Load spline
+		Spline * spline = new Spline("Splines/spline1.txt");
 
 		CatmullRomInterpolator *interp = new CatmullRomInterpolator(spline);
+		RotationInterpolator *rinterp = new RotationInterpolator(spline);
 
 		// Load assets
 		shader = new Shader("Shaders/triangle");
 		texture = new Texture("Textures/Ornate.jpg");
 		material = new Material(shader, texture);
-		mesh = new Mesh("Models/Quad.obj");
+		mesh = new Mesh("Models/Suzanne.obj");
 
 		arrowTexture = new Texture("Textures/PointerBlue.png");
 		arrowMaterial = new Material(shader, arrowTexture);
@@ -117,41 +130,40 @@ public:
 		arrowMaterial2 = new Material(shader, arrowTexture2);
 
 		arrowMesh = new Mesh("Models/Pointer.obj");
-		//CatmullRomInterpolator interp(spline);
 
+		// Create display points.
 		for (int i = 0; i < spline->getNumPoints(); i++) {
+			// Create blue arrow at control points.
 			GameObject *arrow = new GameObject();
 			arrow->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial);
 			arrow->transform.setPosition(spline->getPosition(i));
 			arrow->transform.setForward(interp->getTangent(i));
 			add(arrow);
 
+			// Add green arrows in between.
 			if (i < spline->getNumPoints() - 1) {
-				for (int j = 0; j < 8; j++) {
+				for (int j = 0; j < 4; j++) {
 					GameObject *arrow2 = new GameObject();
 					arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
 
-					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.125f * j);
+					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.25f * j); // Get parametric value.
 
 					Vector3 v = interp->getLocation(interp->arcToU(u));
 
+					MyQuaternion q = rinterp->getRotation(interp->arcToU(u));
+
 					arrow2->transform.setPosition(v);
-					//arrow2->transform.setForward(Vector3::forward);
+					arrow2->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
 					add(arrow2);
 				}
 			}
 			
 		}
 
-
-		
-
 		// Create the spinning monkey object.
-		//GameObject *bob = new GameObject();
-		//bob->addComponent<MeshRenderer>()->init(mesh, material);
-		//bob->addComponent<Spinner>();
-		//bob->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
-		//bob->transform.setPosition(Vector3(0, 0, 0));
+		GameObject *bob = new GameObject();
+		bob->addComponent<MeshRenderer>()->init(mesh, material);
+		bob->addComponent<SplineMovementComponent>()->init(interp, rinterp, &timeFunc);
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
@@ -159,15 +171,14 @@ public:
 		camera->transform.setPosition(Vector3(0, 1.5f, -8));
 		camera->addComponent<CameraControl>();
 
-		// Create a green light pointing to the left.
+		// Create a directional light.
 		GameObject *light2 = new GameObject();
 		light2->transform.setForward(Vector3(0.8f, -0.2f, 0.2f));
 		Light *l2 = light2->addComponent<Light>();
 		
 		// Track these objects so they will be destroyed when the scene is depopulated.
-		//add(bob);
+		add(bob);
 		add(camera);
-		//add(light1);
 		add(light2);
 	}
 
