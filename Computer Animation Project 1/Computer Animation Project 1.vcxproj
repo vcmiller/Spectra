@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BSplineInterpolator.cpp" />
     <ClCompile Include="CatmullRomInterpolator.cpp" />
     <ClCompile Include="CubicSegment.cpp" />
     <ClCompile Include="CubicSegmentVector.cpp" />
@@ -28,8 +29,10 @@
     <ClCompile Include="RotationInterpolator.cpp" />
     <ClCompile Include="Spline.cpp" />
     <ClCompile Include="SplineMovementComponent.cpp" />
+    <ClCompile Include="SplineSwapComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BSplineInterpolator.h" />
     <ClInclude Include="CatmullRomInterpolator.h" />
     <ClInclude Include="CubicSegment.h" />
     <ClInclude Include="CubicSegmentVector.h" />
@@ -38,6 +41,7 @@
     <ClInclude Include="RotationInterpolator.h" />
     <ClInclude Include="Spline.h" />
     <ClInclude Include="SplineMovementComponent.h" />
+    <ClInclude Include="SplineSwapComponent.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{a0b67d22-537d-49cb-93a9-be13bb214d77}</ProjectGuid>
