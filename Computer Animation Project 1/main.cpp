@@ -41,6 +41,8 @@
 #include "Spline.h"
 #include "CatmullRomInterpolator.h"
 #include "SplineMovementComponent.h"
+#include "BSplineInterpolator.h"
+#include "SplineSwapComponent.h"
 
 using namespace spectra;
 using namespace std;
@@ -114,7 +116,8 @@ public:
 		// Load spline
 		Spline * spline = new Spline("Splines/spline1.txt");
 
-		CatmullRomInterpolator *interp = new CatmullRomInterpolator(spline);
+		CatmullRomInterpolator *cinterp = new CatmullRomInterpolator(spline);
+		BSplineInterpolator *binterp = new BSplineInterpolator(spline);
 		RotationInterpolator *rinterp = new RotationInterpolator(spline);
 
 		// Load assets
@@ -137,7 +140,7 @@ public:
 			GameObject *arrow = new GameObject();
 			arrow->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial);
 			arrow->transform.setPosition(spline->getPosition(i));
-			arrow->transform.setForward(interp->getTangent(i));
+			arrow->transform.setForward(cinterp->getTangent(i));
 			add(arrow);
 
 			// Add green arrows in between.
@@ -148,9 +151,9 @@ public:
 
 					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.25f * j); // Get parametric value.
 
-					Vector3 v = interp->getLocation(interp->arcToU(u));
+					Vector3 v = cinterp->getLocation(cinterp->arcToU(u));
 
-					MyQuaternion q = rinterp->getRotation(interp->arcToU(u));
+					MyQuaternion q = rinterp->getRotation(cinterp->arcToU(u));
 
 					arrow2->transform.setPosition(v);
 					arrow2->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
@@ -163,7 +166,8 @@ public:
 		// Create the spinning monkey object.
 		GameObject *bob = new GameObject();
 		bob->addComponent<MeshRenderer>()->init(mesh, material);
-		bob->addComponent<SplineMovementComponent>()->init(interp, rinterp, &timeFunc);
+		bob->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
+		bob->addComponent<SplineSwapComponent>()->init(binterp);
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
