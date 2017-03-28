@@ -5,10 +5,10 @@
 
 namespace spectra {
 	template<typename T> T *Component::getComponent() {
-		getGameObject()->getComponent<T>();
+		return gameObject.getComponent<T>();
 	}
 
 	template<typename T> List<T*> Component::getComponents() {
-		return getGameObject()->getComponents<T>();
+		return gameObject.getComponents<T>();
 	}
 }

@@ -27,7 +27,7 @@ public:
 	void update() override;
 
 	// Call to initialize values.
-	void init(PathInterpolator *alt);
+	void init(PathInterpolator *alt, GameObject **points, int numPoints);
 
 private:
 	// Alternate interpolation.
@@ -35,4 +35,8 @@ private:
 
 	// Affected spline movement.
 	SplineMovementComponent *spline;
+
+	int numPoints;
+
+	GameObject **points;
 };

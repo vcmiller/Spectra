@@ -12,9 +12,21 @@ void SplineSwapComponent::update() {
 		PathInterpolator *t = spline->path;
 		spline->path = alt;
 		alt = t;
+
+		for (int i = 0; i < numPoints; i++) {
+			float u = spline->path->arcToU(i / 40.0f);
+			Vector3 v = spline->path->getLocation(u);
+
+			MyQuaternion q = spline->rotation->getRotation(u);
+
+			points[i]->transform.setPosition(v);
+			points[i]->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
+		}
 	}
 }
 
-void SplineSwapComponent::init(PathInterpolator * alt) {
+void SplineSwapComponent::init(PathInterpolator * alt, GameObject **points, int numPoints) {
 	this->alt = alt;
+	this->points = points;
+	this->numPoints = numPoints;
 }

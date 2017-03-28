@@ -112,6 +112,8 @@ public:
 
 	Mesh *arrowMesh;
 
+	GameObject *points[40];
+
 	void populate() {
 		// Load spline
 		Spline * spline = new Spline("Splines/spline1.txt");
@@ -143,31 +145,31 @@ public:
 			arrow->transform.setForward(cinterp->getTangent(i));
 			add(arrow);
 
-			// Add green arrows in between.
-			if (i < spline->getNumPoints() - 1) {
-				for (int j = 0; j < 4; j++) {
-					GameObject *arrow2 = new GameObject();
-					arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
-
-					float u = (1.0f / (spline->getNumPoints() - 1)) * (i + 0.25f * j); // Get parametric value.
-
-					Vector3 v = cinterp->getLocation(cinterp->arcToU(u));
-
-					MyQuaternion q = rinterp->getRotation(cinterp->arcToU(u));
-
-					arrow2->transform.setPosition(v);
-					arrow2->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
-					add(arrow2);
-				}
-			}
 			
+		}
+
+		for (int i = 0; i < 40; i++) {
+			GameObject *arrow2 = new GameObject();
+			arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
+
+			add(arrow2);
+
+			points[i] = arrow2;
+
+			float u = cinterp->arcToU(i / 40.0f);
+			Vector3 v = cinterp->getLocation(u);
+
+			MyQuaternion q = rinterp->getRotation(u);
+
+			points[i]->transform.setPosition(v);
+			points[i]->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
 		}
 
 		// Create the spinning monkey object.
 		GameObject *bob = new GameObject();
 		bob->addComponent<MeshRenderer>()->init(mesh, material);
 		bob->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
-		bob->addComponent<SplineSwapComponent>()->init(binterp);
+		bob->addComponent<SplineSwapComponent>()->init(binterp, points, 40);
 
 		// Create a camera.
 		GameObject *camera = new GameObject();

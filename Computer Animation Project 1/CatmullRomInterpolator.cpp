@@ -24,7 +24,7 @@ CatmullRomInterpolator::CatmullRomInterpolator(Spline * spline) : PathInterpolat
 		if (i > 0) {
 			tStart = calcInternalTangent(i); // Can calculate internally.
 		} else if (spline->getNumPoints() > 2) {
-			tStart = (spline->getPosition(1) * 2 - spline->getPosition(2) - spline->getPosition(0)) * 2.0f; // Need to use special formula for endpoint.
+			tStart = (spline->getPosition(1) * 2 - spline->getPosition(2) - spline->getPosition(0)) * 4.0f; // Need to use special formula for endpoint.
 		} else {
 			Log::log("Error: not enough points to calculate endpoint tangents!");
 		}
@@ -37,7 +37,7 @@ CatmullRomInterpolator::CatmullRomInterpolator(Spline * spline) : PathInterpolat
 			tEnd = calcInternalTangent(i + 1); // Can calculate internally.
 		} else if (spline->getNumPoints() > 2) {
 			// Special formula for endpoint.
-			tEnd = (spline->getPosition(spline->getNumPoints() - 2) * 2 - spline->getPosition(spline->getNumPoints() - 3) - spline->getPosition(spline->getNumPoints() - 1)) * -2.0f;
+			tEnd = (spline->getPosition(spline->getNumPoints() - 2) * 2 - spline->getPosition(spline->getNumPoints() - 3) - spline->getPosition(spline->getNumPoints() - 1)) * -4.0f;
 			
 			// Only add second tangent if it is the last point, as otherwise it will be added next loop cycle.
 			tangents.add(tEnd);
@@ -59,7 +59,7 @@ Vector3 CatmullRomInterpolator::calcInternalTangent(int point) {
 	}
 
 	// Subtract previous point from next.
-	return (spline->getPosition(point + 1) - spline->getPosition(point - 1)) * 2.0f;
+	return (spline->getPosition(point + 1) - spline->getPosition(point - 1)) * 4.0f;
 }
 
 Vector3 CatmullRomInterpolator::getLocation(float u) {

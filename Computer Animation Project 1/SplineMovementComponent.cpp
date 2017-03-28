@@ -40,8 +40,8 @@ void SplineMovementComponent::update() {
 
 	float a = timeFunc(tNorm); // Time to arc
 	float u = path->arcToU(a); // Arc to param
-	Vector3 sPos = path->getLocation(u); // Get location
-	MyQuaternion q = rotation->getRotation(u); // Get rotation
+	Vector3 sPos = path->getLocation(tNorm); // Get location
+	MyQuaternion q = rotation->getRotation(tNorm); // Get rotation
 	
 	transform.setPosition(sPos);
 	transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z)); // Convert to quaternion class used by engine.
