@@ -52,6 +52,7 @@ class CameraControl : public Component {
 	Vector3 euler;
 
 	void update() override {
+		// Camera movement
 		float x = 0, y = 0, z = 0;
 
 		if (Input::getKey(Key::A)) {
@@ -80,6 +81,7 @@ class CameraControl : public Component {
 
 		transform.translate(Vector3(x, y, z) * Time::delta() * 4, Space::Local);
 
+		// Camera rotation
 		if (Input::getMouseButton(1)) {
 			Vector2 md = Input::getMouseDelta();
 
@@ -148,6 +150,7 @@ public:
 			
 		}
 
+		// Create point objects to show curve
 		for (int i = 0; i < 40; i++) {
 			GameObject *arrow2 = new GameObject();
 			arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
