@@ -22,6 +22,10 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
+float getSign(float f) {
+	return f < 0 ? -1 : 1;
+}
+
 void main() {
 	vec4 worldPos = obj.model * vec4(inPosition, 1.0);
 
@@ -30,10 +34,12 @@ void main() {
 	vec4 viewPos = cam.view * worldPos;
 	viewPos.z *= -1;
 
-    gl_Position = cam.proj * viewPos;
-    fragTexCoord = inTexCoord;
+	gl_Position = cam.proj * viewPos;
+	fragTexCoord = inTexCoord;
     
-    vec4 outNormal = obj.model * vec4(inNormal, 0);
+	vec4 outNormal = obj.model * vec4(inNormal, 0);
+
+	//float negativeScale = getSign(obj.model[0][0] * obj.model[1][1] * obj.model[2][2]);
     
-    fragNormal = outNormal.xyz;
+	fragNormal = outNormal.xyz;// * negativeScale;
 }

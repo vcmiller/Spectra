@@ -77,7 +77,7 @@ class CameraControl : public Component {
 			y += 1.0f;
 		}
 
-		transform.translate(Vector3(x, y, z) * Time::delta() * 4, Space::Local);
+		transform.translate(Vector3(x, y, z) * Time::delta() * 10, Space::Local);
 
 		// Camera rotation
 		if (Input::getMouseButton(1)) {
@@ -95,6 +95,15 @@ float timeFunc(float f) {
 	return -2.0f * f * f * f + 3.0f * f * f;
 }
 
+GameObject* createChild(GameObject* parent, Mesh* mesh, Material* material, Vector3 localPos) {
+	GameObject *obj = new GameObject();
+	obj->addComponent<MeshRenderer>()->init(mesh, material);
+	obj->transform.setParent(&parent->transform);
+	obj->transform.setLocalPosition(localPos);
+
+	return obj;
+}
+
 // Scene class, which is responsible for loading and cleaning up assets, and creating objects.
 class TestScene : public Scene {
 public:
@@ -107,15 +116,15 @@ public:
 	Material* goldMat;
 	Material* floorMat;
 
-	Mesh* floor;
+	Mesh* floorMesh;
 
-	Mesh* chest;
-	Mesh* arm;
-	Mesh* hand;
-	Mesh* hammer;
-	Mesh* leg1;
-	Mesh* leg2;
-	Mesh* foot;
+	Mesh* chestMesh;
+	Mesh* armMesh;
+	Mesh* handMesh;
+	Mesh* hammerMesh;
+	Mesh* leg1Mesh;
+	Mesh* leg2Mesh;
+	Mesh* footMesh;
 
 	void populate() {
 		// Load spline
@@ -133,21 +142,32 @@ public:
 		goldMat = new Material(shader, goldTexture);
 		floorMat = new Material(shader, floorTexture);
 
-		floor = new Mesh("Models/Floor10.obj");
-		chest = new Mesh("Models/Chest.obj");
-		arm = new Mesh("Models/Arm.obj");
-		hand = new Mesh("Models/Hand.obj");
-		hammer = new Mesh("Models/Ham.obj");
-		leg1 = new Mesh("Models/Leg1.obj");
-		leg2 = new Mesh("Models/Leg2.obj");
-		foot = new Mesh("Models/Foot.obj");
+		floorMesh = new Mesh("Models/Floor10.obj");
+		chestMesh = new Mesh("Models/Chest.obj");
+		armMesh = new Mesh("Models/Arm.obj");
+		handMesh = new Mesh("Models/Hand.obj");
+		hammerMesh = new Mesh("Models/Ham.obj");
+		leg1Mesh = new Mesh("Models/Leg1.obj");
+		leg2Mesh = new Mesh("Models/Leg2.obj");
+		footMesh = new Mesh("Models/Foot.obj");
 
 		
 
 		// Create the spinning monkey object.
 		GameObject *slamough = new GameObject();
-		slamough->addComponent<MeshRenderer>()->init(chest, goldMat);
-		slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
+		slamough->addComponent<MeshRenderer>()->init(chestMesh, goldMat);
+		slamough->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
+		//slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
+
+		GameObject* rightLeg1 = createChild(slamough, leg1Mesh, goldMat, Vector3(0.9f, -2.5f, 0.2f));
+		GameObject* rightLeg2 = createChild(rightLeg1, leg2Mesh, goldMat, Vector3(0.3f, -1.3f, 0.2f));
+		GameObject* rightFoot = createChild(rightLeg2, footMesh, goldMat, Vector3(0.0f, -1.3f, -0.4f));
+
+		GameObject* leftLeg1 = createChild(slamough, leg1Mesh, goldMat, Vector3(-0.9f, -2.5f, 0.2f));
+		GameObject* leftLeg2 = createChild(leftLeg1, leg2Mesh, goldMat, Vector3(0.3f, -1.3f, 0.2f));
+		GameObject* leftFoot = createChild(leftLeg2, footMesh, goldMat, Vector3(0.0f, -1.3f, -0.4f));
+		leftLeg1->transform.setLocalScale(Vector3(-1, 1, 1));
+
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
@@ -171,7 +191,7 @@ public:
 	void depopulate() {
 		Scene::depopulate(); // Delete objects
 
-		delete chest, arm, hand, hammer, leg1, leg2, foot, floor;
+		delete chestMesh, armMesh, handMesh, hammerMesh, leg1Mesh, leg2Mesh, footMesh, floorMesh;
 		delete goldMat, floorMat;
 		delete goldTexture, floorTexture;
 		delete shader;
