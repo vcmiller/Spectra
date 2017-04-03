@@ -41,8 +41,6 @@
 #include "Spline.h"
 #include "CatmullRomInterpolator.h"
 #include "SplineMovementComponent.h"
-#include "BSplineInterpolator.h"
-#include "SplineSwapComponent.h"
 
 using namespace spectra;
 using namespace std;
@@ -101,78 +99,55 @@ float timeFunc(float f) {
 class TestScene : public Scene {
 public:
 	// Assets
-	Shader *shader;
-	Texture *texture;
-	Material *material;
-	Mesh *mesh;
+	Shader* shader;
 
-	Texture *arrowTexture;
-	Material *arrowMaterial;
+	Texture* goldTexture;
+	Texture* floorTexture;
+	
+	Material* goldMat;
+	Material* floorMat;
 
-	Texture *arrowTexture2;
-	Material *arrowMaterial2;
+	Mesh* floor;
 
-	Mesh *arrowMesh;
-
-	GameObject *points[40];
+	Mesh* chest;
+	Mesh* arm;
+	Mesh* hand;
+	Mesh* hammer;
+	Mesh* leg1;
+	Mesh* leg2;
+	Mesh* foot;
 
 	void populate() {
 		// Load spline
 		Spline * spline = new Spline("Splines/spline1.txt");
 
 		CatmullRomInterpolator *cinterp = new CatmullRomInterpolator(spline);
-		BSplineInterpolator *binterp = new BSplineInterpolator(spline);
 		RotationInterpolator *rinterp = new RotationInterpolator(spline);
 
 		// Load assets
 		shader = new Shader("Shaders/triangle");
-		texture = new Texture("Textures/Ornate.jpg");
-		material = new Material(shader, texture);
-		mesh = new Mesh("Models/Suzanne.obj");
+		
+		goldTexture = new Texture("Textures/Gold.jpg");
+		floorTexture = new Texture("Textures/Floor.jpg");
 
-		arrowTexture = new Texture("Textures/PointerBlue.png");
-		arrowMaterial = new Material(shader, arrowTexture);
+		goldMat = new Material(shader, goldTexture);
+		floorMat = new Material(shader, floorTexture);
 
-		arrowTexture2 = new Texture("Textures/PointerGreen.png");
-		arrowMaterial2 = new Material(shader, arrowTexture2);
+		floor = new Mesh("Models/Floor10.obj");
+		chest = new Mesh("Models/Chest.obj");
+		arm = new Mesh("Models/Arm.obj");
+		hand = new Mesh("Models/Hand.obj");
+		hammer = new Mesh("Models/Ham.obj");
+		leg1 = new Mesh("Models/Leg1.obj");
+		leg2 = new Mesh("Models/Leg2.obj");
+		foot = new Mesh("Models/Foot.obj");
 
-		arrowMesh = new Mesh("Models/Pointer.obj");
-
-		// Create display points.
-		for (int i = 0; i < spline->getNumPoints(); i++) {
-			// Create blue arrow at control points.
-			GameObject *arrow = new GameObject();
-			arrow->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial);
-			arrow->transform.setPosition(spline->getPosition(i));
-			arrow->transform.setForward(cinterp->getTangent(i));
-			add(arrow);
-
-			
-		}
-
-		// Create point objects to show curve
-		for (int i = 0; i < 40; i++) {
-			GameObject *arrow2 = new GameObject();
-			arrow2->addComponent<MeshRenderer>()->init(arrowMesh, arrowMaterial2);
-
-			add(arrow2);
-
-			points[i] = arrow2;
-
-			float u = cinterp->arcToU(i / 40.0f);
-			Vector3 v = cinterp->getLocation(u);
-
-			MyQuaternion q = rinterp->getRotation(u);
-
-			points[i]->transform.setPosition(v);
-			points[i]->transform.setRotation(Quaternion(q.w, q.xyz.x, q.xyz.y, q.xyz.z));
-		}
+		
 
 		// Create the spinning monkey object.
-		GameObject *bob = new GameObject();
-		bob->addComponent<MeshRenderer>()->init(mesh, material);
-		bob->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
-		bob->addComponent<SplineSwapComponent>()->init(binterp, points, 40);
+		GameObject *slamough = new GameObject();
+		slamough->addComponent<MeshRenderer>()->init(chest, goldMat);
+		slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
@@ -186,7 +161,7 @@ public:
 		Light *l2 = light2->addComponent<Light>();
 		
 		// Track these objects so they will be destroyed when the scene is depopulated.
-		add(bob);
+		add(slamough);
 		add(camera);
 		add(light2);
 	}
@@ -196,17 +171,9 @@ public:
 	void depopulate() {
 		Scene::depopulate(); // Delete objects
 
-		// Free assets
-		delete mesh;
-		delete material;
-		delete texture;
-
-		delete arrowMesh;
-		delete arrowMaterial;
-		delete arrowMaterial2;
-		delete arrowTexture;
-		delete arrowTexture2;
-
+		delete chest, arm, hand, hammer, leg1, leg2, foot, floor;
+		delete goldMat, floorMat;
+		delete goldTexture, floorTexture;
 		delete shader;
 	}
 };
