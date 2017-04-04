@@ -71,7 +71,7 @@ namespace spectra {
 			viewportState.viewportCount = 1;
 			viewportState.pViewports = &viewport;
 			viewportState.scissorCount = 1;
-			viewportState.pScissors = &scissor;
+			viewportState.pScissors = &scissor; 
 
 			VkPipelineRasterizationStateCreateInfo rasterizer = {};
 			rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
