@@ -28,7 +28,9 @@
     <ClCompile Include="SplineMovementComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BoneRotation.cpp" />
+    <ClCompile Include="BoneRotation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyQuaternion.h">
