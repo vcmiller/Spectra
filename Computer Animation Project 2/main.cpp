@@ -91,6 +91,7 @@ class CameraControl : public Component {
 	}
 };
 
+// Create new GameObject with given mesh, and assign it's parent.
 GameObject* createChild(GameObject* parent, Mesh* mesh, Material* material, Vector3 localPos) {
 	GameObject *obj = new GameObject();
 	obj->addComponent<MeshRenderer>()->init(mesh, material);
@@ -152,30 +153,34 @@ public:
 		floor->transform.setPosition(Vector3(0, -6, 0));
 		
 
-		// Create the spinning monkey object.
+		// Create the character object.
 		GameObject *slamough = new GameObject();
 		slamough->addComponent<MeshRenderer>()->init(chestMesh, goldMat);
 		slamough->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
 		slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, nullptr);
 
+		// Right leg
 		GameObject* rightLeg1 = createChild(slamough, leg1Mesh, goldMat, Vector3(0.9f, -2.5f, 0.2f));
 		GameObject* rightLeg2 = createChild(rightLeg1, leg2Mesh, goldMat, Vector3(0.3f, -1.3f, 0.2f));
 		GameObject* rightFoot = createChild(rightLeg2, footMesh, goldMat, Vector3(0.0f, -1.3f, -0.4f));
 
+		// Left leg
 		GameObject* leftLeg1 = createChild(slamough, leg1Mesh, goldMat, Vector3(-0.9f, -2.5f, 0.2f));
 		GameObject* leftLeg2 = createChild(leftLeg1, leg2Mesh, goldMat, Vector3(0.3f, -1.3f, 0.2f));
 		GameObject* leftFoot = createChild(leftLeg2, footMesh, goldMat, Vector3(0.0f, -1.3f, -0.4f));
-		leftLeg1->transform.setLocalScale(Vector3(-1, 1, 1));
+		leftLeg1->transform.setLocalScale(Vector3(-1, 1, 1)); // Flip the x scale.
 
+		// Right arm
 		GameObject* rightArm = createChild(slamough, armMesh, goldMat, Vector3(1.5f, -0.1f, -0.2f));
 		GameObject* rightHand = createChild(rightArm, handMesh, goldMat, Vector3(1.0f, -1.0f, 0.0f));
 
+		// Left arm + hammer
 		GameObject* leftArm = createChild(slamough, armMesh, goldMat, Vector3(-1.5f, -0.1f, -0.2f));
 		GameObject* leftHand = createChild(leftArm, handMesh, goldMat, Vector3(1.0f, -1.0f, 0.0f));
 		GameObject* hammer = createChild(leftHand, hammerMesh, goldMat, Vector3(-1.0f, 0.0f, 1.5f));
-		leftArm->transform.setLocalScale(Vector3(-1, 1, 1));
+		leftArm->transform.setLocalScale(Vector3(-1, 1, 1)); // Flip the x scale.
 
-
+		// Add rotation components to the legs.
 		rightLeg1->addComponent<BoneRotation>()->init([](float time) {
 			return Quaternion::euler(Vector3(FMath::sin(time * 4) / 2, 0, 0));
 		});
