@@ -118,4 +118,18 @@ namespace spectra {
 
 		return angleAxis(angle, axis);
 	}
+	Quaternion Quaternion::lookRotation(const Vector3 & direction, const Vector3 & up) {
+		Vector3 right = Vector3::cross(direction, up).normalized();
+		Vector3 trueUp = Vector3::cross(right, direction).normalized();
+		Vector3 forward = direction.normalized();
+
+		Quaternion ret;
+		ret.w = FMath::sqrt(1.0f + right.x + up.y + forward.z) * 0.5f;
+		float recip = 1.0f / (4.0f * ret.w);
+		ret.x = (forward.y - trueUp.z) * recip;
+		ret.y = (right.z - forward.x) * recip;
+		ret.z = (trueUp.x - right.y) * recip;
+
+		return ret;
+	}
 }

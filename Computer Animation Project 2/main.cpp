@@ -91,11 +91,6 @@ class CameraControl : public Component {
 	}
 };
 
-// Maps time to distance with ease in / ease out.
-float timeFunc(float f) {
-	return -2.0f * f * f * f + 3.0f * f * f;
-}
-
 GameObject* createChild(GameObject* parent, Mesh* mesh, Material* material, Vector3 localPos) {
 	GameObject *obj = new GameObject();
 	obj->addComponent<MeshRenderer>()->init(mesh, material);
@@ -129,7 +124,7 @@ public:
 
 	void populate() {
 		// Load spline
-		Spline * spline = new Spline("Splines/spline1.txt");
+		Spline * spline = new Spline("Splines/spline2.txt");
 
 		CatmullRomInterpolator *cinterp = new CatmullRomInterpolator(spline);
 		RotationInterpolator *rinterp = new RotationInterpolator(spline);
@@ -161,7 +156,7 @@ public:
 		GameObject *slamough = new GameObject();
 		slamough->addComponent<MeshRenderer>()->init(chestMesh, goldMat);
 		slamough->transform.setRotation(Quaternion::euler(Vector3(0, FMath::halfCircle, 0)));
-		//slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, &timeFunc);
+		slamough->addComponent<SplineMovementComponent>()->init(cinterp, rinterp, nullptr);
 
 		GameObject* rightLeg1 = createChild(slamough, leg1Mesh, goldMat, Vector3(0.9f, -2.5f, 0.2f));
 		GameObject* rightLeg2 = createChild(rightLeg1, leg2Mesh, goldMat, Vector3(0.3f, -1.3f, 0.2f));

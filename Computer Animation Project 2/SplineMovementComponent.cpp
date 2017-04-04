@@ -38,8 +38,8 @@ void SplineMovementComponent::update() {
 	// Map time position into [0, 1]
 	float tNorm = timePosition / path->getTimeLimit();
 
-	float a = timeFunc(tNorm); // Time to arc
-	float u = path->arcToU(a); // Arc to param
+	//float a = timeFunc(tNorm); // Time to arc
+	//float u = path->arcToU(a); // Arc to param
 	Vector3 sPos = path->getLocation(tNorm); // Get location
 	MyQuaternion q = rotation->getRotation(tNorm); // Get rotation
 	

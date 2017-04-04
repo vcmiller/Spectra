@@ -159,6 +159,10 @@ namespace spectra {
 		ubo.view = transform.worldToLocalMatrix().mat;
 		ubo.proj = projection.mat;
 
+		Vector3 vec = transform.getPosition();
+
+		ubo.pos = glm::vec3(vec.x, vec.y, vec.z);
+
 		void* data;
 		vkMapMemory(device->getDevice(), matrixBuffer.getMemory(), 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));

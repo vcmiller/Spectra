@@ -70,7 +70,7 @@ MyQuaternion MyQuaternion::slerp(const MyQuaternion & a, const MyQuaternion & b,
 	float ang = angle(a, b2);
 
 	// Slerp function will return NaN for angle=0, so check that as a special case.
-	if (ang == 0) {
+	if (ang == 0 || FMath::isNAN(ang)) {
 		return a;
 	}
 

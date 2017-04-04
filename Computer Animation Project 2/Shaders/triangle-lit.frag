@@ -12,6 +12,7 @@ layout(set = 3, binding = 3) uniform LightInfo {
 layout(location = 0) in vec2 fragTexCoord;
 layout(location = 1) in vec3 fragNormal;
 layout(location = 2) in vec3 fragPosition;
+layout(location = 3) in vec3 viewPosition;
 
 layout(location = 0) out vec4 outColor;
 
@@ -35,8 +36,16 @@ void main() {
 
 	lightDirWorld = normalize(lightDirWorld);
 
+	vec3 reflection = reflect(lightDirWorld, fragNormal);
+
 	float dp = clamp(dot(normalize(fragNormal), -lightDirWorld), 0, 1);
     float diffuse = dp * intensity * light.intensity;
 
+	float dp2 = clamp(dot(normalize(reflection), normalize(viewPosition - fragPosition)), 0, 1);
+	float spec = pow(dp2 * light.intensity, 256);
+
     outColor = texture(texSampler, fragTexCoord) * diffuse * vec4(light.color, 1.0);
+	outColor += spec * vec4(light.color, 1.0);
+
+	//outColor = vec4(viewPosition, 1.0f);
 }

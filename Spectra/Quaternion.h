@@ -69,6 +69,8 @@ namespace spectra {
 		// Return a quaternion that will rotate from one direction to another.
 		static Quaternion fromToRotation(const Vector3 &v1, const Vector3 &v2);
 
+		static Quaternion lookRotation(const Vector3& direction, const Vector3& up);
+
 		float &x = quat.x;
 		float &y = quat.y;
 		float &z = quat.z;

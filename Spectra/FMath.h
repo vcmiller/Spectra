@@ -47,6 +47,9 @@ namespace spectra {
 		// Convert degrees to radians.
 		static const float toDegrees;
 
+		// Check if not a number.
+		static bool isNAN(float f);
+
 		// Compute sign value (-1 or 1).
 		static float sign(float f);
 

@@ -25,6 +25,10 @@ namespace spectra {
 	const float FMath::toRadians = pi / 180.0f;
 	const float FMath::toDegrees = 180.0f / pi;
 
+	bool FMath::isNAN(float f) {
+		return std::isnan(f);
+	}
+
 	float FMath::sign(float f) {
 		if (f < 0) {
 			return -1.0f;
