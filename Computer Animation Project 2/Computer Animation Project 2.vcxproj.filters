@@ -28,6 +28,7 @@
     <ClCompile Include="SplineMovementComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BoneRotation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyQuaternion.h">
@@ -54,10 +55,7 @@
     <ClInclude Include="SplineMovementComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BSplineInterpolator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SplineSwapComponent.h">
+    <ClInclude Include="BoneRotation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

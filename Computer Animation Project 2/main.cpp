@@ -41,6 +41,7 @@
 #include "Spline.h"
 #include "CatmullRomInterpolator.h"
 #include "SplineMovementComponent.h"
+#include "BoneRotation.h"
 
 using namespace spectra;
 using namespace std;
@@ -151,6 +152,9 @@ public:
 		leg2Mesh = new Mesh("Models/Leg2.obj");
 		footMesh = new Mesh("Models/Foot.obj");
 
+		GameObject* floor = new GameObject();
+		floor->addComponent<MeshRenderer>()->init(floorMesh, floorMat);
+		floor->transform.setPosition(Vector3(0, -6, 0));
 		
 
 		// Create the spinning monkey object.
@@ -168,6 +172,38 @@ public:
 		GameObject* leftFoot = createChild(leftLeg2, footMesh, goldMat, Vector3(0.0f, -1.3f, -0.4f));
 		leftLeg1->transform.setLocalScale(Vector3(-1, 1, 1));
 
+		GameObject* rightArm = createChild(slamough, armMesh, goldMat, Vector3(1.5f, -0.1f, -0.2f));
+		GameObject* rightHand = createChild(rightArm, handMesh, goldMat, Vector3(1.0f, -1.0f, 0.0f));
+
+		GameObject* leftArm = createChild(slamough, armMesh, goldMat, Vector3(-1.5f, -0.1f, -0.2f));
+		GameObject* leftHand = createChild(leftArm, handMesh, goldMat, Vector3(1.0f, -1.0f, 0.0f));
+		GameObject* hammer = createChild(leftHand, hammerMesh, goldMat, Vector3(-1.0f, 0.0f, 1.5f));
+		leftArm->transform.setLocalScale(Vector3(-1, 1, 1));
+
+
+		rightLeg1->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(FMath::sin(time * 4) / 2, 0, 0));
+		});
+
+		rightLeg2->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(FMath::cos(time * 4) / -1.5f, 0, 0));
+		});
+
+		rightFoot->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(FMath::sin(time * 4 - 2) / -2, 0, 0));
+		});
+
+		leftLeg1->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(-FMath::sin(time * 4) / 2, 0, 0));
+		});
+
+		leftLeg2->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(-FMath::cos(time * 4) / -1.5f, 0, 0));
+		});
+
+		leftFoot->addComponent<BoneRotation>()->init([](float time) {
+			return Quaternion::euler(Vector3(-FMath::sin(time * 4 - 2) / -2, 0, 0));
+		});
 
 		// Create a camera.
 		GameObject *camera = new GameObject();
