@@ -8,7 +8,7 @@
 namespace spectra {
 	template <class T> class ObjectSet {
 	public:
-		ObjectSet(int initialCapacity = 128) {
+		ObjectSet(int initialCapacity = 256) {
 			items = new T*[initialCapacity];
 			arraySize = initialCapacity;
 			count = 0;
@@ -67,7 +67,6 @@ namespace spectra {
 			items = new T*[newSize];
 			std::memcpy(items, old, arraySize * sizeof(T));
 			arraySize = newSize;
-
 			delete old;
 		}
 
